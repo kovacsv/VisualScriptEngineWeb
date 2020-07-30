@@ -14,6 +14,7 @@ set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 set (CMAKE_SUPPRESS_REGENERATION 1)
 set (CMAKE_CONFIGURATION_TYPES Debug;Release;RelWithDebInfo)
 set (CMAKE_DEBUG_POSTFIX "Debug")
+set (VSE_DEVKIT_DIR $ENV{VSE_DEVKIT_DIR} CACHE PATH "VisualScriptEngine devkit directory.")
 
 add_definitions (-DUNICODE -D_UNICODE)
 
@@ -28,19 +29,34 @@ link_directories (${SDLTTFLibFolder}/lib/x64)
 # WebApp
 
 set (WebAppSourcesFolder Sources/WebApp)
-file (GLOB WebAppHeaderFiles ${WebAppSourcesFolder}/*.hpp)
-file (GLOB WebAppSourceFiles ${WebAppSourcesFolder}/*.cpp)
+file (GLOB
+	WebAppClientFiles
+	${WebAppSourcesFolder}/*.hpp
+	${WebAppSourcesFolder}/*.cpp
+)
+file (GLOB
+	VisualScriptEngineFiles
+	${VSE_DEVKIT_DIR}/include/NE_*.hpp
+	${VSE_DEVKIT_DIR}/source/NE_*.cpp
+	${VSE_DEVKIT_DIR}/include/NUIE_*.hpp
+	${VSE_DEVKIT_DIR}/source/NUIE_*.cpp
+	${VSE_DEVKIT_DIR}/include/BI_*.hpp
+	${VSE_DEVKIT_DIR}/source/BI_*.cpp
+)
 set (
 	WebAppFiles
-	${WebAppHeaderFiles}
-	${WebAppSourceFiles}
+	${WebAppClientFiles}
+	${VisualScriptEngineFiles}
 )
 source_group ("Sources" FILES ${WebAppFiles})
+source_group ("VisualScriptEngine" FILES ${VisualScriptEngineFiles})
 add_executable (WebApp ${WebAppFiles})
 set_target_properties (WebApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+target_include_directories (WebApp PUBLIC ${VSE_DEVKIT_DIR}/include)
 if (${EMSCRIPTEN})
 	target_compile_options (WebApp PUBLIC -sUSE_SDL=2 -sUSE_SDL_TTF=2)
 	target_link_options (WebApp PUBLIC -sUSE_SDL=2 -sUSE_SDL_TTF=2 --preload-file Assets)
+	add_definitions (-DSIZEOFSIZET=4)
 else ()
 	set_target_properties (WebApp PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
 	target_include_directories (WebApp PUBLIC ${SDLLibFolder}/include ${SDLTTFLibFolder}/include)

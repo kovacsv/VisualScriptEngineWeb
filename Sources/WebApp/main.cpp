@@ -5,21 +5,126 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-class SDLContext
+#include "NUIE_NodeEditor.hpp"
+#include "BI_BuiltInNodes.hpp"
+#include "SDL2Context.hpp"
+
+class MyNodeUIEnvironment : public NUIE::NodeUIEnvironment
 {
 public:
-	SDLContext () :
-		renderer (nullptr)
+	MyNodeUIEnvironment (int width, int height, SDL_Renderer* renderer) :
+		NUIE::NodeUIEnvironment (),
+		stringConverter (NE::GetDefaultStringConverter ()),
+		skinParams (NUIE::GetDefaultSkinParams ()),
+		drawingContext (width, height, renderer),
+		eventHandler (),
+		clipboardHandler (),
+		evaluationEnv (nullptr),
+		nodeEditor (nullptr)
 	{
 
 	}
 
-	SDL_Renderer*	renderer;
+	void Init (NUIE::NodeEditor* nodeEditorPtr)
+	{
+		nodeEditor = nodeEditorPtr;
+	}
+	
+	virtual const NE::StringConverter& GetStringConverter () override
+	{
+		return stringConverter;
+	}
+
+	virtual const NUIE::SkinParams& GetSkinParams () override
+	{
+		return skinParams;
+	}
+
+	virtual NUIE::DrawingContext& GetDrawingContext () override
+	{
+		return drawingContext;
+	}
+
+	virtual double GetWindowScale () override
+	{
+		return 1.0;
+	}
+
+	virtual NE::EvaluationEnv& GetEvaluationEnv () override
+	{
+		return evaluationEnv;
+	}
+
+	virtual void OnEvaluationBegin () override
+	{
+
+	}
+
+	virtual void OnEvaluationEnd () override
+	{
+
+	}
+
+	virtual void OnValuesRecalculated () override
+	{
+
+	}
+
+	virtual void OnRedrawRequested () override
+	{
+		nodeEditor->Draw ();
+	}
+
+	virtual NUIE::EventHandler& GetEventHandler () override
+	{
+		return eventHandler;
+	}
+
+	virtual NUIE::ClipboardHandler& GetClipboardHandler () override
+	{
+		return clipboardHandler;
+	}
+
+	virtual double GetMouseMoveMinOffset () override
+	{
+		return 2.0;
+	}
+
+private:
+	NE::BasicStringConverter		stringConverter;
+	NUIE::BasicSkinParams			skinParams;
+	SDL2Context						drawingContext;
+	NUIE::NullEventHandler			eventHandler;
+	NUIE::MemoryClipboardHandler	clipboardHandler;
+	NE::EvaluationEnv				evaluationEnv;
+	NUIE::NodeEditor*				nodeEditor;
 };
 
-static int x = 0, y = 0;
+class Application
+{
+public:
+	Application (SDL_Renderer* renderer) :
+		renderer (renderer),
+		uiEnvironment (640, 480, renderer),
+		nodeEditor (uiEnvironment)
+	{
+		uiEnvironment.Init (&nodeEditor);
+		nodeEditor.AddNode (NUIE::UINodePtr (new BI::ViewerNode (NE::LocString (L"My Node"), NUIE::Point (100.0, 100.0))));
+	}
 
-static bool MainLoop (SDLContext* context)
+	SDL_Renderer* GetRenderer ()
+	{
+		return renderer;
+	}
+
+private:
+	SDL_Renderer*			renderer;
+
+	MyNodeUIEnvironment		uiEnvironment;
+	NUIE::NodeEditor		nodeEditor;
+};
+
+static bool MainLoop (Application* /*app*/)
 {
 	SDL_Event sdlEvent;
 	if (SDL_PollEvent (&sdlEvent)) {
@@ -28,46 +133,11 @@ static bool MainLoop (SDLContext* context)
 				return false;
 			case SDL_MOUSEMOTION:
 				{
-					x = sdlEvent.motion.x;
-					y = sdlEvent.motion.y;
+
 				}
 				break;
 		}
 	}
-
-	SDL_SetRenderDrawColor (context->renderer, 0, 255, 0, 255);
-	SDL_RenderClear (context->renderer);
-
-	SDL_SetRenderDrawColor (context->renderer, 0, 0, 255, 255);
-	for (int i = 0; i < 100; i++) {
-		for (int j = 0; j < 100; j++) {
-			SDL_Rect r;
-			r.x = x + i * 10;
-			r.y = y + j * 10;
-			r.w = 5;
-			r.h = 5;
-			SDL_RenderFillRect (context->renderer, &r);
-		}
-	}
-
-	SDL_RenderDrawLine (context->renderer, 10, 10, 400, 100);
-
-	TTF_Font* font = TTF_OpenFont ("Assets/FreeSans.ttf", 25);
-	SDL_Color color = { 0, 0, 0, 255 };
-	SDL_Surface * surface = TTF_RenderText_Blended (font, "Black Dog Runs at Night", color);
-	SDL_Texture * texture = SDL_CreateTextureFromSurface (context->renderer, surface);
-
-	int texW = 0;
-	int texH = 0;
-	SDL_QueryTexture (texture, NULL, NULL, &texW, &texH);
-	SDL_Rect dstrect = { 0, 0, texW, texH };
-
-	SDL_RenderCopy (context->renderer, texture, NULL, &dstrect);
-	SDL_DestroyTexture (texture);
-	SDL_FreeSurface (surface);
-	TTF_CloseFont (font);
-
-	SDL_RenderPresent (context->renderer);
 
 	return true;
 }
@@ -75,15 +145,13 @@ static bool MainLoop (SDLContext* context)
 #ifdef EMSCRIPTEN
 static void EmscriptenMainLoop (void* arg)
 {
-	SDLContext* context = (SDLContext*) arg;
-	MainLoop (context);
+	Application* app = (Application*) arg;
+	MainLoop (app);
 }
 #endif
 
 int main (int, char**)
 {
-	SDLContext context;
-
 	SDL_Init (SDL_INIT_VIDEO);
 	TTF_Init ();
 
@@ -91,13 +159,13 @@ int main (int, char**)
 	SDL_Renderer *renderer;
 	SDL_CreateWindowAndRenderer (640, 480, 0, &window, &renderer);
 	
-	context.renderer = renderer;
+	Application app (renderer);
 
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop_arg (EmscriptenMainLoop, &context, 0, true);
+	emscripten_set_main_loop_arg (EmscriptenMainLoop, &app, 0, true);
 #else
 	while (true) {
-		if (!MainLoop (&context)) {
+		if (!MainLoop (&app)) {
 			break;
 		}
 	}
