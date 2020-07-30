@@ -1,4 +1,8 @@
 #include "SDL2Context.hpp"
+#include "NE_StringUtils.hpp"
+
+#include <SDL_ttf.h>
+#include <cmath>
 
 static SDL_Rect CreateRect (const NUIE::Rect& rect)
 {
@@ -86,14 +90,54 @@ void SDL2Context::FillEllipse (const NUIE::Rect& /*rect*/, const NUIE::Color& /*
 
 }
 
-void SDL2Context::DrawFormattedText (const NUIE::Rect& /*rect*/, const NUIE::Font& /*font*/, const std::wstring& /*text*/, NUIE::HorizontalAnchor /*hAnchor*/, NUIE::VerticalAnchor /*vAnchor*/, const NUIE::Color& /*textColor*/)
+void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& font, const std::wstring& text, NUIE::HorizontalAnchor hAnchor, NUIE::VerticalAnchor vAnchor, const NUIE::Color& textColor)
 {
+	TTF_Font* ttfFont = TTF_OpenFont ("Assets/FreeSans.ttf", (int) font.GetSize ());
 
+	std::string textStr = NE::WStringToString (text);
+	SDL_Color sdlColor = { textColor.GetR (), textColor.GetG (), textColor.GetB (), 255 };
+	SDL_Surface* surface = TTF_RenderUTF8_Blended (ttfFont, textStr.c_str (), sdlColor);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface (renderer, surface);
+
+	int textWidth = 0;
+	int textHeight = 0;
+	SDL_QueryTexture (texture, NULL, NULL, &textWidth, &textHeight);
+
+	SDL_Rect originalRect = CreateRect (rect);
+	SDL_Rect textRect = { originalRect.x, originalRect.y, textWidth, textHeight };
+
+	if (hAnchor == NUIE::HorizontalAnchor::Left) {
+		// nothing to do
+	} else if (hAnchor == NUIE::HorizontalAnchor::Center) {
+		textRect.x += (int) std::floor (((double) originalRect.w - (double) textRect.w) / 2.0);
+	} else if (hAnchor == NUIE::HorizontalAnchor::Right) {
+		textRect.x += originalRect.w - textRect.w;
+	}
+
+	if (vAnchor == NUIE::VerticalAnchor::Top) {
+		// nothing to do
+	} else if (vAnchor == NUIE::VerticalAnchor::Center) {
+		textRect.y += (int) std::floor (((double) originalRect.h - (double) textRect.h) / 2.0);
+	} else if (vAnchor == NUIE::VerticalAnchor::Bottom) {
+		textRect.y += originalRect.h - textRect.h;
+	}
+
+	SDL_RenderCopy (renderer, texture, NULL, &textRect);
+
+	SDL_DestroyTexture (texture);
+	SDL_FreeSurface (surface);
+	TTF_CloseFont (ttfFont);
 }
 
-NUIE::Size SDL2Context::MeasureText (const NUIE::Font& /*font*/, const std::wstring& /*text*/)
+NUIE::Size SDL2Context::MeasureText (const NUIE::Font& font, const std::wstring& text)
 {
-	return NUIE::Size (50, 10);
+	TTF_Font* ttfFont = TTF_OpenFont ("Assets/FreeSans.ttf", (int) font.GetSize ());
+	std::string textStr = NE::WStringToString (text);
+	int textWidth = 0;
+	int textHeight = 0;
+	TTF_SizeText (ttfFont, textStr.c_str (), &textWidth, &textHeight);
+	TTF_CloseFont (ttfFont);
+	return NUIE::Size (textWidth, textHeight);
 }
 
 bool SDL2Context::CanDrawIcon ()
