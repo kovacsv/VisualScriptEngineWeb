@@ -109,12 +109,18 @@ public:
 		nodeEditor (uiEnvironment)
 	{
 		uiEnvironment.Init (&nodeEditor);
-		nodeEditor.AddNode (NUIE::UINodePtr (new BI::ViewerNode (NE::LocString (L"My Node"), NUIE::Point (100.0, 100.0))));
+		nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), NUIE::Point (100.0, 100.0), 0, 1)));
+		nodeEditor.AddNode (NUIE::UINodePtr (new BI::ViewerNode (NE::LocString (L"Viewer"), NUIE::Point (300.0, 200.0))));
 	}
 
 	SDL_Renderer* GetRenderer ()
 	{
 		return renderer;
+	}
+
+	NUIE::NodeEditor& GetNodeEditor ()
+	{
+		return nodeEditor;
 	}
 
 private:
@@ -124,16 +130,42 @@ private:
 	NUIE::NodeEditor		nodeEditor;
 };
 
-static bool MainLoop (Application* /*app*/)
+static NUIE::MouseButton GetMouseButtonFromEvent (const SDL_Event& sdlEvent)
 {
+	if (sdlEvent.button.button == 1) {
+		return NUIE::MouseButton::Left;
+	} else if (sdlEvent.button.button == 2) {
+		return NUIE::MouseButton::Middle;
+	} else if (sdlEvent.button.button == 3) {
+		return NUIE::MouseButton::Right;
+	}
+	return NUIE::MouseButton::Left;
+}
+
+static bool MainLoop (Application* app)
+{
+	NUIE::NodeEditor& nodeEditor = app->GetNodeEditor ();
+
 	SDL_Event sdlEvent;
 	if (SDL_PollEvent (&sdlEvent)) {
 		switch (sdlEvent.type) {
 			case SDL_QUIT:
 				return false;
+			case SDL_MOUSEBUTTONDOWN:
+				{
+					NUIE::MouseButton button = GetMouseButtonFromEvent (sdlEvent);
+					nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+				}
+				break;
+			case SDL_MOUSEBUTTONUP:
+				{
+					NUIE::MouseButton button = GetMouseButtonFromEvent (sdlEvent);
+					nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+				}
+				break;
 			case SDL_MOUSEMOTION:
 				{
-
+					nodeEditor.OnMouseMove (NUIE::EmptyModifierKeys, sdlEvent.motion.x, sdlEvent.motion.y);
 				}
 				break;
 		}

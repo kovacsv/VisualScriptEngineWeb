@@ -4,6 +4,8 @@
 #include <SDL_ttf.h>
 #include <cmath>
 
+static const float SafetyTextRatio = 1.2f;
+
 static SDL_Rect CreateRect (const NUIE::Rect& rect)
 {
 	SDL_Rect sdlRect;
@@ -137,7 +139,7 @@ NUIE::Size SDL2Context::MeasureText (const NUIE::Font& font, const std::wstring&
 	int textHeight = 0;
 	TTF_SizeText (ttfFont, textStr.c_str (), &textWidth, &textHeight);
 	TTF_CloseFont (ttfFont);
-	return NUIE::Size (textWidth, textHeight);
+	return NUIE::Size (textWidth * SafetyTextRatio, textHeight);
 }
 
 bool SDL2Context::CanDrawIcon ()
