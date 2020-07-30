@@ -2,9 +2,25 @@
 #include "NE_StringUtils.hpp"
 
 #include <SDL_ttf.h>
+
+#include <vector>
 #include <cmath>
 
 static const float SafetyTextRatio = 1.2f;
+
+// TODO: Move to VisualScriptEngine
+static std::vector<NUIE::Point> SegmentBezier (size_t segmentCount, const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4)
+{
+	std::vector<NUIE::Point> points;
+	double tStep = 1.0 / segmentCount;
+	for (size_t i = 0; i <= segmentCount; i++) {
+		double t = i * tStep;
+		double ti = 1.0 - t;
+		NUIE::Point pt = p1 * std::pow (ti, 3) + p2 * (3.0 * std::pow (ti, 2) * t) + p3 * (3.0 * ti * std::pow (t, 2)) + p4 * std::pow (t, 3);
+		points.push_back (pt);
+	}
+	return points;
+}
 
 static SDL_Point CreatePoint (const NUIE::Point& point)
 {
@@ -77,10 +93,16 @@ void SDL2Context::DrawLine (const NUIE::Point& beg, const NUIE::Point& end, cons
 
 void SDL2Context::DrawBezier (const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4, const NUIE::Pen& pen)
 {
-	// TODO
-	DrawLine (p1, p2, pen);
-	DrawLine (p2, p3, pen);
-	DrawLine (p3, p4, pen);
+	std::vector<NUIE::Point> points = SegmentBezier (20, p1, p2, p3, p4);
+
+	std::vector<SDL_Point> sdlPoints;
+	for (const NUIE::Point& point : points) {
+		sdlPoints.push_back (CreatePoint (point));
+	}
+
+	const NUIE::Color& color = pen.GetColor ();
+	SDL_SetRenderDrawColor (renderer, color.GetR (), color.GetG (), color.GetB (), 255);
+	SDL_RenderDrawLines (renderer, &sdlPoints[0], (int) sdlPoints.size ());
 }
 
 void SDL2Context::DrawRect (const NUIE::Rect& rect, const NUIE::Pen& pen)
@@ -112,6 +134,7 @@ void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& f
 {
 	TTF_Font* ttfFont = TTF_OpenFont ("Assets/FreeSans.ttf", (int) font.GetSize ());
 
+	// TODO: cache font and texture
 	std::string textStr = NE::WStringToString (text);
 	SDL_Color sdlColor = { textColor.GetR (), textColor.GetG (), textColor.GetB (), 255 };
 	SDL_Surface* surface = TTF_RenderUTF8_Blended (ttfFont, textStr.c_str (), sdlColor);
