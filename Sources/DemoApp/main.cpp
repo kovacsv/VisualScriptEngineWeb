@@ -37,14 +37,18 @@ static bool MainLoop (SDLContext* context)
 	SDL_SetRenderDrawColor (context->renderer, 0, 255, 0, 255);
 	SDL_RenderClear (context->renderer);
 
-	SDL_Rect r;
-	r.x = x;
-	r.y = y;
-	r.w = 50;
-	r.h = 50;
 
 	SDL_SetRenderDrawColor (context->renderer, 0, 0, 255, 255);
-	SDL_RenderFillRect (context->renderer, &r);
+	for (int i = 0; i < 100; i++) {
+		for (int j = 0; j < 100; j++) {
+			SDL_Rect r;
+			r.x = x + i * 10;
+			r.y = y + j * 10;
+			r.w = 5;
+			r.h = 5;
+			SDL_RenderFillRect (context->renderer, &r);
+		}
+	}
 
 	SDL_RenderPresent (context->renderer);
 
