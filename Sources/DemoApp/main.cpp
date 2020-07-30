@@ -50,6 +50,21 @@ static bool MainLoop (SDLContext* context)
 		}
 	}
 
+	TTF_Font* font = TTF_OpenFont ("Assets/FreeSans.ttf", 25);
+	SDL_Color color = { 0, 0, 0, 255 };
+	SDL_Surface * surface = TTF_RenderText_Blended (font, "Black Dog Runs at Night", color);
+	SDL_Texture * texture = SDL_CreateTextureFromSurface (context->renderer, surface);
+
+	int texW = 0;
+	int texH = 0;
+	SDL_QueryTexture (texture, NULL, NULL, &texW, &texH);
+	SDL_Rect dstrect = { 0, 0, texW, texH };
+
+	SDL_RenderCopy (context->renderer, texture, NULL, &dstrect);
+	SDL_DestroyTexture (texture);
+	SDL_FreeSurface (surface);
+	TTF_CloseFont (font);
+
 	SDL_RenderPresent (context->renderer);
 
 	return true;

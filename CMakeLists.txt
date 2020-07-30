@@ -40,7 +40,7 @@ add_executable (DemoApp ${DemoAppFiles})
 set_target_properties (DemoApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
 if (${EMSCRIPTEN})
 	target_compile_options (DemoApp PUBLIC -sUSE_SDL=2 -sUSE_SDL_TTF=2)
-	target_link_options (DemoApp PUBLIC -sUSE_SDL=2 -sUSE_SDL_TTF=2)
+	target_link_options (DemoApp PUBLIC -sUSE_SDL=2 -sUSE_SDL_TTF=2 --preload-file Assets)
 else ()
 	set_target_properties (DemoApp PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
 	target_include_directories (DemoApp PUBLIC ${SDLLibFolder}/include ${SDLTTFLibFolder}/include)
@@ -54,4 +54,10 @@ else ()
 		COMMAND ${CMAKE_COMMAND} -E copy "${LibFreeTypeDllFullPath}" $<TARGET_FILE_DIR:DemoApp>
 	)
 endif ()
+get_filename_component (SourcesFolderAbsolute "${DemoAppSourcesFolder}" ABSOLUTE)
+add_custom_command (TARGET DemoApp PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory "${SourcesFolderAbsolute}/Assets" $<TARGET_FILE_DIR:DemoApp>/Assets
+	COMMAND ${CMAKE_COMMAND} -E copy_directory "${SourcesFolderAbsolute}/Assets" ${CMAKE_BINARY_DIR}/Assets
+)
+
 SetCompilerOptions (DemoApp)
