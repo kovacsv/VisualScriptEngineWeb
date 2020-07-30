@@ -3,6 +3,7 @@
 	#include <emscripten.h>
 #endif
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 class SDLContext
 {
@@ -37,7 +38,6 @@ static bool MainLoop (SDLContext* context)
 	SDL_SetRenderDrawColor (context->renderer, 0, 255, 0, 255);
 	SDL_RenderClear (context->renderer);
 
-
 	SDL_SetRenderDrawColor (context->renderer, 0, 0, 255, 255);
 	for (int i = 0; i < 100; i++) {
 		for (int j = 0; j < 100; j++) {
@@ -68,6 +68,8 @@ int main (int, char**)
 	SDLContext context;
 
 	SDL_Init (SDL_INIT_VIDEO);
+	TTF_Init ();
+
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_CreateWindowAndRenderer (640, 480, 0, &window, &renderer);
@@ -86,6 +88,8 @@ int main (int, char**)
 
 	SDL_DestroyRenderer (renderer);
 	SDL_DestroyWindow (window);
+
+	TTF_Quit ();
 	SDL_Quit ();
 
 	std::cout << ("hello") << std::endl;
