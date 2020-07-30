@@ -50,6 +50,8 @@ static bool MainLoop (SDLContext* context)
 		}
 	}
 
+	SDL_RenderDrawLine (context->renderer, 10, 10, 400, 100);
+
 	TTF_Font* font = TTF_OpenFont ("Assets/FreeSans.ttf", 25);
 	SDL_Color color = { 0, 0, 0, 255 };
 	SDL_Surface * surface = TTF_RenderText_Blended (font, "Black Dog Runs at Night", color);
