@@ -6,6 +6,15 @@
 
 static const float SafetyTextRatio = 1.2f;
 
+static SDL_Point CreatePoint (const NUIE::Point& point)
+{
+	SDL_Point sdlPoint;
+	NUIE::IntPoint intPoint (point);
+	sdlPoint.x = intPoint.GetX ();
+	sdlPoint.y = intPoint.GetY ();
+	return sdlPoint;
+}
+
 static SDL_Rect CreateRect (const NUIE::Rect& rect)
 {
 	SDL_Rect sdlRect;
@@ -57,14 +66,21 @@ bool SDL2Context::NeedToDraw (ItemPreviewMode)
 	return true;
 }
 
-void SDL2Context::DrawLine (const NUIE::Point& /*beg*/, const NUIE::Point& /*end*/, const NUIE::Pen& /*pen*/)
+void SDL2Context::DrawLine (const NUIE::Point& beg, const NUIE::Point& end, const NUIE::Pen& pen)
 {
-
+	const NUIE::Color& color = pen.GetColor ();
+	SDL_SetRenderDrawColor (renderer, color.GetR (), color.GetG (), color.GetB (), 255);
+	SDL_Point sdlBeg = CreatePoint (beg);
+	SDL_Point sdlEnd = CreatePoint (end);
+	SDL_RenderDrawLine (renderer, sdlBeg.x, sdlBeg.y, sdlEnd.x, sdlEnd.y);
 }
 
-void SDL2Context::DrawBezier (const NUIE::Point& /*p1*/, const NUIE::Point& /*p2*/, const NUIE::Point& /*p3*/, const NUIE::Point& /*p4*/, const NUIE::Pen& /*pen*/)
+void SDL2Context::DrawBezier (const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4, const NUIE::Pen& pen)
 {
-
+	// TODO
+	DrawLine (p1, p2, pen);
+	DrawLine (p2, p3, pen);
+	DrawLine (p3, p4, pen);
 }
 
 void SDL2Context::DrawRect (const NUIE::Rect& rect, const NUIE::Pen& pen)
