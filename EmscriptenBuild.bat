@@ -10,9 +10,9 @@ call emcmake cmake -G "Unix Makefiles" -DEMSCRIPTEN=1 -DCMAKE_MAKE_PROGRAM=mingw
 call emmake mingw32-make
 popd
 
-copy Sources\DemoApp\main.html %2\main.html >NUL
-copy EmBuild\Release\DemoApp.js %2\DemoApp.js >NUL
-copy EmBuild\Release\DemoApp.wasm %2\DemoApp.wasm >NUL
-copy EmBuild\Release\DemoApp.data %2\DemoApp.data >NUL
+copy Sources\WebApp\main.html %2\main.html >NUL
+copy EmBuild\Release\WebApp.js %2\WebApp.js >NUL
+copy EmBuild\Release\WebApp.wasm %2\WebApp.wasm >NUL
+copy EmBuild\Release\WebApp.data %2\WebApp.data >NUL
 
 popd
