@@ -44,8 +44,8 @@ static SDL_Rect CreateRect (const NUIE::Rect& rect)
 }
 
 SDL2Context::SDL2Context (SDL_Renderer* renderer) :
-	width (width),
-	height (height),
+	width (0),
+	height (0),
 	renderer (renderer)
 {
 	SDL_Rect viewRect;
