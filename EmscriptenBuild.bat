@@ -11,7 +11,7 @@ call emmake mingw32-make
 popd
 
 copy Sources\DemoApp\main.html %2\main.html >NUL
-copy EmBuild\DemoApp.js %2\DemoApp.js >NUL
-copy EmBuild\DemoApp.wasm %2\DemoApp.wasm >NUL
+copy EmBuild\Release\DemoApp.js %2\DemoApp.js >NUL
+copy EmBuild\Release\DemoApp.wasm %2\DemoApp.wasm >NUL
 
 popd
