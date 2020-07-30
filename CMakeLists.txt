@@ -21,7 +21,7 @@ project (EmscriptenTest)
 
 set (LibSourcesFolder Libs)
 set (SDLLibFolder ${LibSourcesFolder}/SDL2-2.0.12)
-#link_directories (${SDLLibFolder}/lib/x64)
+link_directories (${SDLLibFolder}/lib/x64)
 
 # DemoApp
 
@@ -36,22 +36,16 @@ set (
 source_group ("Sources" FILES ${DemoAppFiles})
 add_executable (DemoApp ${DemoAppFiles})
 set_target_properties (DemoApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
-#set_target_properties (DemoApp PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
-target_include_directories (
-	DemoApp PUBLIC
-	#${SDLLibFolder}/include
-)
-#target_link_libraries (
-#	DemoApp
-#	SDL2
-#	SDL2main
-#)
 if (${EMSCRIPTEN})
 	target_compile_options (DemoApp PUBLIC -s USE_SDL=2)
 	target_link_options (DemoApp PUBLIC -s USE_SDL=2)
+else ()
+	set_target_properties (DemoApp PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
+	target_include_directories (DemoApp PUBLIC ${SDLLibFolder}/include)
+	target_link_libraries (DemoApp SDL2 SDL2main)
+	get_filename_component (SDLDllFullPath "${SDLLibFolder}/lib/x64/SDL2.dll" ABSOLUTE)
+	add_custom_command (TARGET DemoApp POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLDllFullPath}" $<TARGET_FILE_DIR:DemoApp>
+	)
 endif ()
 SetCompilerOptions (DemoApp)
-#get_filename_component (SDLDllFullPath "${SDLLibFolder}/lib/x64/SDL2.dll" ABSOLUTE)
-#add_custom_command (TARGET DemoApp POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy "${SDLDllFullPath}" $<TARGET_FILE_DIR:DemoApp>
-#)

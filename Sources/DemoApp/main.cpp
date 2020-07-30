@@ -1,5 +1,7 @@
 #include <iostream>
-#include <emscripten.h>
+#ifdef EMSCRIPTEN
+	#include <emscripten.h>
+#endif
 #include <SDL.h>
 
 int main (int, char**)
