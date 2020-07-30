@@ -6,7 +6,8 @@
 #include <vector>
 #include <cmath>
 
-static const float SafetyTextRatio = 1.2f;
+static const float TextRatioX = 1.2f;
+static const float TextRatioY = 0.9f;
 
 // TODO: Move to VisualScriptEngine
 static std::vector<NUIE::Point> SegmentBezier (size_t segmentCount, const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4)
@@ -42,12 +43,15 @@ static SDL_Rect CreateRect (const NUIE::Rect& rect)
 	return sdlRect;
 }
 
-SDL2Context::SDL2Context (int width, int height, SDL_Renderer* renderer) :
+SDL2Context::SDL2Context (SDL_Renderer* renderer) :
 	width (width),
 	height (height),
 	renderer (renderer)
 {
-
+	SDL_Rect viewRect;
+	SDL_RenderGetViewport (renderer, &viewRect);
+	width = viewRect.w;
+	height = viewRect.h;
 }
 
 void SDL2Context::Resize (int newWidth, int newHeight)
@@ -178,7 +182,7 @@ NUIE::Size SDL2Context::MeasureText (const NUIE::Font& font, const std::wstring&
 	int textHeight = 0;
 	TTF_SizeText (ttfFont, textStr.c_str (), &textWidth, &textHeight);
 	TTF_CloseFont (ttfFont);
-	return NUIE::Size (textWidth * SafetyTextRatio, textHeight);
+	return NUIE::Size (textWidth * TextRatioX, textHeight * TextRatioY);
 }
 
 bool SDL2Context::CanDrawIcon ()

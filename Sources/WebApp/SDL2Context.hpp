@@ -7,7 +7,7 @@
 class SDL2Context : public NUIE::DrawingContext
 {
 public:
-	SDL2Context (int width, int height, SDL_Renderer* renderer);
+	SDL2Context (SDL_Renderer* renderer);
 
 	virtual void		Resize (int newWidth, int newHeight) override;
 

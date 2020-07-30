@@ -12,11 +12,11 @@
 class MyNodeUIEnvironment : public NUIE::NodeUIEnvironment
 {
 public:
-	MyNodeUIEnvironment (int width, int height, SDL_Renderer* renderer) :
+	MyNodeUIEnvironment (SDL_Renderer* renderer) :
 		NUIE::NodeUIEnvironment (),
 		stringConverter (NE::GetDefaultStringConverter ()),
 		skinParams (NUIE::GetDefaultSkinParams ()),
-		drawingContext (width, height, renderer),
+		drawingContext (renderer),
 		eventHandler (),
 		clipboardHandler (),
 		evaluationEnv (nullptr),
@@ -105,7 +105,7 @@ class Application
 public:
 	Application (SDL_Renderer* renderer) :
 		renderer (renderer),
-		uiEnvironment (640, 480, renderer),
+		uiEnvironment (renderer),
 		nodeEditor (uiEnvironment)
 	{
 		uiEnvironment.Init (&nodeEditor);
@@ -166,6 +166,18 @@ static bool MainLoop (Application* app)
 			case SDL_MOUSEMOTION:
 				{
 					nodeEditor.OnMouseMove (NUIE::EmptyModifierKeys, sdlEvent.motion.x, sdlEvent.motion.y);
+				}
+				break;
+			case SDL_MOUSEWHEEL:
+				{
+					NUIE::MouseWheelRotation rotation = NUIE::MouseWheelRotation::Forward;
+					if (sdlEvent.wheel.x + sdlEvent.wheel.y < 0) {
+						rotation = NUIE::MouseWheelRotation::Backward;
+					}
+					int mouseX = 0;
+					int mouseY = 0;
+					SDL_GetMouseState (&mouseX, &mouseY);
+					nodeEditor.OnMouseWheel (NUIE::EmptyModifierKeys, rotation, mouseX, mouseY);
 				}
 				break;
 		}
