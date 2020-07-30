@@ -16,14 +16,48 @@ public:
 	SDL_Renderer*	renderer;
 };
 
-void MainLoop (void* arg)
+static int x = 0, y = 0;
+
+static bool MainLoop (SDLContext* context)
 {
-	SDLContext* context = (SDLContext*) arg;
+	SDL_Event sdlEvent;
+	if (SDL_PollEvent (&sdlEvent)) {
+		switch (sdlEvent.type) {
+			case SDL_QUIT:
+				return false;
+			case SDL_MOUSEMOTION:
+				{
+					x = sdlEvent.motion.x;
+					y = sdlEvent.motion.y;
+				}
+				break;
+		}
+	}
+
 	SDL_SetRenderDrawColor (context->renderer, 0, 255, 0, 255);
 	SDL_RenderClear (context->renderer);
 
+	SDL_Rect r;
+	r.x = x;
+	r.y = y;
+	r.w = 50;
+	r.h = 50;
+
+	SDL_SetRenderDrawColor (context->renderer, 0, 0, 255, 255);
+	SDL_RenderFillRect (context->renderer, &r);
+
 	SDL_RenderPresent (context->renderer);
+
+	return true;
 }
+
+#ifdef EMSCRIPTEN
+static void EmscriptenMainLoop (void* arg)
+{
+	SDLContext* context = (SDLContext*) arg;
+	MainLoop (context);
+}
+#endif
 
 int main (int, char**)
 {
@@ -32,12 +66,18 @@ int main (int, char**)
 	SDL_Init (SDL_INIT_VIDEO);
 	SDL_Window *window;
 	SDL_Renderer *renderer;
-	SDL_CreateWindowAndRenderer (255, 255, 0, &window, &renderer);
+	SDL_CreateWindowAndRenderer (640, 480, 0, &window, &renderer);
 	
 	context.renderer = renderer;
 
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop_arg (MainLoop, &context, 0, true);
+	emscripten_set_main_loop_arg (EmscriptenMainLoop, &context, 0, true);
+#else
+	while (true) {
+		if (!MainLoop (&context)) {
+			break;
+		}
+	}
 #endif
 
 	SDL_DestroyRenderer (renderer);
