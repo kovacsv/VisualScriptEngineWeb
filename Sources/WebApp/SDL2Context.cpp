@@ -9,20 +9,6 @@
 static const float TextRatioX = 1.2f;
 static const float TextRatioY = 0.9f;
 
-// TODO: Move to VisualScriptEngine
-static std::vector<NUIE::Point> SegmentBezier (size_t segmentCount, const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4)
-{
-	std::vector<NUIE::Point> points;
-	double tStep = 1.0 / segmentCount;
-	for (size_t i = 0; i <= segmentCount; i++) {
-		double t = i * tStep;
-		double ti = 1.0 - t;
-		NUIE::Point pt = p1 * std::pow (ti, 3) + p2 * (3.0 * std::pow (ti, 2) * t) + p3 * (3.0 * ti * std::pow (t, 2)) + p4 * std::pow (t, 3);
-		points.push_back (pt);
-	}
-	return points;
-}
-
 static SDL_Point CreatePoint (const NUIE::Point& point)
 {
 	SDL_Point sdlPoint;
@@ -97,7 +83,7 @@ void SDL2Context::DrawLine (const NUIE::Point& beg, const NUIE::Point& end, cons
 
 void SDL2Context::DrawBezier (const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4, const NUIE::Pen& pen)
 {
-	std::vector<NUIE::Point> points = SegmentBezier (20, p1, p2, p3, p4);
+	std::vector<NUIE::Point> points = NUIE::SegmentBezier (20, p1, p2, p3, p4);
 
 	std::vector<SDL_Point> sdlPoints;
 	for (const NUIE::Point& point : points) {
