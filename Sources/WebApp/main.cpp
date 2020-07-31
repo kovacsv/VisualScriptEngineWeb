@@ -260,19 +260,37 @@ Application* gAppForBrowser = nullptr;
 extern "C"
 {
 
-void CreateNode ()
+void CreateNode (int nodeIndex)
 {
 	if (gAppForBrowser == nullptr) {
 		return;
 	}
 
+	SDL_Renderer* renderer = gAppForBrowser->GetRenderer ();
 	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-	nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), NUIE::Point (100.0, 100.0), 0, 1)));
+
+	SDL_Rect renderRect;
+	SDL_RenderGetViewport (renderer, &renderRect);
+
+	NUIE::Rect viewRect = NUIE::Rect::FromPositionAndSize (NUIE::Point (0.0, 0.0), NUIE::Size (renderRect.w, renderRect.h));
+	NUIE::Point viewCenter = viewRect.GetCenter ();
+	NUIE::Point position = nodeEditor.ViewToModel (viewCenter);
+
+	switch (nodeIndex) {
+		case 1: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), position, 0, 1))); break;
+		case 2: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleUpDownNode (NE::LocString (L"Number"), position, 0.0, 1.0))); break;
+		case 3: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerIncrementedNode (NE::LocString (L"Integer Increment"), position))); break;
+		case 4: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleIncrementedNode (NE::LocString (L"Number Increment"), position))); break;
+		case 5: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleDistributedNode (NE::LocString (L"Number Distribution"), position))); break;
+		case 6: nodeEditor.AddNode (NUIE::UINodePtr (new BI::AdditionNode (NE::LocString (L"Addition"), position))); break;
+		case 7: nodeEditor.AddNode (NUIE::UINodePtr (new BI::SubtractionNode (NE::LocString (L"Subtraction"), position))); break;
+		case 8: nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiplicationNode (NE::LocString (L"Multiplication"), position))); break;
+		case 9: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DivisionNode (NE::LocString (L"Division"), position))); break;
+		case 10: nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), position, 5))); break;
+	}
 }
 
 };
-
-
 
 int main (int, char**)
 {

@@ -10,10 +10,10 @@
 	<script type='text/javascript'>
 		var Module = null;
 	
-		function CreateNode ()
+		function CreateNode (nodeIndex)
 		{
-			var createNodeFunc = Module.cwrap ('CreateNode', null, []);
-			createNodeFunc ();
+			var createNodeFunc = Module.cwrap ('CreateNode', null, ['number']);
+			createNodeFunc (nodeIndex);
 		}
 	
 		function OnInit (module)
@@ -26,9 +26,22 @@
 	<div class="frame">
 		<div class="title">VisualScriptEngineWeb</div>
 		<div class="text">Some instructional text...</div>
-		<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
+		<div class="editor">
+			<div class="menu">
+				<div class="menuitem" onclick="CreateNode (1)">Integer</div>
+				<div class="menuitem" onclick="CreateNode (2)">Number</div>
+				<div class="menuitem" onclick="CreateNode (3)">Integer Increment</div>
+				<div class="menuitem" onclick="CreateNode (4)">Number Increment</div>
+				<div class="menuitem" onclick="CreateNode (5)">Number Distribution</div>
+				<div class="menuitem" onclick="CreateNode (6)">Addition</div>
+				<div class="menuitem" onclick="CreateNode (7)">Subtraction</div>
+				<div class="menuitem" onclick="CreateNode (8)">Multiplication</div>
+				<div class="menuitem" onclick="CreateNode (9)">Division</div>
+				<div class="menuitem" onclick="CreateNode (10)">Viewer</div>
+			</div>
+			<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
+		</div>
 		<div class="text">Useful links and other stuff...</div>
-		<input type="button" value="ok" onclick="CreateNode ()">
 	</div>
 	<script type='text/javascript'>
 		Module = {

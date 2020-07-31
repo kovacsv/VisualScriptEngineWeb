@@ -8,10 +8,31 @@ html, body
 	padding : 0px;
 }
 
+div.editor
+{
+
+}
+
 div.frame
 {
-	width : 640px;
+	width : 842px;
 	margin : 20px auto;
+}
+
+div.menu
+{
+	width : 200px;
+	float : left;
+}
+
+div.menuitem
+{
+	background : #f6f6f6;
+	margin-bottom : 5px;
+	margin-right : 5px;
+	padding : 5px 10px;
+	cursor : pointer;
+	border : 1px solid #e6e6e6;
 }
 
 div.title
@@ -27,5 +48,5 @@ div.text
 
 canvas
 {
-	border : 1px solid #dddddd;
+	border : 1px solid #dddddd;	
 }
