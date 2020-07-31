@@ -196,6 +196,47 @@ static bool MainLoop (Application* app)
 					nodeEditor.OnMouseWheel (modifierKeys, rotation, mouseX, mouseY);
 				}
 				break;
+			case SDL_KEYDOWN:
+				{
+					NUIE::Key pressedKey (NUIE::KeyCode::Undefined);
+					bool isControlPressed = (sdlEvent.key.keysym.mod & SDL_SCANCODE_LCTRL);
+					if (isControlPressed) {
+						switch (sdlEvent.key.keysym.sym) {
+							case SDLK_a:
+								pressedKey.SetKeyCode (NUIE::KeyCode::SelectAll);
+								break;
+							case SDLK_c:
+								pressedKey.SetKeyCode (NUIE::KeyCode::Copy);
+								break;
+							case SDLK_v:
+								pressedKey.SetKeyCode (NUIE::KeyCode::Paste);
+								break;
+							case SDLK_g:
+								pressedKey.SetKeyCode (NUIE::KeyCode::Group);
+								break;
+							case SDLK_z:
+								pressedKey.SetKeyCode (NUIE::KeyCode::Undo);
+								break;
+							case SDLK_y:
+								pressedKey.SetKeyCode (NUIE::KeyCode::Redo);
+								break;
+						}
+					} else {
+						switch (sdlEvent.key.keysym.sym) {
+							case SDLK_ESCAPE:
+								pressedKey.SetKeyCode (NUIE::KeyCode::Escape);
+								break;
+							case SDLK_DELETE:
+							case SDLK_BACKSPACE:
+								pressedKey.SetKeyCode (NUIE::KeyCode::Delete);
+								break;
+						}
+					}
+					if (pressedKey.IsValid ()) {
+						nodeEditor.OnKeyPress (pressedKey);
+					}
+				}
+				break;
 		}
 	}
 
