@@ -23,7 +23,6 @@ emsdk activate mingw-4.6.2-32bit
 * [Download the latest version of VisualScriptEngine from here](https://github.com/kovacsv/VisualScriptEngine/archive/master.zip).
 * Generate the project with cmake, and build it with the configurations you need (Debug, Release, RelWithDebInfo).
 * Build the `INSTALL` project for both configurations.
-* Build VisualScriptEngineWxWidgets:
 * Set the `VSE_DEVKIT_DIR` environment variable to VisualScriptEngine DevKit folder.
 
 ### 3. Generate the Visual Studio Project
