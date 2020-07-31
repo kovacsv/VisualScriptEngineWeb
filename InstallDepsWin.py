@@ -27,7 +27,7 @@ def CmakeProject (projectPath, cMakePath, buildFolderName):
 
 def BuildSolution (msBuildPath, solutionPath, configuration):
 	print ('Building ' + solutionPath)
-	subprocess.call ([msBuildPath, solutionPath, '/property:Configuration=' + configuration, '/property:Platform=x64'])
+	subprocess.call ([msBuildPath, solutionPath, '/property:Configuration=' + configuration, '/property:Platform=x64', '-verbosity:minimal'])
 
 def InstallVisualScriptEngine (targetFolder, cMakePath, msBuildPath, msBuildConfiguration):
 	vseName = 'VisualScriptEngine-master'
