@@ -122,7 +122,7 @@ void SDL2Context::FillEllipse (const NUIE::Rect& /*rect*/, const NUIE::Color& /*
 
 void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& font, const std::wstring& text, NUIE::HorizontalAnchor hAnchor, NUIE::VerticalAnchor vAnchor, const NUIE::Color& textColor)
 {
-	TTF_Font* ttfFont = TTF_OpenFont ("Assets/FreeSans.ttf", (int) font.GetSize ());
+	TTF_Font* ttfFont = TTF_OpenFont ("Assets/OpenSans-Regular.ttf", (int) font.GetSize ());
 
 	// TODO: cache font and texture
 	std::string textStr = NE::WStringToString (text);
