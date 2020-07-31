@@ -130,6 +130,18 @@ private:
 	NUIE::NodeEditor		nodeEditor;
 };
 
+static NUIE::ModifierKeys GetModifierKeys ()
+{
+	NUIE::ModifierKeys keys;
+	const Uint8* keyboardState = SDL_GetKeyboardState (nullptr);
+	if (keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL]) {
+		keys.Insert (NUIE::ModifierKeyCode::Control);
+	} else if (keyboardState[SDL_SCANCODE_LSHIFT] || keyboardState[SDL_SCANCODE_RSHIFT]) {
+		keys.Insert (NUIE::ModifierKeyCode::Shift);
+	}
+	return keys;
+}
+
 static NUIE::MouseButton GetMouseButtonFromEvent (const SDL_Event& sdlEvent)
 {
 	if (sdlEvent.button.button == 1) {
@@ -153,19 +165,22 @@ static bool MainLoop (Application* app)
 				return false;
 			case SDL_MOUSEBUTTONDOWN:
 				{
+					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
 					NUIE::MouseButton button = GetMouseButtonFromEvent (sdlEvent);
-					nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+					nodeEditor.OnMouseDown (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
 				}
 				break;
 			case SDL_MOUSEBUTTONUP:
 				{
+					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
 					NUIE::MouseButton button = GetMouseButtonFromEvent (sdlEvent);
-					nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+					nodeEditor.OnMouseUp (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
 				}
 				break;
 			case SDL_MOUSEMOTION:
 				{
-					nodeEditor.OnMouseMove (NUIE::EmptyModifierKeys, sdlEvent.motion.x, sdlEvent.motion.y);
+					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
+					nodeEditor.OnMouseMove (modifierKeys, sdlEvent.motion.x, sdlEvent.motion.y);
 				}
 				break;
 			case SDL_MOUSEWHEEL:
@@ -177,7 +192,8 @@ static bool MainLoop (Application* app)
 					int mouseX = 0;
 					int mouseY = 0;
 					SDL_GetMouseState (&mouseX, &mouseY);
-					nodeEditor.OnMouseWheel (NUIE::EmptyModifierKeys, rotation, mouseX, mouseY);
+					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
+					nodeEditor.OnMouseWheel (modifierKeys, rotation, mouseX, mouseY);
 				}
 				break;
 		}
