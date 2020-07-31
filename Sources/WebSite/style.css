@@ -15,24 +15,33 @@ div.editor
 
 div.frame
 {
-	width : 842px;
+	width : 902px;
 	margin : 20px auto;
 }
 
 div.menu
 {
-	width : 200px;
+	width : 190px;
+	margin-right : 10px;
 	float : left;
+}
+
+div.menutitle
+{
+	padding : 5px 10px;
 }
 
 div.menuitem
 {
-	background : #fafafa;
-	margin-bottom : 5px;
-	margin-right : 5px;
+	margin-left : 20px;
 	padding : 5px 10px;
 	cursor : pointer;
-	border : 1px solid #e0e0e0;
+}
+
+div.menutitle img, div.menuitem img
+{
+	margin-right : 3px;
+	margin-bottom : -4px;
 }
 
 div.title
@@ -45,6 +54,13 @@ div.text
 {
 	margin : 1.5em 0;
 	line-height : 1.6em;
+}
+
+div.hint
+{
+	color : #aaaaaa;
+	margin : 0.3em 0;
+	text-align : right;
 }
 
 a
@@ -60,5 +76,7 @@ a:hover
 
 canvas
 {
+	width : 700px;
+	height : 500px;
 	border : 1px solid #dddddd;	
 }
