@@ -7,7 +7,7 @@
 class SDL2Context : public NUIE::DrawingContext
 {
 public:
-	SDL2Context (SDL_Renderer* renderer);
+	SDL2Context (SDL_Renderer* renderer, const std::string& fontPath);
 
 	virtual void		Resize (int newWidth, int newHeight) override;
 
@@ -38,6 +38,7 @@ private:
 	int				width;
 	int				height;
 	SDL_Renderer*	renderer;
+	std::string		fontPath;
 };
 
 #endif

@@ -16,7 +16,7 @@ public:
 		NUIE::NodeUIEnvironment (),
 		stringConverter (NE::GetDefaultStringConverter ()),
 		skinParams (NUIE::GetDefaultSkinParams ()),
-		drawingContext (renderer),
+		drawingContext (renderer, "Assets/OpenSans-Regular.ttf"),
 		eventHandler (),
 		clipboardHandler (),
 		evaluationEnv (nullptr),

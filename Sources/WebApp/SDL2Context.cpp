@@ -6,8 +6,8 @@
 #include <vector>
 #include <cmath>
 
-static const float TextRatioX = 1.2f;
-static const float TextRatioY = 0.9f;
+static const float TextRatioX = 1.0f;
+static const float TextRatioY = 1.0f;
 
 static SDL_Point CreatePoint (const NUIE::Point& point)
 {
@@ -29,10 +29,11 @@ static SDL_Rect CreateRect (const NUIE::Rect& rect)
 	return sdlRect;
 }
 
-SDL2Context::SDL2Context (SDL_Renderer* renderer) :
+SDL2Context::SDL2Context (SDL_Renderer* renderer, const std::string& fontPath) :
 	width (0),
 	height (0),
-	renderer (renderer)
+	renderer (renderer),
+	fontPath (fontPath)
 {
 	SDL_Rect viewRect;
 	SDL_RenderGetViewport (renderer, &viewRect);
@@ -122,7 +123,7 @@ void SDL2Context::FillEllipse (const NUIE::Rect& /*rect*/, const NUIE::Color& /*
 
 void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& font, const std::wstring& text, NUIE::HorizontalAnchor hAnchor, NUIE::VerticalAnchor vAnchor, const NUIE::Color& textColor)
 {
-	TTF_Font* ttfFont = TTF_OpenFont ("Assets/OpenSans-Regular.ttf", (int) font.GetSize ());
+	TTF_Font* ttfFont = TTF_OpenFont (fontPath.c_str (), (int) font.GetSize ());
 
 	// TODO: cache font and texture
 	std::string textStr = NE::WStringToString (text);
@@ -162,7 +163,7 @@ void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& f
 
 NUIE::Size SDL2Context::MeasureText (const NUIE::Font& font, const std::wstring& text)
 {
-	TTF_Font* ttfFont = TTF_OpenFont ("Assets/FreeSans.ttf", (int) font.GetSize ());
+	TTF_Font* ttfFont = TTF_OpenFont (fontPath.c_str (), (int) font.GetSize ());
 	std::string textStr = NE::WStringToString (text);
 	int textWidth = 0;
 	int textHeight = 0;
