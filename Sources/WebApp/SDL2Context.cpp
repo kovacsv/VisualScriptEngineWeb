@@ -6,7 +6,7 @@
 #include <vector>
 #include <cmath>
 
-static const float TextRatioX = 1.0f;
+static const float TextRatioX = 1.1f;
 static const float TextRatioY = 1.0f;
 
 static SDL_Point CreatePoint (const NUIE::Point& point)
