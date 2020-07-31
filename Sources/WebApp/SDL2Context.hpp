@@ -7,19 +7,7 @@
 #include "NE_Cache.hpp"
 #include "NUIE_DrawingContext.hpp"
 
-using FontCache = NE::Cache<int, TTF_Font*>;
-
-class FontController : public FontCache::Controller
-{
-public:
-	FontController (const std::string& fontPath);
-
-	virtual TTF_Font*	CreateValue (const int& key) override;
-	virtual void		DisposeValue (TTF_Font*& value) override;
-
-private:
-	std::string			fontPath;
-};
+#include "SDL2Caches.hpp"
 
 class SDL2Context : public NUIE::DrawingContext
 {
@@ -52,13 +40,16 @@ public:
 	virtual void		DrawIcon (const NUIE::Rect& /*rect*/, const NUIE::IconId& /*iconId*/) override;
 
 private:
-	int				width;
-	int				height;
-	SDL_Renderer*	renderer;
-	std::string		fontPath;
+	int						width;
+	int						height;
+	SDL_Renderer*			renderer;
+	std::string				fontPath;
 
-	FontController	fontController;
-	FontCache		fontCache;
+	FontController			fontController;
+	FontCache				fontCache;
+
+	FontTextureController	fontTextureController;
+	FontTextureCache		fontTextureCache;
 };
 
 #endif

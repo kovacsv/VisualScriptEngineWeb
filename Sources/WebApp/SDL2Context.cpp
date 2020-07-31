@@ -7,23 +7,6 @@
 static const float TextRatioX = 1.1f;
 static const float TextRatioY = 1.0f;
 
-FontController::FontController (const std::string& fontPath) :
-	FontCache::Controller (),
-	fontPath (fontPath)
-{
-
-}
-
-TTF_Font* FontController::CreateValue (const int& key)
-{
-	return TTF_OpenFont (fontPath.c_str (), key);
-}
-
-void FontController::DisposeValue (TTF_Font*& value)
-{
-	TTF_CloseFont (value);
-}
-
 static SDL_Point CreatePoint (const NUIE::Point& point)
 {
 	SDL_Point sdlPoint;
@@ -50,7 +33,9 @@ SDL2Context::SDL2Context (SDL_Renderer* renderer, const std::string& fontPath) :
 	renderer (renderer),
 	fontPath (fontPath),
 	fontController (fontPath),
-	fontCache (128, &fontController)
+	fontCache (128, &fontController),
+	fontTextureController (renderer, fontCache),
+	fontTextureCache (128, &fontTextureController)
 {
 	SDL_Rect viewRect;
 	SDL_RenderGetViewport (renderer, &viewRect);
@@ -144,13 +129,8 @@ void SDL2Context::FillEllipse (const NUIE::Rect& /*rect*/, const NUIE::Color& /*
 
 void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& font, const std::wstring& text, NUIE::HorizontalAnchor hAnchor, NUIE::VerticalAnchor vAnchor, const NUIE::Color& textColor)
 {
-	TTF_Font* ttfFont = fontCache.Get ((int) font.GetSize ());
-
-	// TODO: cache font and texture
-	std::string textStr = NE::WStringToString (text);
-	SDL_Color sdlColor = { textColor.GetR (), textColor.GetG (), textColor.GetB (), 255 };
-	SDL_Surface* surface = TTF_RenderUTF8_Blended (ttfFont, textStr.c_str (), sdlColor);
-	SDL_Texture* texture = SDL_CreateTextureFromSurface (renderer, surface);
+	FontTextureCacheKey key (text, textColor, (int) font.GetSize ());
+	SDL_Texture* texture = fontTextureCache.Get (key);
 
 	int textWidth = 0;
 	int textHeight = 0;
@@ -176,9 +156,6 @@ void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& f
 	}
 
 	SDL_RenderCopy (renderer, texture, NULL, &textRect);
-
-	SDL_DestroyTexture (texture);
-	SDL_FreeSurface (surface);
 }
 
 NUIE::Size SDL2Context::MeasureText (const NUIE::Font& font, const std::wstring& text)
