@@ -260,17 +260,18 @@ int main (int, char**)
 	SDL_Renderer *renderer;
 	SDL_CreateWindowAndRenderer (640, 480, 0, &window, &renderer);
 	
-	Application app (renderer);
-
+	{
+		Application app (renderer);
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop_arg (EmscriptenMainLoop, &app, 0, true);
+		emscripten_set_main_loop_arg (EmscriptenMainLoop, &app, 0, true);
 #else
-	while (true) {
-		if (!MainLoop (&app)) {
-			break;
+		while (true) {
+			if (!MainLoop (&app)) {
+				break;
+			}
 		}
-	}
 #endif
+	}
 
 	SDL_DestroyRenderer (renderer);
 	SDL_DestroyWindow (window);

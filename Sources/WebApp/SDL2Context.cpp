@@ -1,13 +1,28 @@
 #include "SDL2Context.hpp"
 #include "NE_StringUtils.hpp"
 
-#include <SDL_ttf.h>
-
 #include <vector>
 #include <cmath>
 
 static const float TextRatioX = 1.1f;
 static const float TextRatioY = 1.0f;
+
+FontController::FontController (const std::string& fontPath) :
+	FontCache::Controller (),
+	fontPath (fontPath)
+{
+
+}
+
+TTF_Font* FontController::CreateValue (const int& key)
+{
+	return TTF_OpenFont (fontPath.c_str (), key);
+}
+
+void FontController::DisposeValue (TTF_Font*& value)
+{
+	TTF_CloseFont (value);
+}
 
 static SDL_Point CreatePoint (const NUIE::Point& point)
 {
@@ -33,7 +48,9 @@ SDL2Context::SDL2Context (SDL_Renderer* renderer, const std::string& fontPath) :
 	width (0),
 	height (0),
 	renderer (renderer),
-	fontPath (fontPath)
+	fontPath (fontPath),
+	fontController (fontPath),
+	fontCache (128, &fontController)
 {
 	SDL_Rect viewRect;
 	SDL_RenderGetViewport (renderer, &viewRect);
@@ -85,15 +102,19 @@ void SDL2Context::DrawLine (const NUIE::Point& beg, const NUIE::Point& end, cons
 void SDL2Context::DrawBezier (const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4, const NUIE::Pen& pen)
 {
 	std::vector<NUIE::Point> points = NUIE::SegmentBezier (20, p1, p2, p3, p4);
-
-	std::vector<SDL_Point> sdlPoints;
-	for (const NUIE::Point& point : points) {
-		sdlPoints.push_back (CreatePoint (point));
+	for (size_t i = 0; i < points.size () -1; i++) {
+		DrawLine (points[i], points[i + 1], pen);
 	}
 
-	const NUIE::Color& color = pen.GetColor ();
-	SDL_SetRenderDrawColor (renderer, color.GetR (), color.GetG (), color.GetB (), 255);
-	SDL_RenderDrawLines (renderer, &sdlPoints[0], (int) sdlPoints.size ());
+	// TODO: SDL_RenderDrawLines emscripten port is buggy when the end is near the bottom of the screen
+	//std::vector<SDL_Point> sdlPoints;
+	//for (const NUIE::Point& point : points) {
+	//	sdlPoints.push_back (CreatePoint (point));
+	//}
+	//
+	//const NUIE::Color& color = pen.GetColor ();
+	//SDL_SetRenderDrawColor (renderer, color.GetR (), color.GetG (), color.GetB (), 255);
+	//SDL_RenderDrawLines (renderer, &sdlPoints[0], (int) sdlPoints.size ());
 }
 
 void SDL2Context::DrawRect (const NUIE::Rect& rect, const NUIE::Pen& pen)
@@ -123,7 +144,7 @@ void SDL2Context::FillEllipse (const NUIE::Rect& /*rect*/, const NUIE::Color& /*
 
 void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& font, const std::wstring& text, NUIE::HorizontalAnchor hAnchor, NUIE::VerticalAnchor vAnchor, const NUIE::Color& textColor)
 {
-	TTF_Font* ttfFont = TTF_OpenFont (fontPath.c_str (), (int) font.GetSize ());
+	TTF_Font* ttfFont = fontCache.Get ((int) font.GetSize ());
 
 	// TODO: cache font and texture
 	std::string textStr = NE::WStringToString (text);
@@ -158,17 +179,15 @@ void SDL2Context::DrawFormattedText (const NUIE::Rect& rect, const NUIE::Font& f
 
 	SDL_DestroyTexture (texture);
 	SDL_FreeSurface (surface);
-	TTF_CloseFont (ttfFont);
 }
 
 NUIE::Size SDL2Context::MeasureText (const NUIE::Font& font, const std::wstring& text)
 {
-	TTF_Font* ttfFont = TTF_OpenFont (fontPath.c_str (), (int) font.GetSize ());
+	TTF_Font* ttfFont = fontCache.Get ((int) font.GetSize ());
 	std::string textStr = NE::WStringToString (text);
 	int textWidth = 0;
 	int textHeight = 0;
 	TTF_SizeText (ttfFont, textStr.c_str (), &textWidth, &textHeight);
-	TTF_CloseFont (ttfFont);
 	return NUIE::Size (textWidth * TextRatioX, textHeight * TextRatioY);
 }
 

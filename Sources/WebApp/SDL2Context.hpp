@@ -2,7 +2,24 @@
 #define SDL2_CONTEXT_HPP
 
 #include <SDL.h>
+#include <SDL_ttf.h>
+
+#include "NE_Cache.hpp"
 #include "NUIE_DrawingContext.hpp"
+
+using FontCache = NE::Cache<int, TTF_Font*>;
+
+class FontController : public FontCache::Controller
+{
+public:
+	FontController (const std::string& fontPath);
+
+	virtual TTF_Font*	CreateValue (const int& key) override;
+	virtual void		DisposeValue (TTF_Font*& value) override;
+
+private:
+	std::string			fontPath;
+};
 
 class SDL2Context : public NUIE::DrawingContext
 {
@@ -39,6 +56,9 @@ private:
 	int				height;
 	SDL_Renderer*	renderer;
 	std::string		fontPath;
+
+	FontController	fontController;
+	FontCache		fontCache;
 };
 
 #endif
