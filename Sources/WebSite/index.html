@@ -9,11 +9,18 @@
 </head>
 
 <body>
-	<canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+	<div class="frame">
+		<div class="title">VisualScriptEngineWeb</div>
+		<div class="text">Some instructional text...</div>
+		<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
+		<div class="text">Useful links and other stuff...</div>
+	</div>
 	<script type='text/javascript'>
-	var Module = {
-		canvas: (function() { return document.getElementById('canvas'); })()
-	};
+		var Module = {
+			canvas: (function() {
+				return document.getElementById ('canvas');
+			}) ()
+		};
 	</script>
 	<script src="WebApp.js"></script>
 </body>

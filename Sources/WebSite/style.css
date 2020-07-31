@@ -2,8 +2,30 @@ html, body
 {
 	color : #000000;
 	background : #ffffff;
-	font-size : 15px;
+	font-size : 14px;
 	font-family : Arial, cursive;
 	margin : 0px;
 	padding : 0px;
+}
+
+div.frame
+{
+	width : 640px;
+	margin : 20px auto;
+}
+
+div.title
+{
+	font-size : 2.0em;
+	margin-bottom : 20px;
+}
+
+div.text
+{
+	margin : 15px 0px;
+}
+
+canvas
+{
+	border : 1px solid #dddddd;
 }

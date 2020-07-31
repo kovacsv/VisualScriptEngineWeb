@@ -11,7 +11,7 @@ call emmake mingw32-make
 popd
 
 copy Sources\WebSite\index.html %2\index.html > NUL
-copy Sources\WebSite\index.html %2\style.css > NUL
+copy Sources\WebSite\style.css %2\style.css > NUL
 copy EmBuild\Release\WebApp.js %2\WebApp.js > NUL
 copy EmBuild\Release\WebApp.wasm %2\WebApp.wasm > NUL
 copy EmBuild\Release\WebApp.data %2\WebApp.data > NUL
