@@ -4,6 +4,10 @@
 
 The [Emscripten](https://emscripten.org) port of [VisualScriptEngine](https://github.com/kovacsv/VisualScriptEngine).
 
+## Live Demo
+
+[You can see the live demo here.](http://kovacsv.github.io/VisualScriptEngineWebDemo)
+
 ## Building on Windows
 
 ### 1. Install Emscripten SDK
