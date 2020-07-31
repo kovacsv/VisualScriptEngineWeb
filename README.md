@@ -1,5 +1,7 @@
 # VisualScriptEngineWeb
 
+The [Emscripten](https://emscripten.org) port of [VisualScriptEngine](https://github.com/kovacsv/VisualScriptEngine).
+
 ## Building on Windows
 
 ### 1. Install Emscripten SDK
