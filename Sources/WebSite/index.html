@@ -25,23 +25,22 @@
 <body>
 	<div class="frame">
 		<div class="title">VisualScriptEngineWeb</div>
-		<div class="text">Some instructional text...</div>
+		<div class="text">This is a demo of the <a href="https://emscripten.org">Emscripten</a> port of <a href="https://github.com/kovacsv/VisualScriptEngine">VisualScriptEngine</a>. You can add nodes from the list on the left and then you can connect the nodes on the editor canvas. More information on GitHub: <a href="https://github.com/kovacsv/VisualScriptEngineWeb">VisualScriptEngineWeb</a>.</div>
 		<div class="editor">
 			<div class="menu">
-				<div class="menuitem" onclick="CreateNode (1)">Integer</div>
-				<div class="menuitem" onclick="CreateNode (2)">Number</div>
-				<div class="menuitem" onclick="CreateNode (3)">Integer Increment</div>
-				<div class="menuitem" onclick="CreateNode (4)">Number Increment</div>
-				<div class="menuitem" onclick="CreateNode (5)">Number Distribution</div>
-				<div class="menuitem" onclick="CreateNode (6)">Addition</div>
-				<div class="menuitem" onclick="CreateNode (7)">Subtraction</div>
-				<div class="menuitem" onclick="CreateNode (8)">Multiplication</div>
-				<div class="menuitem" onclick="CreateNode (9)">Division</div>
-				<div class="menuitem" onclick="CreateNode (10)">Viewer</div>
+				<div class="menuitem" onclick="CreateNode (0)">Integer</div>
+				<div class="menuitem" onclick="CreateNode (1)">Number</div>
+				<div class="menuitem" onclick="CreateNode (2)">Integer Increment</div>
+				<div class="menuitem" onclick="CreateNode (3)">Number Increment</div>
+				<div class="menuitem" onclick="CreateNode (4)">Number Distribution</div>
+				<div class="menuitem" onclick="CreateNode (5)">Addition</div>
+				<div class="menuitem" onclick="CreateNode (6)">Subtraction</div>
+				<div class="menuitem" onclick="CreateNode (7)">Multiplication</div>
+				<div class="menuitem" onclick="CreateNode (8)">Division</div>
+				<div class="menuitem" onclick="CreateNode (9)">Viewer</div>
 			</div>
 			<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
 		</div>
-		<div class="text">Useful links and other stuff...</div>
 	</div>
 	<script type='text/javascript'>
 		Module = {
