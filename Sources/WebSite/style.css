@@ -26,16 +26,15 @@ div.menu
 	float : left;
 }
 
-div.menutitle
-{
-	padding : 5px 10px;
-}
-
 div.menuitem
 {
-	margin-left : 20px;
 	padding : 5px 10px;
 	cursor : pointer;
+}
+
+div.subitems
+{
+	margin-left : 20px;
 }
 
 div.menutitle img, div.menuitem img

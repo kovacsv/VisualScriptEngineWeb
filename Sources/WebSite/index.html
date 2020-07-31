@@ -15,9 +15,78 @@
 			var createNodeFunc = Module.cwrap ('CreateNode', null, ['number']);
 			createNodeFunc (nodeIndex);
 		}
-	
-		function OnInit (module)
+		
+		function BuildMenu (menuDiv)
 		{
+			function CreateItem (imgSrc, text)
+			{
+				var mainItem = document.createElement ('div');
+				mainItem.className = 'menuitem';
+				var imgItem = document.createElement ('img');
+				imgItem.src = imgSrc;
+				mainItem.appendChild (imgItem);
+				var textItem = document.createElement ('span');
+				textItem.innerHTML = text;
+				mainItem.appendChild (textItem);
+				var result = {
+					mainItem : mainItem,
+					imgItem : imgItem,
+					textItem : textItem
+				};
+				return result;
+			}
+		
+			function AddTitleItem (menuDiv, text)
+			{
+				var item = CreateItem ('folder_opened.png', text);
+				menuDiv.appendChild (item.mainItem);
+				var menuItems = document.createElement ('div');
+				menuItems.className = 'subitems';
+				menuDiv.appendChild (menuItems);
+				
+				item.mainItem.onclick = function () {
+					if (menuItems.style.display != 'none') {
+						menuItems.style.display = 'none';
+						item.imgItem.src = 'folder_closed.png';
+					} else {
+						menuItems.style.display = 'block';
+						item.imgItem.src = 'folder_opened.png';
+					}
+				}
+				
+				return menuItems;
+			}
+			
+			function AddMenuItem (menuDiv, text, nodeIndex)
+			{
+				var item = CreateItem ('plus.png', text);
+				menuDiv.appendChild (item.mainItem);
+				item.mainItem.onclick = function () {
+					CreateNode (nodeIndex);
+				}
+			}			
+			
+			var inputs = AddTitleItem (menuDiv, 'Inputs');
+			AddMenuItem (inputs, 'Integer', 0);
+			AddMenuItem (inputs, 'Number', 1);
+			AddMenuItem (inputs, 'Integer Increment', 2);
+			AddMenuItem (inputs, 'Number Increment', 3);
+			AddMenuItem (inputs, 'Number Distribution', 4);
+			
+			var arithmetics = AddTitleItem (menuDiv, 'Arithmetics');
+			AddMenuItem (arithmetics, 'Addition', 5);
+			AddMenuItem (arithmetics, 'Subtraction', 6);
+			AddMenuItem (arithmetics, 'Multiplication', 7);
+			AddMenuItem (arithmetics, 'Division', 8);
+			
+			var other = AddTitleItem (menuDiv, 'Other');
+			AddMenuItem (other, 'Viewer', 9);
+		}
+		
+		window.onload = function ()
+		{
+			var menuDiv = document.getElementById ('menu');
+			BuildMenu (menuDiv);
 		}
 	</script>
 </head>
@@ -27,20 +96,7 @@
 		<div class="title">VisualScriptEngineWeb</div>
 		<div class="text">This is a demo of the <a href="https://emscripten.org">Emscripten</a> port of <a href="https://github.com/kovacsv/VisualScriptEngine">VisualScriptEngine</a>. You can add nodes from the list on the left and then you can connect the nodes on the editor canvas. More information on GitHub: <a href="https://github.com/kovacsv/VisualScriptEngineWeb">VisualScriptEngineWeb</a>.</div>
 		<div class="editor">
-			<div class="menu">
-				<div class="menutitle"><img src="folder.png"/>Inputs</div>
-				<div class="menuitem" onclick="CreateNode (0)"><img src="plus.png"/>Integer</div>
-				<div class="menuitem" onclick="CreateNode (1)"><img src="plus.png"/>Number</div>
-				<div class="menuitem" onclick="CreateNode (2)"><img src="plus.png"/>Integer Increment</div>
-				<div class="menuitem" onclick="CreateNode (3)"><img src="plus.png"/>Number Increment</div>
-				<div class="menuitem" onclick="CreateNode (4)"><img src="plus.png"/>Number Distribution</div>
-				<div class="menutitle"><img src="folder.png"/>Arithmetics</div>
-				<div class="menuitem" onclick="CreateNode (5)"><img src="plus.png"/>Addition</div>
-				<div class="menuitem" onclick="CreateNode (6)"><img src="plus.png"/>Subtraction</div>
-				<div class="menuitem" onclick="CreateNode (7)"><img src="plus.png"/>Multiplication</div>
-				<div class="menuitem" onclick="CreateNode (8)"><img src="plus.png"/>Division</div>
-				<div class="menutitle"><img src="folder.png"/>Other</div>
-				<div class="menuitem" onclick="CreateNode (9)"><img src="plus.png"/>Viewer</div>
+			<div class="menu" id="menu">
 			</div>
 			<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
 			<div class="hint">
@@ -50,9 +106,6 @@
 	</div>
 	<script type='text/javascript'>
 		Module = {
-			onRuntimeInitialized : function () {
-				OnInit (Module);
-			},
 			canvas : (function () {
 				return document.getElementById ('canvas');
 			}) ()
