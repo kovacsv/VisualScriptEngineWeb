@@ -6,6 +6,20 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no">
 	
 	<link rel="stylesheet" type="text/css" href="style.css">
+	
+	<script type='text/javascript'>
+		var Module = null;
+	
+		function CreateNode ()
+		{
+			var createNodeFunc = Module.cwrap ('CreateNode', null, []);
+			createNodeFunc ();
+		}
+	
+		function OnInit (module)
+		{
+		}
+	</script>
 </head>
 
 <body>
@@ -14,10 +28,14 @@
 		<div class="text">Some instructional text...</div>
 		<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
 		<div class="text">Useful links and other stuff...</div>
+		<input type="button" value="ok" onclick="CreateNode ()">
 	</div>
 	<script type='text/javascript'>
-		var Module = {
-			canvas: (function() {
+		Module = {
+			onRuntimeInitialized : function () {
+				OnInit (Module);
+			},
+			canvas : (function () {
 				return document.getElementById ('canvas');
 			}) ()
 		};

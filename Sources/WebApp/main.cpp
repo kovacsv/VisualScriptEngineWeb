@@ -255,6 +255,25 @@ static void EmscriptenMainLoop (void* arg)
 }
 #endif
 
+Application* gAppForBrowser = nullptr;
+
+extern "C"
+{
+
+void CreateNode ()
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+
+	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
+	nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), NUIE::Point (100.0, 100.0), 0, 1)));
+}
+
+};
+
+
+
 int main (int, char**)
 {
 	SDL_Init (SDL_INIT_VIDEO);
@@ -266,6 +285,8 @@ int main (int, char**)
 	
 	{
 		Application app (renderer);
+		gAppForBrowser = &app;
+
 #ifdef EMSCRIPTEN
 		emscripten_set_main_loop_arg (EmscriptenMainLoop, &app, 0, true);
 #else
@@ -275,6 +296,8 @@ int main (int, char**)
 			}
 		}
 #endif
+
+		gAppForBrowser = nullptr;
 	}
 
 	SDL_DestroyRenderer (renderer);
