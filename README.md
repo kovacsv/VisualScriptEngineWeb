@@ -22,7 +22,7 @@ emsdk activate mingw-4.6.2-32bit
 * Generate the project with cmake, and build it with Debug/x64 and Release/x64 configuration.
 * Build the `INSTALL` project for both configurations.
 * Build VisualScriptEngineWxWidgets:
-* Set the `VSE_DEVKIT_DIR` environment variable to VisualScriptEngine development kit directory (the DevKit folder next to the generated solution)
+* Set the `VSE_DEVKIT_DIR` environment variable to VisualScriptEngine DevKit folder.
 
 ### 3. Generate the Visual Studio Project
 
