@@ -193,7 +193,11 @@ static bool MainLoop (Application* app)
 					int mouseY = 0;
 					SDL_GetMouseState (&mouseX, &mouseY);
 					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
-					nodeEditor.OnMouseWheel (modifierKeys, rotation, mouseX, mouseY);
+					double currentScale = nodeEditor.GetViewBox ().GetScale ();
+					bool preventZoom = (rotation == NUIE::MouseWheelRotation::Forward && currentScale > 5.0);
+					if (!preventZoom) {
+						nodeEditor.OnMouseWheel (modifierKeys, rotation, mouseX, mouseY);
+					}
 				}
 				break;
 			case SDL_KEYDOWN:
