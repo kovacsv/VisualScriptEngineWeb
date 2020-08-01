@@ -6,87 +6,14 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no">
 	
 	<link rel="stylesheet" type="text/css" href="style/style.css">
+	<script type="text/javascript" src="script/application.js"></script>
 	
 	<script type='text/javascript'>
-		var Module = null;
-	
-		function CreateNode (nodeIndex)
-		{
-			var createNodeFunc = Module.cwrap ('CreateNode', null, ['number']);
-			createNodeFunc (nodeIndex);
-		}
-		
-		function BuildMenu (menuDiv)
-		{
-			function CreateItem (imgSrc, text)
-			{
-				var mainItem = document.createElement ('div');
-				mainItem.className = 'menuitem';
-				var imgItem = document.createElement ('img');
-				imgItem.src = 'images/' + imgSrc;
-				mainItem.appendChild (imgItem);
-				var textItem = document.createElement ('span');
-				textItem.innerHTML = text;
-				mainItem.appendChild (textItem);
-				var result = {
-					mainItem : mainItem,
-					imgItem : imgItem,
-					textItem : textItem
-				};
-				return result;
-			}
-		
-			function AddTitleItem (menuDiv, text)
-			{
-				var item = CreateItem ('folder_opened.png', text);
-				menuDiv.appendChild (item.mainItem);
-				var menuItems = document.createElement ('div');
-				menuItems.className = 'subitems';
-				menuDiv.appendChild (menuItems);
-				
-				item.mainItem.onclick = function () {
-					if (menuItems.style.display != 'none') {
-						menuItems.style.display = 'none';
-						item.imgItem.src = 'folder_closed.png';
-					} else {
-						menuItems.style.display = 'block';
-						item.imgItem.src = 'folder_opened.png';
-					}
-				}
-				
-				return menuItems;
-			}
-			
-			function AddMenuItem (menuDiv, text, nodeIndex)
-			{
-				var item = CreateItem ('plus.png', text);
-				menuDiv.appendChild (item.mainItem);
-				item.mainItem.onclick = function () {
-					CreateNode (nodeIndex);
-				}
-			}			
-			
-			var inputs = AddTitleItem (menuDiv, 'Inputs');
-			AddMenuItem (inputs, 'Integer', 0);
-			AddMenuItem (inputs, 'Number', 1);
-			AddMenuItem (inputs, 'Integer Increment', 2);
-			AddMenuItem (inputs, 'Number Increment', 3);
-			AddMenuItem (inputs, 'Number Distribution', 4);
-			
-			var arithmetics = AddTitleItem (menuDiv, 'Arithmetics');
-			AddMenuItem (arithmetics, 'Addition', 5);
-			AddMenuItem (arithmetics, 'Subtraction', 6);
-			AddMenuItem (arithmetics, 'Multiplication', 7);
-			AddMenuItem (arithmetics, 'Division', 8);
-			
-			var other = AddTitleItem (menuDiv, 'Other');
-			AddMenuItem (other, 'Viewer', 9);
-		}
-		
+		var application = new Application ();
+
 		window.onload = function ()
 		{
-			var menuDiv = document.getElementById ('menu');
-			BuildMenu (menuDiv);
+			application.InitMenu ('menu');
 		}
 	</script>
 </head>
@@ -105,7 +32,10 @@
 		</div>
 	</div>
 	<script type='text/javascript'>
-		Module = {
+		var Module = {
+			onRuntimeInitialized : function () {
+				application.InitModule (Module);
+			},
 			canvas : (function () {
 				return document.getElementById ('canvas');
 			}) ()
