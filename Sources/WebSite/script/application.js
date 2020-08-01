@@ -15,7 +15,7 @@ Application.prototype.InitMenu = function (menuDivName)
 		var mainItem = document.createElement ('div');
 		mainItem.className = 'menuitem';
 		var imgItem = document.createElement ('img');
-		imgItem.src = 'images/' + imgSrc;
+		imgItem.src = imgSrc;
 		mainItem.appendChild (imgItem);
 		var textItem = document.createElement ('span');
 		textItem.innerHTML = text;
@@ -30,7 +30,7 @@ Application.prototype.InitMenu = function (menuDivName)
 
 	function AddTitleItem (menuDiv, text)
 	{
-		var item = CreateItem ('folder_opened.png', text);
+		var item = CreateItem ('images/folder_opened.png', text);
 		menuDiv.appendChild (item.mainItem);
 		var menuItems = document.createElement ('div');
 		menuItems.className = 'subitems';
@@ -39,10 +39,10 @@ Application.prototype.InitMenu = function (menuDivName)
 		item.mainItem.onclick = function () {
 			if (menuItems.style.display != 'none') {
 				menuItems.style.display = 'none';
-				item.imgItem.src = 'folder_closed.png';
+				item.imgItem.src = 'images/folder_closed.png';
 			} else {
 				menuItems.style.display = 'block';
-				item.imgItem.src = 'folder_opened.png';
+				item.imgItem.src = 'images/folder_opened.png';
 			}
 		}
 		
@@ -51,7 +51,7 @@ Application.prototype.InitMenu = function (menuDivName)
 	
 	function AddMenuItem (app, menuDiv, text, nodeIndex)
 	{
-		var item = CreateItem ('plus.png', text);
+		var item = CreateItem ('images/plus.png', text);
 		menuDiv.appendChild (item.mainItem);
 		item.mainItem.onclick = function () {
 			app.CreateNode (nodeIndex);
