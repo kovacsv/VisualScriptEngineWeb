@@ -10,7 +10,8 @@
 
 #include "Application.hpp"
 
-static BrowserInterface browserInterface;
+static BrowserInterface		browserInterface;
+static Application*			gAppForBrowser = nullptr;
 
 static NUIE::ModifierKeys GetModifierKeys ()
 {
@@ -142,10 +143,32 @@ extern "C"
 
 void CreateNode (int nodeIndex)
 {
-	if (!browserInterface.IsInitialized ()) {
+	if (gAppForBrowser == nullptr) {
 		return;
 	}
-	browserInterface.AddNode (nodeIndex);
+
+	SDL_Renderer* renderer = gAppForBrowser->GetRenderer ();
+	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
+
+	SDL_Rect renderRect;
+	SDL_RenderGetViewport (renderer, &renderRect);
+
+	NUIE::Rect viewRect = NUIE::Rect::FromPositionAndSize (NUIE::Point (0.0, 0.0), NUIE::Size (renderRect.w, renderRect.h));
+	NUIE::Point viewCenter = viewRect.GetCenter ();
+	NUIE::Point position = nodeEditor.ViewToModel (viewCenter);
+
+	switch (nodeIndex) {
+		case 0: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), position, 0, 1))); break;
+		case 1: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleUpDownNode (NE::LocString (L"Number"), position, 0.0, 1.0))); break;
+		case 2: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerIncrementedNode (NE::LocString (L"Integer Increment"), position))); break;
+		case 3: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleIncrementedNode (NE::LocString (L"Number Increment"), position))); break;
+		case 4: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleDistributedNode (NE::LocString (L"Number Distribution"), position))); break;
+		case 5: nodeEditor.AddNode (NUIE::UINodePtr (new BI::AdditionNode (NE::LocString (L"Addition"), position))); break;
+		case 6: nodeEditor.AddNode (NUIE::UINodePtr (new BI::SubtractionNode (NE::LocString (L"Subtraction"), position))); break;
+		case 7: nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiplicationNode (NE::LocString (L"Multiplication"), position))); break;
+		case 8: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DivisionNode (NE::LocString (L"Division"), position))); break;
+		case 9: nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), position, 5))); break;
+	}
 }
 
 };
@@ -160,8 +183,8 @@ int main (int, char**)
 	SDL_CreateWindowAndRenderer (700, 500, 0, &window, &renderer);
 	
 	{
-		Application app (renderer);
-		browserInterface.Init (&app);
+		Application app (renderer, &browserInterface);
+		gAppForBrowser = &app;
 
 #ifdef EMSCRIPTEN
 		emscripten_set_main_loop_arg (EmscriptenMainLoop, &app, 0, true);
@@ -173,7 +196,7 @@ int main (int, char**)
 		}
 #endif
 
-		browserInterface.Shut ();
+		gAppForBrowser = nullptr;
 	}
 
 	SDL_DestroyRenderer (renderer);

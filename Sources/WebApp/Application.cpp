@@ -40,7 +40,13 @@ static const NUIE::BasicSkinParams& GetAppSkinParams ()
 	return skinParams;
 }
 
-AppEventHandler::AppEventHandler ()
+BrowserInterface::BrowserInterface ()
+{
+
+}
+
+AppEventHandler::AppEventHandler (BrowserInterface* browserInterface) :
+	browserInterface (browserInterface)
 {
 
 }
@@ -52,6 +58,8 @@ AppEventHandler::~AppEventHandler ()
 
 NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point&, const NUIE::MenuCommandStructure&)
 {
+	// TODO
+	(void) browserInterface;
 	return nullptr;
 }
 
@@ -90,12 +98,12 @@ bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr, const NU
 	return false;
 }
 
-AppUIEnvironment::AppUIEnvironment (SDL_Renderer* renderer) :
+AppUIEnvironment::AppUIEnvironment (SDL_Renderer* renderer, BrowserInterface* browserInterface) :
 	NUIE::NodeUIEnvironment (),
 	stringConverter (NE::GetDefaultStringConverter ()),
 	skinParams (GetAppSkinParams ()),
 	drawingContext (renderer, "Assets/OpenSans-Regular.ttf"),
-	eventHandler (),
+	eventHandler (browserInterface),
 	clipboardHandler (),
 	evaluationEnv (nullptr),
 	nodeEditor (nullptr)
@@ -168,9 +176,9 @@ double AppUIEnvironment::GetMouseMoveMinOffset ()
 	return 2.0;
 }
 
-Application::Application (SDL_Renderer* renderer) :
+Application::Application (SDL_Renderer* renderer, BrowserInterface* browserInterface) :
 	renderer (renderer),
-	uiEnvironment (renderer),
+	uiEnvironment (renderer, browserInterface),
 	nodeEditor (uiEnvironment)
 {
 	uiEnvironment.Init (&nodeEditor);
@@ -190,50 +198,4 @@ SDL_Renderer* Application::GetRenderer ()
 NUIE::NodeEditor& Application::GetNodeEditor ()
 {
 	return nodeEditor;
-}
-
-BrowserInterface::BrowserInterface ()
-{
-
-}
-
-bool BrowserInterface::IsInitialized () const
-{
-	return application != nullptr;
-}
-
-void BrowserInterface::Init (Application* applicationPtr)
-{
-	application = applicationPtr;
-}
-
-void BrowserInterface::Shut ()
-{
-	application = nullptr;
-}
-
-void BrowserInterface::AddNode (int nodeIndex)
-{
-	SDL_Renderer* renderer = application->GetRenderer ();
-	NUIE::NodeEditor& nodeEditor = application->GetNodeEditor ();
-
-	SDL_Rect renderRect;
-	SDL_RenderGetViewport (renderer, &renderRect);
-
-	NUIE::Rect viewRect = NUIE::Rect::FromPositionAndSize (NUIE::Point (0.0, 0.0), NUIE::Size (renderRect.w, renderRect.h));
-	NUIE::Point viewCenter = viewRect.GetCenter ();
-	NUIE::Point position = nodeEditor.ViewToModel (viewCenter);
-
-	switch (nodeIndex) {
-		case 0: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), position, 0, 1))); break;
-		case 1: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleUpDownNode (NE::LocString (L"Number"), position, 0.0, 1.0))); break;
-		case 2: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerIncrementedNode (NE::LocString (L"Integer Increment"), position))); break;
-		case 3: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleIncrementedNode (NE::LocString (L"Number Increment"), position))); break;
-		case 4: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleDistributedNode (NE::LocString (L"Number Distribution"), position))); break;
-		case 5: nodeEditor.AddNode (NUIE::UINodePtr (new BI::AdditionNode (NE::LocString (L"Addition"), position))); break;
-		case 6: nodeEditor.AddNode (NUIE::UINodePtr (new BI::SubtractionNode (NE::LocString (L"Subtraction"), position))); break;
-		case 7: nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiplicationNode (NE::LocString (L"Multiplication"), position))); break;
-		case 8: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DivisionNode (NE::LocString (L"Division"), position))); break;
-		case 9: nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), position, 5))); break;
-	}
 }

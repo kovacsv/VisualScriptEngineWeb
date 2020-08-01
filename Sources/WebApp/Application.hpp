@@ -7,31 +7,41 @@
 #include "NUIE_NodeEditor.hpp"
 #include "SDL2Context.hpp"
 
+class BrowserInterface
+{
+public:
+	BrowserInterface ();
+
+private:
+
+};
+
 class AppEventHandler : public NUIE::EventHandler
 {
 public:
-	AppEventHandler ();
+	AppEventHandler (BrowserInterface* browserInterface);
 	virtual ~AppEventHandler ();
 
-	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands) override;
-	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point& position, const NUIE::UINodePtr& uiNode, const NUIE::MenuCommandStructure& commands) override;
-	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point& position, const NUIE::UIOutputSlotConstPtr& outputSlot, const NUIE::MenuCommandStructure& commands) override;
-	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point& position, const NUIE::UIInputSlotConstPtr& inputSlot, const NUIE::MenuCommandStructure& commands) override;
-	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point& position, const NUIE::UINodeGroupPtr& uiGroup, const NUIE::MenuCommandStructure& commands) override;
+	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands) override;
+	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::UINodePtr& uiNode, const NUIE::MenuCommandStructure& commands) override;
+	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::UIOutputSlotConstPtr& outputSlot, const NUIE::MenuCommandStructure& commands) override;
+	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::UIInputSlotConstPtr& inputSlot, const NUIE::MenuCommandStructure& commands) override;
+	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::UINodeGroupPtr& uiGroup, const NUIE::MenuCommandStructure& commands) override;
 	
-	virtual void OnDoubleClick (NUIE::MouseButton mouseButton, const NUIE::Point& position) override;
-	
-	virtual bool OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodePtr& uiNode) override;
-	virtual bool OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodeGroupPtr& uiGroup) override;
-};
+	virtual void					OnDoubleClick (NUIE::MouseButton mouseButton, const NUIE::Point& position) override;
+	virtual bool					OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodePtr& uiNode) override;
+	virtual bool					OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodeGroupPtr& uiGroup) override;
 
+private:
+	BrowserInterface*				browserInterface;
+};
 
 class AppUIEnvironment : public NUIE::NodeUIEnvironment
 {
 public:
-	AppUIEnvironment (SDL_Renderer* renderer);
+	AppUIEnvironment (SDL_Renderer* renderer, BrowserInterface* browserInterface);
 	
-	void Init (NUIE::NodeEditor* nodeEditorPtr);
+	void								Init (NUIE::NodeEditor* nodeEditorPtr);
 
 	virtual const NE::StringConverter&	GetStringConverter () override;
 	virtual const NUIE::SkinParams&		GetSkinParams () override;
@@ -63,7 +73,7 @@ private:
 class Application
 {
 public:
-	Application (SDL_Renderer* renderer);
+	Application (SDL_Renderer* renderer, BrowserInterface* browserInterface);
 
 	SDL_Renderer*		GetRenderer ();
 	NUIE::NodeEditor&	GetNodeEditor ();
@@ -72,22 +82,6 @@ private:
 
 	AppUIEnvironment	uiEnvironment;
 	NUIE::NodeEditor	nodeEditor;
-};
-
-class BrowserInterface
-{
-public:
-	BrowserInterface ();
-
-	bool	IsInitialized () const;
-
-	void	Init (Application* applicationPtr);
-	void	Shut ();
-
-	void	AddNode (int nodeIndex);
-
-private:
-	Application* application;
 };
 
 #endif
