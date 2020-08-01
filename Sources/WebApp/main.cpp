@@ -48,6 +48,60 @@ static const NUIE::BasicSkinParams& GetAppSkinParams ()
 	return skinParams;
 }
 
+class MyEventHandler : public NUIE::EventHandler
+{
+public:
+	MyEventHandler ()
+	{
+
+	}
+
+	virtual ~MyEventHandler ()
+	{
+
+	}
+
+	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point&, const NUIE::MenuCommandStructure&) override
+	{
+		return nullptr;
+	}
+
+	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point&, const NUIE::UINodePtr&, const NUIE::MenuCommandStructure&) override
+	{
+		return nullptr;
+	}
+
+	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point&, const NUIE::UIOutputSlotConstPtr&, const NUIE::MenuCommandStructure&) override
+	{
+		return nullptr;
+	}
+
+	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point&, const NUIE::UIInputSlotConstPtr&, const NUIE::MenuCommandStructure&) override
+	{
+		return nullptr;
+	}
+
+	virtual NUIE::MenuCommandPtr OnContextMenu (const NUIE::Point&, const NUIE::UINodeGroupPtr&, const NUIE::MenuCommandStructure&) override
+	{
+		return nullptr;
+	}
+
+	virtual void OnDoubleClick (NUIE::MouseButton, const NUIE::Point&) override
+	{
+		return;
+	}
+
+	virtual bool OnParameterSettings (NUIE::ParameterInterfacePtr, const NUIE::UINodePtr&) override
+	{
+		return false;
+	}
+
+	virtual bool OnParameterSettings (NUIE::ParameterInterfacePtr, const NUIE::UINodeGroupPtr&) override
+	{
+		return false;
+	}
+};
+
 class MyNodeUIEnvironment : public NUIE::NodeUIEnvironment
 {
 public:
@@ -133,7 +187,7 @@ private:
 	NE::BasicStringConverter		stringConverter;
 	NUIE::BasicSkinParams			skinParams;
 	SDL2Context						drawingContext;
-	NUIE::NullEventHandler			eventHandler;
+	MyEventHandler					eventHandler;
 	NUIE::MemoryClipboardHandler	clipboardHandler;
 	NE::EvaluationEnv				evaluationEnv;
 	NUIE::NodeEditor*				nodeEditor;
