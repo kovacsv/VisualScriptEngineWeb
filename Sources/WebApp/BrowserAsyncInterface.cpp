@@ -12,6 +12,7 @@
 static const int InvalidCommandId = -1;
 static const int FirstCommandId = 1;
 
+UNUSED_IN_CPP
 static std::vector<NUIE::MenuCommandPtr> GetCommandList (const NUIE::MenuCommandStructure& commands)
 {
 	std::vector<NUIE::MenuCommandPtr> commandList;
@@ -21,6 +22,7 @@ static std::vector<NUIE::MenuCommandPtr> GetCommandList (const NUIE::MenuCommand
 	return commandList;
 }
 
+UNUSED_IN_CPP
 static std::vector<NUIE::MenuCommandPtr> GetChildCommandList (const NUIE::MenuCommandPtr& command)
 {
 	std::vector<NUIE::MenuCommandPtr> commandList;
@@ -30,6 +32,7 @@ static std::vector<NUIE::MenuCommandPtr> GetChildCommandList (const NUIE::MenuCo
 	return commandList;
 }
 
+UNUSED_IN_CPP
 static NUIE::MenuCommandPtr GetCommandById (const std::vector<NUIE::MenuCommandPtr>& commandList, int commandId, int& currentId)
 {
 	for (size_t i = 0; i < commandList.size (); i++) {
@@ -58,6 +61,7 @@ static NUIE::MenuCommandPtr GetCommandById (const NUIE::MenuCommandStructure& co
 	return GetCommandById (commandList, commandId, currentId);
 }
 
+UNUSED_IN_CPP
 static void AddCommandsToJson (std::vector<NUIE::MenuCommandPtr> commandList, int& currentId, std::wstring& json)
 {
 	json += L"\"commands\" : [";
@@ -121,24 +125,23 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 		return nullptr;
 	}
 #ifdef EMSCRIPTEN
-	if (state == State::ContextMenuResponseArrived) {
-		state = State::Normal;
-		return GetCommandById (commands, contextMenuData.selectedCommandId);
-	} else {
+	if (state == State::Normal) {
 		state = State::WaitingForContextMenuResponse;
 		contextMenuData.position = position;
 		contextMenuData.selectedCommandId = InvalidCommandId;
 		std::string commandsJson = ConvertMenuCommandsToJson (commands);
 		EM_ASM ({
 			ContextMenuRequest ($0, $1, $2);
-		}, position.GetX (), position.GetY (), commandsJson.c_str ());
-		(void) commands;
+			}, position.GetX (), position.GetY (), commandsJson.c_str ());
 		return nullptr;
+	} else if (state == State::ContextMenuResponseArrived){
+		state = State::Normal;
+		return GetCommandById (commands, contextMenuData.selectedCommandId);
 	}
 #else
 	(void) position;
-	return nullptr;
 #endif
+	return nullptr;
 }
 
 void BrowserAsyncInterface::ContextMenuResponse (NUIE::NodeEditor& nodeEditor, int commandId)
