@@ -4,28 +4,10 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#include "NUIE_NodeEditor.hpp"
+#include "BrowserAsyncInterface.hpp"
 #include "SDL2Context.hpp"
 
-class BrowserAsyncInterface
-{
-public:
-	enum class State
-	{
-		Normal,
-		WaitingForContextMenu
-	};
-
-	BrowserAsyncInterface ();
-
-	bool	AreEventsSuspended () const;
-
-	void	ContextMenuRequest (const NUIE::Point& position);
-	void	ContextMenuResponse (int commandIndex);
-
-private:
-	State	state;
-};
+#include "NUIE_NodeEditor.hpp"
 
 class AppEventHandler : public NUIE::EventHandler
 {
