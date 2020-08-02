@@ -85,9 +85,6 @@ Application.prototype.CreateNode = function (nodeIndex)
 
 Application.prototype.ContextMenuRequest = function ()
 {
-	var myThis = this;
-	setTimeout (function (){
-		var contextMenuResponseFunc = myThis.module.cwrap ('ContextMenuResponse', null, ['number']);
-		contextMenuResponseFunc (42);
-	}, 2000);
+	var contextMenuResponseFunc = this.module.cwrap ('ContextMenuResponse', null, ['number']);
+	contextMenuResponseFunc (42);
 }
