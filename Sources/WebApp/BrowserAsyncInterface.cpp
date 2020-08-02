@@ -108,6 +108,9 @@ bool BrowserAsyncInterface::AreEventsSuspended () const
 
 NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
 {
+	if (commands.IsEmpty ()) {
+		return nullptr;
+	}
 #ifdef EMSCRIPTEN
 	if (state == State::ContextMenuResponseArrived) {
 		state = State::Normal;
@@ -125,7 +128,6 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 	}
 #else
 	(void) position;
-	(void) commands;
 	return nullptr;
 #endif
 }
