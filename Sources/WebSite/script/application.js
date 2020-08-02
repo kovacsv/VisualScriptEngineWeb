@@ -76,10 +76,67 @@ Application.prototype.CreateNode = function (nodeIndex)
 	createNodeFunc (nodeIndex);
 }
 
-Application.prototype.ContextMenuRequest = function (commandsJson)
+Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJson, canvasName)
 {
+	function ShowContextMenu (module, mouseX, mouseY, commandsJson, canvasName)
+	{
+		function SendResponse (module, response)
+		{
+			var contextMenuResponseFunc = module.cwrap ('ContextMenuResponse', null, ['string']);
+			contextMenuResponseFunc (response);			
+		}
+		
+		function OpenContextMenu (module, mouseX, mouseY)
+		{
+			var documentBody = $(document.body);
+			var contextMenuDiv = $('<div>').addClass ('contextmenu').appendTo (documentBody);
+			contextMenuDiv.css ('left', (canvasDiv.offset ().left + mouseX) + 'px');
+			contextMenuDiv.css ('top', (canvasDiv.offset ().top + mouseY) + 'px');
+			documentBody.bind ("mousedown", function (event) {
+				event.preventDefault ();
+				if ($(event.target).parents ('.contextmenu').length == 0) {
+					CloseContextMenu ();
+					SendResponse (module, '');
+				}
+			});
+			return contextMenuDiv;
+		}	
+		
+		function CloseContextMenu ()
+		{
+			var documentBody = $(document.body);
+			documentBody.unbind ("mousedown");
+			contextMenuDiv.remove ();
+		}
+		
+		function AddCommandItems (module, contextMenuDiv, commandsJson)
+		{
+			function AddCommandItem (module, contextMenuDiv, commandName)
+			{
+				itemDiv = $('<div>').addClass ('contextmenuitem').html (commandName)
+				itemDiv.appendTo (contextMenuDiv);
+				itemDiv.click (function () {
+					SendResponse (module, commandName);
+					CloseContextMenu ();
+				});
+			}
+			
+			var i, command, itemDiv;
+			for (i = 0; i < commandJson.commands.length; i++) {
+				command = commandJson.commands[i];
+				if (command.commands !== undefined) {
+					continue;
+				}
+				AddCommandItem (module, contextMenuDiv, command.name);
+			}
+		}
+		
+		var canvasDiv = $('#' + canvasName);
+		var contextMenuDiv = OpenContextMenu (module, mouseX, mouseY);
+		AddCommandItems (module, contextMenuDiv, commandsJson);
+	}
+	
 	var commandsJsonStr = UTF8ToString (commandsJson);
 	var commandJson = JSON.parse (commandsJsonStr);
-	var contextMenuResponseFunc = this.module.cwrap ('ContextMenuResponse', null, ['string']);
-	contextMenuResponseFunc ('Align To Window');
+	ShowContextMenu (this.module, mouseX, mouseY, commandsJson, canvasName);
 }

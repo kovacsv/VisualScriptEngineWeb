@@ -118,8 +118,8 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 		contextMenuData.selectedCommandName = L"";
 		std::string commandsJson = ConvertMenuCommandsToJson (commands);
 		EM_ASM ({
-			ContextMenuRequest ($0);
-		}, commandsJson.c_str ());
+			ContextMenuRequest ($0, $1, $2);
+		}, position.GetX (), position.GetY (), commandsJson.c_str ());
 		(void) commands;
 		return nullptr;
 	}
