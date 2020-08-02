@@ -53,32 +53,27 @@ AppEventHandler::~AppEventHandler ()
 
 NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
 {
-	browserInterface->ContextMenuRequest (position, commands);
-	return nullptr;
+	return browserInterface->ContextMenuRequest (position, commands);
 }
 
 NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UINodePtr&, const NUIE::MenuCommandStructure& commands)
 {
-	browserInterface->ContextMenuRequest (position, commands);
-	return nullptr;
+	return browserInterface->ContextMenuRequest (position, commands);
 }
 
 NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UIOutputSlotConstPtr&, const NUIE::MenuCommandStructure& commands)
 {
-	browserInterface->ContextMenuRequest (position, commands);
-	return nullptr;
+	return browserInterface->ContextMenuRequest (position, commands);
 }
 
 NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UIInputSlotConstPtr&, const NUIE::MenuCommandStructure& commands)
 {
-	browserInterface->ContextMenuRequest (position, commands);
-	return nullptr;
+	return browserInterface->ContextMenuRequest (position, commands);
 }
 
 NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UINodeGroupPtr&, const NUIE::MenuCommandStructure& commands)
 {
-	browserInterface->ContextMenuRequest (position, commands);
-	return nullptr;
+	return browserInterface->ContextMenuRequest (position, commands);
 }
 
 void AppEventHandler::OnDoubleClick (NUIE::MouseButton, const NUIE::Point&)

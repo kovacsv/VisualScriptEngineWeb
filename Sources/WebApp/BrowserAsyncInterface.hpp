@@ -17,16 +17,16 @@ public:
 	public:
 		ContextMenuData ();
 
-		NUIE::Point position;
+		NUIE::Point		position;
+		std::wstring	selectedCommandName;
 	};
 
 	BrowserAsyncInterface ();
 
 	bool					AreEventsSuspended () const;
 
-	void					ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
-	void					ContextMenuResponse (int commandIndex);
-	const ContextMenuData&	GetContextMenuData () const;
+	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
+	void					ContextMenuResponse (NUIE::NodeEditor& nodeEditor, const char* commandNameCStr);
 
 private:
 	State				state;

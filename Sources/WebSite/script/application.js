@@ -80,7 +80,6 @@ Application.prototype.ContextMenuRequest = function (commandsJson)
 {
 	var commandsJsonStr = UTF8ToString (commandsJson);
 	var commandJson = JSON.parse (commandsJsonStr);
-	alert (JSON.stringify (commandJson, '\n', 4));
-	var contextMenuResponseFunc = this.module.cwrap ('ContextMenuResponse', null, ['number']);
-	contextMenuResponseFunc (42);
+	var contextMenuResponseFunc = this.module.cwrap ('ContextMenuResponse', null, ['string']);
+	contextMenuResponseFunc ('Align To Window');
 }
