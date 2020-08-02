@@ -177,10 +177,10 @@ void CreateNode (int nodeIndex)
 	}
 }
 
-void ContextMenuResponse (const char* commandName)
+void ContextMenuResponse (int commandId)
 {
 	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-	gBrowserInterface.ContextMenuResponse (nodeEditor, commandName);
+	gBrowserInterface.ContextMenuResponse (nodeEditor, commandId);
 }
 
 };

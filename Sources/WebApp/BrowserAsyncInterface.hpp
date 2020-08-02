@@ -19,7 +19,7 @@ public:
 		ContextMenuData ();
 
 		NUIE::Point		position;
-		std::wstring	selectedCommandName;
+		int				selectedCommandId;
 	};
 
 	BrowserAsyncInterface ();
@@ -27,7 +27,7 @@ public:
 	bool					AreEventsSuspended () const;
 
 	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
-	void					ContextMenuResponse (NUIE::NodeEditor& nodeEditor, const char* commandNameCStr);
+	void					ContextMenuResponse (NUIE::NodeEditor& nodeEditor, int commandId);
 
 private:
 	State				state;
