@@ -9,7 +9,8 @@ public:
 	enum class State
 	{
 		Normal,
-		WaitingForContextMenu
+		WaitingForContextMenuResponse,
+		ContextMenuResponseArrived
 	};
 
 	class ContextMenuData

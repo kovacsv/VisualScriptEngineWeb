@@ -109,11 +109,11 @@ bool BrowserAsyncInterface::AreEventsSuspended () const
 NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
 {
 #ifdef EMSCRIPTEN
-	if (state == State::WaitingForContextMenu) {
+	if (state == State::ContextMenuResponseArrived) {
 		state = State::Normal;
 		return GetCommandByName (commands, contextMenuData.selectedCommandName);
 	} else {
-		state = State::WaitingForContextMenu;
+		state = State::WaitingForContextMenuResponse;
 		contextMenuData.position = position;
 		contextMenuData.selectedCommandName = L"";
 		std::string commandsJson = ConvertMenuCommandsToJson (commands);
@@ -132,10 +132,17 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 
 void BrowserAsyncInterface::ContextMenuResponse (NUIE::NodeEditor& nodeEditor, const char* commandNameCStr)
 {
+#ifdef EMSCRIPTEN
+	state = State::ContextMenuResponseArrived;
+
 	std::string commandNameStr = commandNameCStr;
 	contextMenuData.selectedCommandName = NE::StringToWString (commandNameStr);
 
 	const NUIE::Point& position = contextMenuData.position;
 	nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, (int) position.GetX (), (int) position.GetY ());
 	nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, (int) position.GetX (), (int) position.GetY ());
+#else
+	(void) nodeEditor;
+	(void) commandNameCStr;
+#endif
 }
