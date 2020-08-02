@@ -40,14 +40,11 @@ static NUIE::MouseButton GetMouseButtonFromEvent (const SDL_Event& sdlEvent)
 
 static bool MainLoop (Application* app)
 {
-	if (gBrowserInterface.AreEventsSuspended ()) {
-		return true;
-	}
-
+	bool enableEvents = !gBrowserInterface.AreEventsSuspended ();
 	NUIE::NodeEditor& nodeEditor = app->GetNodeEditor ();
 
 	SDL_Event sdlEvent;
-	if (SDL_PollEvent (&sdlEvent)) {
+	if (SDL_PollEvent (&sdlEvent) && enableEvents) {
 		switch (sdlEvent.type) {
 			case SDL_QUIT:
 				return false;
