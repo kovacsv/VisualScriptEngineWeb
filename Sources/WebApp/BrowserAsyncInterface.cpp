@@ -59,7 +59,7 @@ static void AddCommandsToJson (std::vector<NUIE::MenuCommandPtr> commandList, st
 	for (size_t i = 0; i < commandList.size (); i++) {
 		const NUIE::MenuCommandPtr& command = commandList[i];
 		json += L"{";
-		json += L"\"name\" : \"" + command->GetName () + L"\",";
+		json += L"\"name\" : \"" + NE::ReplaceAll (command->GetName (), L"\"", L"\\\"") + L"\",";
 		json += L"\"isChecked\" : ";
 		json += (command->IsChecked () ? L"true" : L"false");
 		if (command->HasChildCommands ()) {

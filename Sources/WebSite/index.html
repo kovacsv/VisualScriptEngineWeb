@@ -12,9 +12,11 @@
 	<script type='text/javascript'>
 		var application = new Application ();
 
-		function ContextMenuRequest (mouseX, mouseY, commandsJson)
+		function ContextMenuRequest (mouseX, mouseY, commandsJsonFromCpp)
 		{
-			application.ContextMenuRequest (mouseX, mouseY, commandsJson, 'canvas');
+			var commandsJsonStr = UTF8ToString (commandsJsonFromCpp);
+			var commandJson = JSON.parse (commandsJsonStr);
+			application.ContextMenuRequest (mouseX, mouseY, commandJson, 'canvas');
 		}
 
 		window.onload = function ()

@@ -79,9 +79,19 @@ div.contextmenuitem
 	cursor : pointer;
 }
 
+div.contextmenugroupitem
+{
+	padding : 6px 15px;
+}
+
 div.contextmenuitem:hover
 {
 	background : #90c8f6;
+}
+
+div.contextmenusubitems div.contextmenuitem
+{
+	padding-left : 30px;
 }
 
 a

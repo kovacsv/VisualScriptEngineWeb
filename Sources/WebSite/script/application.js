@@ -109,34 +109,43 @@ Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJso
 			contextMenuDiv.remove ();
 		}
 		
-		function AddCommandItems (module, contextMenuDiv, commandsJson)
+		function AddCommandItems (module, contextMenuDiv, commands)
 		{
 			function AddCommandItem (module, contextMenuDiv, commandName)
 			{
-				itemDiv = $('<div>').addClass ('contextmenuitem').html (commandName)
+				var itemDiv = $('<div>').addClass ('contextmenuitem').html (commandName)
 				itemDiv.appendTo (contextMenuDiv);
 				itemDiv.click (function () {
 					SendResponse (module, commandName);
 					CloseContextMenu ();
 				});
+				return itemDiv;
 			}
 			
-			var i, command, itemDiv;
-			for (i = 0; i < commandJson.commands.length; i++) {
-				command = commandJson.commands[i];
-				if (command.commands !== undefined) {
-					continue;
+			function AddGroupItem (module, contextMenuDiv, commandName)
+			{
+				var itemDiv = $('<div>').addClass ('contextmenugroupitem').html (commandName)
+				itemDiv.appendTo (contextMenuDiv);
+				return itemDiv;
+			}			
+			
+			var i, command, itemDiv, subItemsDiv;
+			for (i = 0; i < commands.length; i++) {
+				command = commands[i];
+				if (command.commands === undefined) {
+					itemDiv = AddCommandItem (module, contextMenuDiv, command.name);
+				} else {
+					itemDiv = AddGroupItem (module, contextMenuDiv, command.name);
+					subItemsDiv = $('<div>').addClass ('contextmenusubitems').appendTo (contextMenuDiv);
+					AddCommandItems (module, subItemsDiv, command.commands);
 				}
-				AddCommandItem (module, contextMenuDiv, command.name);
 			}
 		}
 		
 		var canvasDiv = $('#' + canvasName);
 		var contextMenuDiv = OpenContextMenu (module, mouseX, mouseY);
-		AddCommandItems (module, contextMenuDiv, commandsJson);
+		AddCommandItems (module, contextMenuDiv, commandsJson.commands);
 	}
 	
-	var commandsJsonStr = UTF8ToString (commandsJson);
-	var commandJson = JSON.parse (commandsJsonStr);
 	ShowContextMenu (this.module, mouseX, mouseY, commandsJson, canvasName);
 }
