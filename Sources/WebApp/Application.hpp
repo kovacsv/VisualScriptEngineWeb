@@ -7,19 +7,30 @@
 #include "NUIE_NodeEditor.hpp"
 #include "SDL2Context.hpp"
 
-class BrowserInterface
+class BrowserAsyncInterface
 {
 public:
-	BrowserInterface ();
+	enum class State
+	{
+		Normal,
+		WaitingForContextMenu
+	};
+
+	BrowserAsyncInterface ();
+
+	bool	AreEventsSuspended () const;
+
+	void	ContextMenuRequest (const NUIE::Point& position);
+	void	ContextMenuResponse (int commandIndex);
 
 private:
-
+	State	state;
 };
 
 class AppEventHandler : public NUIE::EventHandler
 {
 public:
-	AppEventHandler (BrowserInterface* browserInterface);
+	AppEventHandler (BrowserAsyncInterface* browserInterface);
 	virtual ~AppEventHandler ();
 
 	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands) override;
@@ -33,13 +44,13 @@ public:
 	virtual bool					OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodeGroupPtr& uiGroup) override;
 
 private:
-	BrowserInterface*				browserInterface;
+	BrowserAsyncInterface*			browserInterface;
 };
 
 class AppUIEnvironment : public NUIE::NodeUIEnvironment
 {
 public:
-	AppUIEnvironment (SDL_Renderer* renderer, BrowserInterface* browserInterface);
+	AppUIEnvironment (SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface);
 	
 	void								Init (NUIE::NodeEditor* nodeEditorPtr);
 
@@ -73,7 +84,7 @@ private:
 class Application
 {
 public:
-	Application (SDL_Renderer* renderer, BrowserInterface* browserInterface);
+	Application (SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface);
 
 	SDL_Renderer*		GetRenderer ();
 	NUIE::NodeEditor&	GetNodeEditor ();

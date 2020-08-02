@@ -1,6 +1,10 @@
 #include "Application.hpp"
 #include "BI_BuiltInNodes.hpp"
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 static const NUIE::BasicSkinParams& GetAppSkinParams ()
 {
 	static const NUIE::BasicSkinParams skinParams (
@@ -40,12 +44,28 @@ static const NUIE::BasicSkinParams& GetAppSkinParams ()
 	return skinParams;
 }
 
-BrowserInterface::BrowserInterface ()
+BrowserAsyncInterface::BrowserAsyncInterface () :
+	state (State::Normal)
 {
 
 }
 
-AppEventHandler::AppEventHandler (BrowserInterface* browserInterface) :
+bool BrowserAsyncInterface::AreEventsSuspended () const
+{
+	return state != State::Normal;
+}
+
+void BrowserAsyncInterface::ContextMenuRequest (const NUIE::Point& /*position*/)
+{
+	state = State::WaitingForContextMenu;
+}
+
+void BrowserAsyncInterface::ContextMenuResponse (int /*commandIndex*/)
+{
+	state = State::Normal;
+}
+
+AppEventHandler::AppEventHandler (BrowserAsyncInterface* browserInterface) :
 	browserInterface (browserInterface)
 {
 
@@ -56,10 +76,16 @@ AppEventHandler::~AppEventHandler ()
 
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point&, const NUIE::MenuCommandStructure&)
+NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure&)
 {
-	// TODO
-	(void) browserInterface;
+#ifdef EMSCRIPTEN
+	browserInterface->ContextMenuRequest (position);
+	EM_ASM (
+		ContextMenuRequest ();
+	);
+#else
+	(void) position;
+#endif
 	return nullptr;
 }
 
@@ -98,7 +124,7 @@ bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr, const NU
 	return false;
 }
 
-AppUIEnvironment::AppUIEnvironment (SDL_Renderer* renderer, BrowserInterface* browserInterface) :
+AppUIEnvironment::AppUIEnvironment (SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface) :
 	NUIE::NodeUIEnvironment (),
 	stringConverter (NE::GetDefaultStringConverter ()),
 	skinParams (GetAppSkinParams ()),
@@ -176,7 +202,7 @@ double AppUIEnvironment::GetMouseMoveMinOffset ()
 	return 2.0;
 }
 
-Application::Application (SDL_Renderer* renderer, BrowserInterface* browserInterface) :
+Application::Application (SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface) :
 	renderer (renderer),
 	uiEnvironment (renderer, browserInterface),
 	nodeEditor (uiEnvironment)

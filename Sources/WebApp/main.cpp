@@ -1,17 +1,18 @@
 #include <iostream>
-#ifdef EMSCRIPTEN
-	#include <emscripten.h>
-#endif
+
 #include <SDL.h>
 #include <SDL_ttf.h>
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
 
 #include "NUIE_NodeEditor.hpp"
 #include "BI_BuiltInNodes.hpp"
 
 #include "Application.hpp"
 
-static BrowserInterface		browserInterface;
-static Application*			gAppForBrowser = nullptr;
+static BrowserAsyncInterface	gBrowserInterface;
+static Application*				gAppForBrowser = nullptr;
 
 static NUIE::ModifierKeys GetModifierKeys ()
 {
@@ -39,6 +40,10 @@ static NUIE::MouseButton GetMouseButtonFromEvent (const SDL_Event& sdlEvent)
 
 static bool MainLoop (Application* app)
 {
+	if (gBrowserInterface.AreEventsSuspended ()) {
+		return true;
+	}
+
 	NUIE::NodeEditor& nodeEditor = app->GetNodeEditor ();
 
 	SDL_Event sdlEvent;
@@ -143,6 +148,10 @@ extern "C"
 
 void CreateNode (int nodeIndex)
 {
+	if (gBrowserInterface.AreEventsSuspended ()) {
+		return;
+	}
+
 	if (gAppForBrowser == nullptr) {
 		return;
 	}
@@ -171,6 +180,11 @@ void CreateNode (int nodeIndex)
 	}
 }
 
+void ContextMenuResponse (int /*commandIndex*/)
+{
+	gBrowserInterface.ContextMenuResponse (1);
+}
+
 };
 
 int main (int, char**)
@@ -183,7 +197,7 @@ int main (int, char**)
 	SDL_CreateWindowAndRenderer (700, 500, 0, &window, &renderer);
 	
 	{
-		Application app (renderer, &browserInterface);
+		Application app (renderer, &gBrowserInterface);
 		gAppForBrowser = &app;
 
 #ifdef EMSCRIPTEN

@@ -82,3 +82,12 @@ Application.prototype.CreateNode = function (nodeIndex)
 	var createNodeFunc = this.module.cwrap ('CreateNode', null, ['number']);
 	createNodeFunc (nodeIndex);
 }
+
+Application.prototype.ContextMenuRequest = function ()
+{
+	var myThis = this;
+	setTimeout (function (){
+		var contextMenuResponseFunc = myThis.module.cwrap ('ContextMenuResponse', null, ['number']);
+		contextMenuResponseFunc (42);
+	}, 2000);
+}
