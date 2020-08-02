@@ -132,7 +132,7 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 		std::string commandsJson = ConvertMenuCommandsToJson (commands);
 		EM_ASM ({
 			ContextMenuRequest ($0, $1, $2);
-			}, position.GetX (), position.GetY (), commandsJson.c_str ());
+		}, position.GetX (), position.GetY (), commandsJson.c_str ());
 		return nullptr;
 	} else if (state == State::ContextMenuResponseArrived){
 		state = State::Normal;

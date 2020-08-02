@@ -45,6 +45,7 @@ static bool MainLoop (Application* app)
 
 	SDL_Event sdlEvent;
 	if (SDL_PollEvent (&sdlEvent) && enableEvents) {
+
 		switch (sdlEvent.type) {
 			case SDL_QUIT:
 				return false;
@@ -185,9 +186,18 @@ void ContextMenuResponse (int commandId)
 
 };
 
+int IsTouchEvent (void*, SDL_Event* sdlEvent)
+{
+	if (sdlEvent->type == SDL_FINGERDOWN || sdlEvent->type == SDL_FINGERUP || sdlEvent->type == SDL_FINGERMOTION) {
+		return 0;
+	}
+	return 1;
+}
+
 int main (int, char**)
 {
 	SDL_Init (SDL_INIT_VIDEO);
+	SDL_SetEventFilter (IsTouchEvent, nullptr);
 	TTF_Init ();
 
 	SDL_Window *window;
