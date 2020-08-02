@@ -1,10 +1,6 @@
 #include "Application.hpp"
 #include "BI_BuiltInNodes.hpp"
 
-#ifdef EMSCRIPTEN
-#include <emscripten.h>
-#endif
-
 static const NUIE::BasicSkinParams& GetAppSkinParams ()
 {
 	static const NUIE::BasicSkinParams skinParams (
@@ -55,36 +51,33 @@ AppEventHandler::~AppEventHandler ()
 
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure&)
+NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
 {
-#ifdef EMSCRIPTEN
-	browserInterface->ContextMenuRequest (position);
-	EM_ASM (
-		ContextMenuRequest ();
-	);
-#else
-	(void) position;
-#endif
+	browserInterface->ContextMenuRequest (position, commands);
 	return nullptr;
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point&, const NUIE::UINodePtr&, const NUIE::MenuCommandStructure&)
+NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UINodePtr&, const NUIE::MenuCommandStructure& commands)
 {
+	browserInterface->ContextMenuRequest (position, commands);
 	return nullptr;
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point&, const NUIE::UIOutputSlotConstPtr&, const NUIE::MenuCommandStructure&)
+NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UIOutputSlotConstPtr&, const NUIE::MenuCommandStructure& commands)
 {
+	browserInterface->ContextMenuRequest (position, commands);
 	return nullptr;
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point&, const NUIE::UIInputSlotConstPtr&, const NUIE::MenuCommandStructure&)
+NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UIInputSlotConstPtr&, const NUIE::MenuCommandStructure& commands)
 {
+	browserInterface->ContextMenuRequest (position, commands);
 	return nullptr;
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point&, const NUIE::UINodeGroupPtr&, const NUIE::MenuCommandStructure&)
+NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UINodeGroupPtr&, const NUIE::MenuCommandStructure& commands)
 {
+	browserInterface->ContextMenuRequest (position, commands);
 	return nullptr;
 }
 

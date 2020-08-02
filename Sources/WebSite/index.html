@@ -12,9 +12,9 @@
 	<script type='text/javascript'>
 		var application = new Application ();
 
-		function ContextMenuRequest ()
+		function ContextMenuRequest (commandsJson)
 		{
-			application.ContextMenuRequest ();
+			application.ContextMenuRequest (commandsJson);
 		}
 
 		window.onload = function ()

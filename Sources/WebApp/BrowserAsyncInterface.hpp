@@ -12,15 +12,25 @@ public:
 		WaitingForContextMenu
 	};
 
+	class ContextMenuData
+	{
+	public:
+		ContextMenuData ();
+
+		NUIE::Point position;
+	};
+
 	BrowserAsyncInterface ();
 
-	bool	AreEventsSuspended () const;
+	bool					AreEventsSuspended () const;
 
-	void	ContextMenuRequest (const NUIE::Point& position);
-	void	ContextMenuResponse (int commandIndex);
+	void					ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
+	void					ContextMenuResponse (int commandIndex);
+	const ContextMenuData&	GetContextMenuData () const;
 
 private:
-	State	state;
+	State				state;
+	ContextMenuData		contextMenuData;
 };
 
 #endif
