@@ -82,7 +82,7 @@ Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJso
 	{
 		function SendResponse (module, response)
 		{
-			var contextMenuResponseFunc = module.cwrap ('ContextMenuResponse', null, ['string']);
+			var contextMenuResponseFunc = module.cwrap ('ContextMenuResponse', null, ['number']);
 			contextMenuResponseFunc (response);			
 		}
 		
@@ -96,7 +96,7 @@ Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJso
 				event.preventDefault ();
 				if ($(event.target).parents ('.contextmenu').length == 0) {
 					CloseContextMenu ();
-					SendResponse (module, '');
+					SendResponse (module, -1);
 				}
 			});
 			return contextMenuDiv;
@@ -111,12 +111,12 @@ Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJso
 		
 		function AddCommandItems (module, contextMenuDiv, commands)
 		{
-			function AddCommandItem (module, contextMenuDiv, commandName)
+			function AddCommandItem (module, contextMenuDiv, commandName, commandId)
 			{
 				var itemDiv = $('<div>').addClass ('contextmenuitem').html (commandName)
 				itemDiv.appendTo (contextMenuDiv);
 				itemDiv.click (function () {
-					SendResponse (module, commandName);
+					SendResponse (module, commandId);
 					CloseContextMenu ();
 				});
 				return itemDiv;
@@ -133,7 +133,7 @@ Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJso
 			for (i = 0; i < commands.length; i++) {
 				command = commands[i];
 				if (command.commands === undefined) {
-					itemDiv = AddCommandItem (module, contextMenuDiv, command.name);
+					itemDiv = AddCommandItem (module, contextMenuDiv, command.name, command.id);
 				} else {
 					itemDiv = AddGroupItem (module, contextMenuDiv, command.name);
 					subItemsDiv = $('<div>').addClass ('contextmenusubitems').appendTo (contextMenuDiv);
