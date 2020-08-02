@@ -12,14 +12,9 @@ Application.prototype.InitMenu = function (menuDivName)
 {
 	function CreateItem (imgSrc, text)
 	{
-		var mainItem = document.createElement ('div');
-		mainItem.className = 'menuitem';
-		var imgItem = document.createElement ('img');
-		imgItem.src = imgSrc;
-		mainItem.appendChild (imgItem);
-		var textItem = document.createElement ('span');
-		textItem.innerHTML = text;
-		mainItem.appendChild (textItem);
+		var mainItem = $('<div>').addClass ('menuitem');
+		var imgItem = $('<img>').attr ('src', imgSrc).appendTo (mainItem);
+		var textItem = $('<span>').html (text).appendTo (mainItem);
 		var result = {
 			mainItem : mainItem,
 			imgItem : imgItem,
@@ -31,20 +26,18 @@ Application.prototype.InitMenu = function (menuDivName)
 	function AddTitleItem (menuDiv, text)
 	{
 		var item = CreateItem ('images/folder_opened.png', text);
-		menuDiv.appendChild (item.mainItem);
-		var menuItems = document.createElement ('div');
-		menuItems.className = 'subitems';
-		menuDiv.appendChild (menuItems);
+		item.mainItem.appendTo (menuDiv);
+		var menuItems = $('<div>').addClass ('subitems').appendTo (menuDiv);
 		
-		item.mainItem.onclick = function () {
-			if (menuItems.style.display != 'none') {
-				menuItems.style.display = 'none';
-				item.imgItem.src = 'images/folder_closed.png';
+		item.mainItem.click (function () {
+			if (menuItems.is (':visible')) {
+				menuItems.hide ();
+				item.imgItem.attr ('src', 'images/folder_closed.png');
 			} else {
-				menuItems.style.display = 'block';
-				item.imgItem.src = 'images/folder_opened.png';
+				menuItems.show ();
+				item.imgItem.attr ('src', 'images/folder_opened.png');
 			}
-		}
+		});
 		
 		return menuItems;
 	}
@@ -52,13 +45,13 @@ Application.prototype.InitMenu = function (menuDivName)
 	function AddMenuItem (app, menuDiv, text, nodeIndex)
 	{
 		var item = CreateItem ('images/plus.png', text);
-		menuDiv.appendChild (item.mainItem);
-		item.mainItem.onclick = function () {
+		item.mainItem.appendTo (menuDiv);
+		item.mainItem.click (function () {
 			app.CreateNode (nodeIndex);
-		}
+		});
 	}			
 	
-	var menuDiv = document.getElementById (menuDivName);
+	var menuDiv = $('#' + menuDivName);
 	
 	var inputs = AddTitleItem (menuDiv, 'Inputs');
 	AddMenuItem (this, inputs, 'Integer', 0);
