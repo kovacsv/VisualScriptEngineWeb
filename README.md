@@ -8,6 +8,8 @@ The [Emscripten](https://emscripten.org) port of [VisualScriptEngine](https://gi
 
 [You can see the live demo here.](http://kovacsv.github.io/VisualScriptEngineWebDemo)
 
+![Screenshot](Documentation/WebEmbeddingDemo01.png?raw=true "Web Embedding Demo")
+
 ## Building on Windows
 
 ### 1. Install Emscripten SDK
