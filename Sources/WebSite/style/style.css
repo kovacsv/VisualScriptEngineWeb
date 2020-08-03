@@ -10,20 +10,19 @@ html, body
 
 div.editor
 {
-
+	margin : 10px;
 }
 
-div.frame
+div.left
 {
-	width : 902px;
-	margin : 20px auto;
+	width : 190px;
+	margin-right : 10px;
+	float : left;	
 }
 
 div.menu
 {
-	width : 190px;
-	margin-right : 10px;
-	float : left;
+
 }
 
 div.menuitem
@@ -36,25 +35,6 @@ div.menuitem
 div.subitems
 {
 	margin-left : 20px;
-}
-
-div.title
-{
-	font-size : 2.0em;
-	margin-bottom : 0.8em;
-}
-
-div.text
-{
-	margin : 1.5em 0;
-	line-height : 1.6em;
-}
-
-div.hint
-{
-	color : #aaaaaa;
-	margin : 0.3em 0;
-	text-align : right;
 }
 
 div.contextmenu
@@ -117,13 +97,4 @@ a:hover
 canvas
 {
 	border : 1px solid #dddddd;	
-}
-
-@media only screen and (max-device-width : 900px)
-{
-	div.frame
-	{
-		width : auto;
-		margin : 1.0em 1.0em;
-	}
 }

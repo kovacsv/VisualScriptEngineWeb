@@ -208,8 +208,16 @@ int main (int, char**)
 
 	SDL_Window *window;
 	SDL_Renderer *renderer;
-	SDL_CreateWindowAndRenderer (700, 500, 0, &window, &renderer);
-	
+
+	static short InitialWindowWidth = 700;
+	static short InitialWindowHeight = 500;
+#ifdef EMSCRIPTEN
+	// let the browser do the resize logic
+	InitialWindowWidth = 10;
+	InitialWindowHeight = 10;
+#endif
+	SDL_CreateWindowAndRenderer (InitialWindowWidth, InitialWindowHeight, 0, &window, &renderer);
+
 	{
 		Application app (window, renderer, &gBrowserInterface);
 		gAppForBrowser = &app;
