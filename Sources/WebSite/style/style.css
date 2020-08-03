@@ -37,6 +37,12 @@ div.subitems
 	margin-left : 20px;
 }
 
+div.links
+{
+	text-align : center;
+	margin-top : 40px;
+}
+
 div.contextmenu
 {
 	color : #000000;
@@ -97,4 +103,12 @@ a:hover
 canvas
 {
 	border : 1px solid #dddddd;	
+}
+
+@media only screen and (max-width : 1000px)
+{
+	div.nomobile
+	{
+		display : none;
+	}
 }
