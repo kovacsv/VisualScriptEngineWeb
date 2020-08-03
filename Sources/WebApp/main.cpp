@@ -186,8 +186,10 @@ void ContextMenuResponse (int commandId)
 
 };
 
-int IsTouchEvent (void*, SDL_Event* sdlEvent)
+int EventFilter (void*, SDL_Event* sdlEvent)
 {
+	// filter finger events, because on mobile both the mouse and the finger events arrive,
+	// and it makes event handling very slow
 	if (sdlEvent->type == SDL_FINGERDOWN || sdlEvent->type == SDL_FINGERUP || sdlEvent->type == SDL_FINGERMOTION) {
 		return 0;
 	}
@@ -197,7 +199,7 @@ int IsTouchEvent (void*, SDL_Event* sdlEvent)
 int main (int, char**)
 {
 	SDL_Init (SDL_INIT_VIDEO);
-	SDL_SetEventFilter (IsTouchEvent, nullptr);
+	SDL_SetEventFilter (EventFilter, nullptr);
 	TTF_Init ();
 
 	SDL_Window *window;
