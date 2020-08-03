@@ -30,6 +30,7 @@ div.menuitem
 {
 	padding : 5px 10px;
 	cursor : pointer;
+	user-select : none;
 }
 
 div.subitems
@@ -71,6 +72,7 @@ div.contextmenuitem
 {
 	padding : 6px 15px;
 	cursor : pointer;
+	user-select : none;
 }
 
 div.contextmenugroupitem
