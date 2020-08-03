@@ -47,6 +47,17 @@ static bool MainLoop (Application* app)
 	if (SDL_PollEvent (&sdlEvent) && enableEvents) {
 
 		switch (sdlEvent.type) {
+			case SDL_WINDOWEVENT:
+			{
+				switch (sdlEvent.window.event) {
+					case SDL_WINDOWEVENT_RESIZED:
+					case SDL_WINDOWEVENT_SIZE_CHANGED:
+						// TODO: doesn't work in browser
+						nodeEditor.OnResize (sdlEvent.window.data1, sdlEvent.window.data2);
+						break;
+				}
+			}
+				break;
 			case SDL_QUIT:
 				return false;
 			case SDL_MOUSEBUTTONDOWN:
@@ -205,6 +216,7 @@ int main (int, char**)
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_CreateWindowAndRenderer (700, 500, 0, &window, &renderer);
+	SDL_SetWindowResizable (window, SDL_TRUE);
 	
 	{
 		Application app (renderer, &gBrowserInterface);
