@@ -13,32 +13,12 @@ static const int InvalidCommandId = -1;
 static const int FirstCommandId = 1;
 
 UNUSED_IN_CPP
-static std::vector<NUIE::MenuCommandPtr> GetCommandList (const NUIE::MenuCommandStructure& commands)
-{
-	std::vector<NUIE::MenuCommandPtr> commandList;
-	commands.EnumerateCommands ([&] (const NUIE::MenuCommandPtr& command) {
-		commandList.push_back (command);
-	});
-	return commandList;
-}
-
-UNUSED_IN_CPP
-static std::vector<NUIE::MenuCommandPtr> GetChildCommandList (const NUIE::MenuCommandPtr& command)
-{
-	std::vector<NUIE::MenuCommandPtr> commandList;
-	command->EnumerateChildCommands ([&] (const NUIE::MenuCommandPtr& childCommand) {
-		commandList.push_back (childCommand);
-	});
-	return commandList;
-}
-
-UNUSED_IN_CPP
 static NUIE::MenuCommandPtr GetCommandById (const std::vector<NUIE::MenuCommandPtr>& commandList, int commandId, int& currentId)
 {
 	for (size_t i = 0; i < commandList.size (); i++) {
 		const NUIE::MenuCommandPtr& command = commandList[i];
 		if (command->HasChildCommands ()) {
-			std::vector<NUIE::MenuCommandPtr> childCommandList = GetChildCommandList (command);
+			std::vector<NUIE::MenuCommandPtr> childCommandList = command->GetChildCommands ();
 			NUIE::MenuCommandPtr found = GetCommandById (childCommandList, commandId, currentId);
 			if (found != nullptr) {
 				return found;
@@ -57,7 +37,7 @@ UNUSED_IN_CPP
 static NUIE::MenuCommandPtr GetCommandById (const NUIE::MenuCommandStructure& commands, int commandId)
 {
 	int currentId = FirstCommandId;
-	std::vector<NUIE::MenuCommandPtr> commandList = GetCommandList (commands);
+	std::vector<NUIE::MenuCommandPtr> commandList = commands.GetCommands ();
 	return GetCommandById (commandList, commandId, currentId);
 }
 
@@ -74,7 +54,7 @@ static void AddCommandsToJson (std::vector<NUIE::MenuCommandPtr> commandList, in
 		json += (command->IsChecked () ? L"true" : L"false");
 		if (command->HasChildCommands ()) {
 			json += L",";
-			std::vector<NUIE::MenuCommandPtr> childCommandList = GetChildCommandList (command);
+			std::vector<NUIE::MenuCommandPtr> childCommandList = command->GetChildCommands ();
 			AddCommandsToJson (childCommandList, currentId, json);
 		}
 		json += L"}";
@@ -92,7 +72,7 @@ static std::string ConvertMenuCommandsToJson (const NUIE::MenuCommandStructure& 
 	std::wstring json = L"";
 	json += L"{";
 
-	std::vector<NUIE::MenuCommandPtr> commandList = GetCommandList (commands);
+	std::vector<NUIE::MenuCommandPtr> commandList = commands.GetCommands ();
 	int currentId = FirstCommandId;
 	AddCommandsToJson (commandList, currentId, json);
 
