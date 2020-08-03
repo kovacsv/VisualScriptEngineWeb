@@ -13,7 +13,7 @@ Application.prototype.InitMenu = function (menuDivName)
 	function CreateItem (imgSrc, text)
 	{
 		var mainItem = $('<div>').addClass ('menuitem');
-		var imgItem = $('<img>').attr ('src', imgSrc).appendTo (mainItem);
+		var imgItem = $('<img>').addClass ('icon').attr ('src', imgSrc).appendTo (mainItem);
 		var textItem = $('<span>').html (text).appendTo (mainItem);
 		var result = {
 			mainItem : mainItem,
@@ -111,9 +111,16 @@ Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJso
 		
 		function AddCommandItems (module, contextMenuDiv, commands)
 		{
-			function AddCommandItem (module, contextMenuDiv, commandName, commandId)
+			function AddCommandItem (module, contextMenuDiv, commandName, commandIsChecked, commandId)
 			{
-				var itemDiv = $('<div>').addClass ('contextmenuitem').html (commandName)
+				var itemDiv = $('<div>').addClass ('contextmenuitem');
+				var imgItem = $('<img>').addClass ('icon').appendTo (itemDiv);
+				if (commandIsChecked) {
+					imgItem.attr ('src', 'images/check.png');
+				} else {
+					imgItem.attr ('src', 'images/nocheck.png');
+				}
+				var textItem = $('<span>').html (commandName).appendTo (itemDiv);
 				itemDiv.appendTo (contextMenuDiv);
 				itemDiv.click (function () {
 					SendResponse (module, commandId);
@@ -124,7 +131,9 @@ Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJso
 			
 			function AddGroupItem (module, contextMenuDiv, commandName)
 			{
-				var itemDiv = $('<div>').addClass ('contextmenugroupitem').html (commandName)
+				var itemDiv = $('<div>').addClass ('contextmenugroupitem');
+				$('<img>').addClass ('icon').attr ('src', 'images/nocheck.png').appendTo (itemDiv);
+				$('<span>').html (commandName).appendTo (itemDiv);
 				itemDiv.appendTo (contextMenuDiv);
 				return itemDiv;
 			}			
@@ -133,7 +142,7 @@ Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJso
 			for (i = 0; i < commands.length; i++) {
 				command = commands[i];
 				if (command.commands === undefined) {
-					itemDiv = AddCommandItem (module, contextMenuDiv, command.name, command.id);
+					itemDiv = AddCommandItem (module, contextMenuDiv, command.name, command.isChecked, command.id);
 				} else {
 					itemDiv = AddGroupItem (module, contextMenuDiv, command.name);
 					subItemsDiv = $('<div>').addClass ('contextmenusubitems').appendTo (contextMenuDiv);

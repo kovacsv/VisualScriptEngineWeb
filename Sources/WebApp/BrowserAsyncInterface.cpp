@@ -134,7 +134,8 @@ void BrowserAsyncInterface::ContextMenuResponse (NUIE::NodeEditor& nodeEditor, i
 	state = State::ContextMenuResponseArrived;
 	contextMenuData.selectedCommandId = commandId;
 
-	const NUIE::Point& position = contextMenuData.position;
+	// Trigger context menu callback again
+	NUIE::Point position = contextMenuData.position;
 	nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, (int) position.GetX (), (int) position.GetY ());
 	nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, (int) position.GetX (), (int) position.GetY ());
 #else
