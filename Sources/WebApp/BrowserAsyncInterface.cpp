@@ -6,7 +6,11 @@
 #include <emscripten.h>
 #define UNUSED_IN_CPP
 #else
+#ifdef _MSC_VER
 #define UNUSED_IN_CPP __pragma (warning (suppress: 4505))
+#else
+#define UNUSED_IN_CPP __attribute__ ((unused))
+#endif
 #endif
 
 static const int InvalidCommandId = -1;
