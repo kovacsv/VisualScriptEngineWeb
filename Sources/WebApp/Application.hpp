@@ -66,11 +66,15 @@ private:
 class Application
 {
 public:
-	Application (SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface);
+	Application (SDL_Window* window, SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface);
 
-	SDL_Renderer*		GetRenderer ();
+	SDL_Rect			GetWindowRect () const;
+	void				ResizeWindow (int width, int height);
+
 	NUIE::NodeEditor&	GetNodeEditor ();
+
 private:
+	SDL_Window*			window;
 	SDL_Renderer*		renderer;
 
 	AppUIEnvironment	uiEnvironment;

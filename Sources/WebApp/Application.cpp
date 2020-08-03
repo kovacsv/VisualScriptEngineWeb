@@ -169,7 +169,8 @@ double AppUIEnvironment::GetMouseMoveMinOffset ()
 	return 2.0;
 }
 
-Application::Application (SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface) :
+Application::Application (SDL_Window* window, SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface) :
+	window (window),
 	renderer (renderer),
 	uiEnvironment (renderer, browserInterface),
 	nodeEditor (uiEnvironment)
@@ -183,9 +184,17 @@ Application::Application (SDL_Renderer* renderer, BrowserAsyncInterface* browser
 #endif
 }
 
-SDL_Renderer* Application::GetRenderer ()
+SDL_Rect Application::GetWindowRect () const
 {
-	return renderer;
+	SDL_Rect rect;
+	SDL_RenderGetViewport (renderer, &rect);
+	return rect;
+}
+
+void Application::ResizeWindow (int width, int height)
+{
+	SDL_SetWindowSize (window, width, height);
+	nodeEditor.OnResize (width, height);
 }
 
 NUIE::NodeEditor& Application::GetNodeEditor ()

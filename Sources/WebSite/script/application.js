@@ -70,6 +70,12 @@ Application.prototype.InitMenu = function (menuDivName)
 	AddMenuItem (this, other, 'Viewer', 9);
 }
 
+Application.prototype.ResizeCanvas = function (width, height)
+{
+	var resizeWindowFunc = Module.cwrap ('ResizeWindow', null, ['number', 'number']);
+	resizeWindowFunc (width, height);
+}
+
 Application.prototype.CreateNode = function (nodeIndex)
 {
 	var createNodeFunc = this.module.cwrap ('CreateNode', null, ['number']);

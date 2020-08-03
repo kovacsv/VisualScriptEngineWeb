@@ -116,7 +116,14 @@ a:hover
 
 canvas
 {
-	width : 700px;
-	height : 500px;
 	border : 1px solid #dddddd;	
+}
+
+@media only screen and (max-device-width : 900px)
+{
+	div.frame
+	{
+		width : auto;
+		margin : 1.0em 1.0em;
+	}
 }

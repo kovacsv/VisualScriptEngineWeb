@@ -45,19 +45,7 @@ static bool MainLoop (Application* app)
 
 	SDL_Event sdlEvent;
 	if (SDL_PollEvent (&sdlEvent) && enableEvents) {
-
 		switch (sdlEvent.type) {
-			case SDL_WINDOWEVENT:
-			{
-				switch (sdlEvent.window.event) {
-					case SDL_WINDOWEVENT_RESIZED:
-					case SDL_WINDOWEVENT_SIZE_CHANGED:
-						// TODO: doesn't work in browser
-						nodeEditor.OnResize (sdlEvent.window.data1, sdlEvent.window.data2);
-						break;
-				}
-			}
-				break;
 			case SDL_QUIT:
 				return false;
 			case SDL_MOUSEBUTTONDOWN:
@@ -155,6 +143,14 @@ static void EmscriptenMainLoop (void* arg)
 extern "C"
 {
 
+void ResizeWindow (int width, int height)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->ResizeWindow (width, height);
+}
+
 void CreateNode (int nodeIndex)
 {
 	if (gBrowserInterface.AreEventsSuspended ()) {
@@ -165,13 +161,10 @@ void CreateNode (int nodeIndex)
 		return;
 	}
 
-	SDL_Renderer* renderer = gAppForBrowser->GetRenderer ();
 	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
 
-	SDL_Rect renderRect;
-	SDL_RenderGetViewport (renderer, &renderRect);
-
-	NUIE::Rect viewRect = NUIE::Rect::FromPositionAndSize (NUIE::Point (0.0, 0.0), NUIE::Size (renderRect.w, renderRect.h));
+	SDL_Rect windowRect = gAppForBrowser->GetWindowRect ();
+	NUIE::Rect viewRect = NUIE::Rect::FromPositionAndSize (NUIE::Point (0.0, 0.0), NUIE::Size (windowRect.w, windowRect.h));
 	NUIE::Point viewCenter = viewRect.GetCenter ();
 	NUIE::Point position = nodeEditor.ViewToModel (viewCenter);
 
@@ -216,13 +209,15 @@ int main (int, char**)
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_CreateWindowAndRenderer (700, 500, 0, &window, &renderer);
-	SDL_SetWindowResizable (window, SDL_TRUE);
 	
 	{
-		Application app (renderer, &gBrowserInterface);
+		Application app (window, renderer, &gBrowserInterface);
 		gAppForBrowser = &app;
 
 #ifdef EMSCRIPTEN
+		EM_ASM (
+			OnWindowCreated ();
+		);
 		emscripten_set_main_loop_arg (EmscriptenMainLoop, &app, 0, true);
 #else
 		while (true) {
