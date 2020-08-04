@@ -54,11 +54,12 @@ div.links
 div.contextmenu
 {
 	color : #000000;
-	background : #f2f2f2;
+	background : #ffffff;
 	position : absolute;
 	left : 0px;
 	top : 0px;
 	border : 1px solid #cccccc;
+	border-radius : 5px;
 	overflow : auto;
 }
 
