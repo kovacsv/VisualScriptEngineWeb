@@ -22,14 +22,9 @@
 		function OnResize ()
 		{
 			var windowObj = $(window);
-			var canvas = $('#canvas');
-			
-			canvas.hide ();
-			var leftDiv = $('#left');
-			var newWidth = windowObj.width () - leftDiv.width () - 32;
-			var newHeight = windowObj.height () - 26;
+			var newWidth = windowObj.width () - 240 - 12;
+			var newHeight = windowObj.height () - 22;
 			application.ResizeCanvas (newWidth, newHeight);
-			canvas.show ();
 		}
 		
 		function OnReady ()
@@ -60,9 +55,11 @@
 <body>
 	<div class="editor">
 		<div class="left" id="left">
-			<div class="menu" id="menu"></div>
-			<div class="links nomobile">
-				<a href="https://github.com/kovacsv/VisualScriptEngineWeb"><img src="images/github.png"/></a>
+			<div class="leftcontainer" id="leftcontainer">
+				<div class="menu" id="menu"></div>
+				<div class="links nomobile">
+					<a href="https://github.com/kovacsv/VisualScriptEngineWeb"><img src="images/github.png"/></a>
+				</div>
 			</div>
 		</div>
 		<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>

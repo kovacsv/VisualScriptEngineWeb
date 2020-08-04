@@ -10,14 +10,22 @@ html, body
 
 div.editor
 {
-	margin : 10px;
+	
 }
 
 div.left
 {
-	width : 190px;
-	margin-right : 10px;
-	float : left;	
+	width : 230px;
+	height : 100%;
+	position : absolute;
+	left : 0px;
+	right : 0px;
+	overflow : auto;
+}
+
+div.leftcontainer
+{
+	padding : 10px;
 }
 
 div.menu
@@ -100,9 +108,11 @@ a:hover
 	text-decoration : underline;
 }
 
-canvas
+#canvas
 {
-	border : 1px solid #dddddd;	
+	border : 1px solid #dddddd;
+	margin-left : 240px;
+	margin-top : 10px;
 }
 
 @media only screen and (max-width : 1000px)
