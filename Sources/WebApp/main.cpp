@@ -11,6 +11,8 @@
 
 #include "Application.hpp"
 
+// #define ENABLE_EVENT_LOGGING
+
 static BrowserAsyncInterface	gBrowserInterface;
 static Application*				gAppForBrowser = nullptr;
 
@@ -45,6 +47,11 @@ static bool MainLoop (Application* app)
 
 	SDL_Event sdlEvent;
 	if (SDL_PollEvent (&sdlEvent) && enableEvents) {
+#if defined (EMSCRIPTEN) && defined (ENABLE_EVENT_LOGGING)
+		EM_ASM ({
+			console.log ($0);
+		}, sdlEvent.type);
+#endif
 		switch (sdlEvent.type) {
 			case SDL_QUIT:
 				return false;
@@ -85,7 +92,7 @@ static bool MainLoop (Application* app)
 					}
 				}
 				break;
-			case SDL_KEYDOWN:
+			case SDL_KEYUP:
 				{
 					NUIE::Key pressedKey (NUIE::KeyCode::Undefined);
 					bool isControlPressed = (sdlEvent.key.keysym.mod & SDL_SCANCODE_LCTRL);
@@ -192,9 +199,13 @@ void ContextMenuResponse (int commandId)
 
 int EventFilter (void*, SDL_Event* sdlEvent)
 {
-	// filter finger events, because on mobile both the mouse and the finger events arrive,
-	// and it makes event handling very slow
-	if (sdlEvent->type == SDL_FINGERDOWN || sdlEvent->type == SDL_FINGERUP || sdlEvent->type == SDL_FINGERMOTION) {
+	// filter finger events, because on mobile both the mouse and the finger events arrive
+	// filter key down event because it arrives during mouse drag&drop as well
+	if (sdlEvent->type == SDL_FINGERDOWN ||
+		sdlEvent->type == SDL_FINGERUP ||
+		sdlEvent->type == SDL_FINGERMOTION ||
+		sdlEvent->type == SDL_KEYDOWN)
+	{
 		return 0;
 	}
 	return 1;
