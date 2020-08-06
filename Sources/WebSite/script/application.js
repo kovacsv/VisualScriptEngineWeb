@@ -82,85 +82,12 @@ Application.prototype.CreateNode = function (nodeIndex)
 	createNodeFunc (nodeIndex);
 }
 
-Application.prototype.ContextMenuRequest = function (mouseX, mouseY, commandsJson, canvasName)
+Application.prototype.ContextMenuRequest = function (positionX, positionY, commands)
 {
-	function ShowContextMenu (module, mouseX, mouseY, commandsJson, canvasName)
-	{
-		function SendResponse (module, response)
-		{
-			var contextMenuResponseFunc = module.cwrap ('ContextMenuResponse', null, ['number']);
-			contextMenuResponseFunc (response);			
-		}
-		
-		function OpenContextMenu (module, mouseX, mouseY)
-		{
-			var documentBody = $(document.body);
-			var contextMenuDiv = $('<div>').addClass ('contextmenu').appendTo (documentBody);
-			contextMenuDiv.css ('left', (canvasDiv.offset ().left + mouseX) + 'px');
-			contextMenuDiv.css ('top', (canvasDiv.offset ().top + mouseY) + 'px');
-			documentBody.bind ("mousedown", function (event) {
-				event.preventDefault ();
-				if ($(event.target).parents ('.contextmenu').length == 0) {
-					CloseContextMenu ();
-					SendResponse (module, -1);
-				}
-			});
-			return contextMenuDiv;
-		}	
-		
-		function CloseContextMenu ()
-		{
-			var documentBody = $(document.body);
-			documentBody.unbind ("mousedown");
-			contextMenuDiv.remove ();
-		}
-		
-		function AddCommandItems (module, contextMenuDiv, commands)
-		{
-			function AddCommandItem (module, contextMenuDiv, commandName, commandIsChecked, commandId)
-			{
-				var itemDiv = $('<div>').addClass ('contextmenuitem');
-				var imgItem = $('<img>').addClass ('icon').appendTo (itemDiv);
-				if (commandIsChecked) {
-					imgItem.attr ('src', 'images/check.png');
-				} else {
-					imgItem.attr ('src', 'images/nocheck.png');
-				}
-				var textItem = $('<span>').html (commandName).appendTo (itemDiv);
-				itemDiv.appendTo (contextMenuDiv);
-				itemDiv.click (function () {
-					SendResponse (module, commandId);
-					CloseContextMenu ();
-				});
-				return itemDiv;
-			}
-			
-			function AddGroupItem (module, contextMenuDiv, commandName)
-			{
-				var itemDiv = $('<div>').addClass ('contextmenugroupitem');
-				$('<img>').addClass ('icon').attr ('src', 'images/nocheck.png').appendTo (itemDiv);
-				$('<span>').html (commandName).appendTo (itemDiv);
-				itemDiv.appendTo (contextMenuDiv);
-				return itemDiv;
-			}			
-			
-			var i, command, itemDiv, subItemsDiv;
-			for (i = 0; i < commands.length; i++) {
-				command = commands[i];
-				if (command.commands === undefined) {
-					itemDiv = AddCommandItem (module, contextMenuDiv, command.name, command.isChecked, command.id);
-				} else {
-					itemDiv = AddGroupItem (module, contextMenuDiv, command.name);
-					subItemsDiv = $('<div>').addClass ('contextmenusubitems').appendTo (contextMenuDiv);
-					AddCommandItems (module, subItemsDiv, command.commands);
-				}
-			}
-		}
-		
-		var canvasDiv = $('#' + canvasName);
-		var contextMenuDiv = OpenContextMenu (module, mouseX, mouseY);
-		AddCommandItems (module, contextMenuDiv, commandsJson.commands);
-	}
-	
-	ShowContextMenu (this.module, mouseX, mouseY, commandsJson, canvasName);
+	var module = this.module;
+	var contextMenu = new ContextMenu (commands.commands, function (commandId) {
+		var contextMenuResponseFunc = module.cwrap ('ContextMenuResponse', null, ['number']);
+		contextMenuResponseFunc (commandId);			
+	});
+	contextMenu.Open (positionX, positionY);
 }

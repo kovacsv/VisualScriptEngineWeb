@@ -5,8 +5,10 @@
 	<meta http-equiv="content-type" content="text/html;charset=utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no">
 	
-	<link rel="stylesheet" type="text/css" href="style/style.css">
 	<script type="text/javascript" src="jquery/jquery-3.5.1.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="style/style.css">
+	<script type="text/javascript" src="script/contextmenu.js"></script>
 	<script type="text/javascript" src="script/application.js"></script>
 	
 	<script type='text/javascript'>
@@ -16,7 +18,12 @@
 		{
 			var commandsJsonStr = UTF8ToString (commandsJsonFromCpp);
 			var commandJson = JSON.parse (commandsJsonStr);
-			application.ContextMenuRequest (mouseX, mouseY, commandJson, 'canvas');
+			
+			var canvasDiv = $('#canvas');
+			var positionX = canvasDiv.offset ().left + mouseX
+			var positionY = canvasDiv.offset ().top + mouseY;
+			
+			application.ContextMenuRequest (positionX, positionY, commandJson);
 		}
 
 		function OnResize ()

@@ -73,6 +73,7 @@ div.contextmenuitem
 div.contextmenugroupitem
 {
 	padding : 6px 15px;
+	user-select : none;
 }
 
 div.contextmenuitem:hover
