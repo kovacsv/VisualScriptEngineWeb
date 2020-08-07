@@ -42,6 +42,7 @@ ContextMenu.prototype.Close = function ()
 {
 	var documentBody = $(document.body);
 	this.contextMenuDiv.remove ();
+	documentBody.unbind ('mousedown');
 };
 
 ContextMenu.prototype.AddCommands = function (parentDiv, commands)
