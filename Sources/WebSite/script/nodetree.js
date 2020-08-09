@@ -11,20 +11,22 @@ NodeTree.prototype.Build = function ()
 
 	this.nodeGroups = [];
 	var inputs = this.AddNodeGroup ('Inputs');
-	this.AddNode (inputs, 'Integer', 0);
-	this.AddNode (inputs, 'Number', 1);
-	this.AddNode (inputs, 'Integer Increment', 2);
-	this.AddNode (inputs, 'Number Increment', 3);
-	this.AddNode (inputs, 'Number Distribution', 4);
+	this.AddNode (inputs, 'Boolean', 0);
+	this.AddNode (inputs, 'Integer', 1);
+	this.AddNode (inputs, 'Number', 2);
+	this.AddNode (inputs, 'Integer Increment', 3);
+	this.AddNode (inputs, 'Number Increment', 4);
+	this.AddNode (inputs, 'Number Distribution', 5);
 	
 	var arithmetics = this.AddNodeGroup ('Arithmetics');
-	this.AddNode (arithmetics, 'Addition', 5);
-	this.AddNode (arithmetics, 'Subtraction', 6);
-	this.AddNode (arithmetics, 'Multiplication', 7);
-	this.AddNode (arithmetics, 'Division', 8);
+	this.AddNode (arithmetics, 'Addition', 6);
+	this.AddNode (arithmetics, 'Subtraction', 7);
+	this.AddNode (arithmetics, 'Multiplication', 8);
+	this.AddNode (arithmetics, 'Division', 9);
 	
 	var other = this.AddNodeGroup ('Other');
-	this.AddNode (other, 'Viewer', 9);	
+	this.AddNode (other, 'List Builder', 10);	
+	this.AddNode (other, 'Viewer', 11);	
 };
 
 NodeTree.prototype.AddSearchField = function ()
