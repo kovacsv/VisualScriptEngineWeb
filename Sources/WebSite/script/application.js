@@ -45,7 +45,7 @@ Application.prototype.CreateNode = function (nodeIndex)
 Application.prototype.ContextMenuRequest = function (positionX, positionY, commands)
 {
 	var module = this.module;
-	var contextMenu = new ContextMenu (commands.commands, function (commandId) {
+	var contextMenu = new ContextMenu (this.canvas, commands.commands, function (commandId) {
 		var contextMenuResponseFunc = module.cwrap ('ContextMenuResponse', null, ['number']);
 		contextMenuResponseFunc (commandId);			
 	});

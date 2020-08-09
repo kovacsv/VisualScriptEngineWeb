@@ -70,6 +70,7 @@ div.contextmenu
 	top : 0px;
 	border : 1px solid #cccccc;
 	border-radius : 5px;
+	white-space : nowrap;
 	overflow : auto;
 }
 

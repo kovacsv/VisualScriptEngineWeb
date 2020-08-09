@@ -1,5 +1,6 @@
-var ContextMenu = function (commands, onCommand)
+var ContextMenu = function (parentElement, commands, onCommand)
 {
+	this.parentElement = parentElement;
 	this.commands = commands;
 	this.onCommand = onCommand;
 	this.contextMenuDiv = null;
@@ -10,8 +11,10 @@ ContextMenu.prototype.Open = function (positionX, positionY)
 	var documentBody = $(document.body);
 	
 	this.contextMenuDiv = $('<div>').addClass ('contextmenu').appendTo (documentBody);
-	this.contextMenuDiv.css ('left', positionX + 'px');
-	this.contextMenuDiv.css ('top', positionY + 'px');
+	this.contextMenuDiv.offset ({
+		left : positionX,
+		top : positionY
+	});
 	
 	var myThis = this;
 	documentBody.bind ('mousedown', function (ev) {
@@ -23,6 +26,29 @@ ContextMenu.prototype.Open = function (positionX, positionY)
 	});
 	
 	this.AddCommands (this.contextMenuDiv, this.commands);
+	this.FitToScreen ();
+};
+
+ContextMenu.prototype.FitToScreen = function ()
+{
+	var repairOffset = false;
+	var offset = this.contextMenuDiv.offset ();
+	var width = this.contextMenuDiv.outerWidth ();
+	var height = this.contextMenuDiv.outerHeight ();
+	var parentOffset = this.parentElement.offset ();
+	var parentRight = parentOffset.left + this.parentElement.outerWidth ();
+	var parentBottom = parentOffset.top + this.parentElement.outerHeight ();
+	if (offset.left + width > parentRight) {
+		offset.left = parentRight - width;
+		repairOffset = true;
+	}
+	if (offset.top + height > parentBottom) {
+		offset.top = parentBottom - height;
+		repairOffset = true;
+	}
+	if (repairOffset) {
+		this.contextMenuDiv.offset (offset);
+	}	
 };
 
 ContextMenu.prototype.IsItemInMenu = function (item)
