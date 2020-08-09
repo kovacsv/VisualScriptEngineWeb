@@ -33,14 +33,14 @@ div.menu
 
 }
 
-div.menuitem
+div.nodetreeitem
 {
 	padding : 5px 10px;
 	cursor : pointer;
 	user-select : none;
 }
 
-div.subitems
+div.nodetreesubitems
 {
 	margin-left : 20px;
 }
