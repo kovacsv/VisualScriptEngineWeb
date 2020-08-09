@@ -80,7 +80,7 @@ ContextMenu.prototype.AddCommand = function (parentDiv, command)
 ContextMenu.prototype.AddGroupCommand = function (parentDiv, command)
 {
 	var itemDiv = $('<div>').addClass ('contextmenugroupitem');
-	var imgItem = $('<img>').addClass ('icon').attr ('src', 'images/nocheck.png').appendTo (itemDiv);
+	var imgItem = $('<img>').addClass ('icon').attr ('src', 'images/arrow.png').appendTo (itemDiv);
 	var textItem = $('<span>').html (command.name).appendTo (itemDiv);
 	itemDiv.appendTo (parentDiv);
 	
