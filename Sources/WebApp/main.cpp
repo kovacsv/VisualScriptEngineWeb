@@ -59,7 +59,11 @@ static bool MainLoop (Application* app)
 				{
 					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
 					NUIE::MouseButton button = GetMouseButtonFromEvent (sdlEvent);
-					nodeEditor.OnMouseDown (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+					if (sdlEvent.button.clicks == 1) {
+						nodeEditor.OnMouseDown (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+					} else if (sdlEvent.button.clicks == 2) {
+						nodeEditor.OnMouseDoubleClick (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+					}
 				}
 				break;
 			case SDL_MOUSEBUTTONUP:

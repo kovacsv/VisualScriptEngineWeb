@@ -143,3 +143,14 @@ void BrowserAsyncInterface::ContextMenuResponse (NUIE::NodeEditor& nodeEditor, i
 	(void) commandId;
 #endif
 }
+
+void BrowserAsyncInterface::OnDoubleClick (const NUIE::Point& position)
+{
+#ifdef EMSCRIPTEN
+	EM_ASM ({
+		OnDoubleClick ($0, $1);
+	}, position.GetX (), position.GetY ());
+#else
+	(void) position;
+#endif
+}

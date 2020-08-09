@@ -29,6 +29,8 @@ public:
 	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
 	void					ContextMenuResponse (NUIE::NodeEditor& nodeEditor, int commandId);
 
+	void					OnDoubleClick (const NUIE::Point& position);
+
 private:
 	State				state;
 	ContextMenuData		contextMenuData;
