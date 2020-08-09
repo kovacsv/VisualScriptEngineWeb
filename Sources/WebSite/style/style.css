@@ -33,6 +33,16 @@ div.menu
 
 }
 
+input.nodetreesearch
+{
+	width : 100%;
+	margin-bottom : 10px;
+	padding : 5px;
+	border : 1px solid #dddddd;
+	box-sizing : border-box;
+	outline : none;
+}
+
 div.nodetreeitem
 {
 	padding : 5px 10px;
@@ -112,9 +122,10 @@ a:hover
 
 #canvas
 {
-	border : 1px solid #dddddd;
 	margin-left : 240px;
 	margin-top : 10px;
+	border : 1px solid #dddddd;
+	outline : none;
 }
 
 @media only screen and (max-width : 1000px)

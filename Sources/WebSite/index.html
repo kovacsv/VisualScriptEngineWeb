@@ -43,6 +43,10 @@
 		function OnRuntimeInitialized (module)
 		{
 			application.InitModule (Module);
+			var canvasDiv = $('#canvas');
+			canvasDiv.on ('mouseenter', function () {
+				canvasDiv.focus ();
+			});
 		}
 		
 		function OnWindowCreated ()
@@ -70,7 +74,7 @@
 				</div>
 			</div>
 		</div>
-		<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
+		<canvas id="canvas" tabindex="1" oncontextmenu="event.preventDefault ()"></canvas>
 	</div>
 	<script type='text/javascript'>
 		var Module = {

@@ -217,6 +217,8 @@ int main (int, char**)
 	SDL_SetEventFilter (EventFilter, nullptr);
 	TTF_Init ();
 
+	SDL_SetHint (SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
+
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 
