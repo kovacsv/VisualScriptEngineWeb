@@ -42,11 +42,9 @@
 
 		function OnRuntimeInitialized (module)
 		{
-			application.InitModule (Module);
 			var canvasDiv = $('#canvas');
-			canvasDiv.on ('mouseenter', function () {
-				canvasDiv.focus ();
-			});
+			application.InitCanvas (canvasDiv)
+			application.InitModule (Module);
 		}
 		
 		function OnWindowCreated ()

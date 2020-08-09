@@ -158,7 +158,7 @@ void ResizeWindow (int width, int height)
 	gAppForBrowser->ResizeWindow (width, height);
 }
 
-void CreateNode (int nodeIndex)
+void CreateNode (int nodeIndex, int xPosition, int yPosition)
 {
 	if (gBrowserInterface.AreEventsSuspended ()) {
 		return;
@@ -169,11 +169,8 @@ void CreateNode (int nodeIndex)
 	}
 
 	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-
-	SDL_Rect windowRect = gAppForBrowser->GetWindowRect ();
-	NUIE::Rect viewRect = NUIE::Rect::FromPositionAndSize (NUIE::Point (0.0, 0.0), NUIE::Size (windowRect.w, windowRect.h));
-	NUIE::Point viewCenter = viewRect.GetCenter ();
-	NUIE::Point position = nodeEditor.ViewToModel (viewCenter);
+	NUIE::Point viewPosition (xPosition, yPosition);
+	NUIE::Point position = nodeEditor.ViewToModel (viewPosition);
 
 	switch (nodeIndex) {
 		case 0: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), position, 0, 1))); break;
@@ -217,8 +214,6 @@ int main (int, char**)
 	SDL_SetEventFilter (EventFilter, nullptr);
 	TTF_Init ();
 
-	SDL_SetHint (SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
-
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 
@@ -229,6 +224,8 @@ int main (int, char**)
 	InitialWindowWidth = 10;
 	InitialWindowHeight = 10;
 #endif
+
+	SDL_SetHint (SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
 	SDL_CreateWindowAndRenderer (InitialWindowWidth, InitialWindowHeight, 0, &window, &renderer);
 
 	{

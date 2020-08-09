@@ -1,6 +1,16 @@
 var Application = function ()
 {
+	this.canvas = null;
 	this.module = null;
+};
+
+Application.prototype.InitCanvas = function (canvas)
+{
+	this.canvas = canvas;
+	var myThis = this;
+	this.canvas.on ('mouseenter', function () {
+		myThis.canvas.focus ();
+	});
 };
 
 Application.prototype.InitModule = function (module)
@@ -26,8 +36,10 @@ Application.prototype.ResizeCanvas = function (width, height)
 
 Application.prototype.CreateNode = function (nodeIndex)
 {
-	var createNodeFunc = this.module.cwrap ('CreateNode', null, ['number']);
-	createNodeFunc (nodeIndex);
+	var createNodeFunc = this.module.cwrap ('CreateNode', null, ['number', 'number', 'number']);
+	var positionX = this.canvas.width () / 2.0;
+	var positionY = this.canvas.height () / 2.0;
+	createNodeFunc (nodeIndex, positionX, positionY);
 }
 
 Application.prototype.ContextMenuRequest = function (positionX, positionY, commands)
