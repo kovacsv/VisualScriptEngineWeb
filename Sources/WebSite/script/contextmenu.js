@@ -3,72 +3,24 @@ var ContextMenu = function (parentElement, commands, onCommand)
 	this.parentElement = parentElement;
 	this.commands = commands;
 	this.onCommand = onCommand;
-	this.contextMenuDiv = null;
+	
+	var myThis = this;
+	this.modalDiv = new ModalDiv ({
+		onOpen : function () {
+		},
+		onClose : function () {
+			myThis.onCommand (-1);
+		}
+	});
 };
 
 ContextMenu.prototype.Open = function (positionX, positionY)
 {
-	var documentBody = $(document.body);
-	
-	this.contextMenuDiv = $('<div>').addClass ('contextmenu').appendTo (documentBody);
-	this.contextMenuDiv.offset ({
-		left : positionX,
-		top : positionY
-	});
-	
-	var myThis = this;
-	documentBody.bind ('mousedown', function (ev) {
-		ev.preventDefault ();
-		if (!myThis.IsItemInMenu ($(ev.target))) {
-			myThis.Close ();
-			myThis.onCommand (-1);
-		}
-	});
-	
-	this.AddCommands (this.contextMenuDiv, this.commands);
-	this.FitToScreen ();
-};
-
-ContextMenu.prototype.FitToScreen = function ()
-{
-	var repairOffset = false;
-	var offset = this.contextMenuDiv.offset ();
-	var width = this.contextMenuDiv.outerWidth ();
-	var height = this.contextMenuDiv.outerHeight ();
-	var parentOffset = this.parentElement.offset ();
-	var parentRight = parentOffset.left + this.parentElement.outerWidth ();
-	var parentBottom = parentOffset.top + this.parentElement.outerHeight ();
-	if (offset.left + width > parentRight) {
-		offset.left = parentRight - width;
-		repairOffset = true;
-	}
-	if (offset.top + height > parentBottom) {
-		offset.top = parentBottom - height;
-		repairOffset = true;
-	}
-	if (repairOffset) {
-		this.contextMenuDiv.offset (offset);
-	}	
-};
-
-ContextMenu.prototype.IsItemInMenu = function (item)
-{
-	var parents = item.parents ();
-	var i, curr;
-	for (i = 0; i < parents.length; i++) {
-		curr = parents[i];
-		if (curr == this.contextMenuDiv[0]) {
-			return true;
-		}
-	}
-	return false;
-};
-
-ContextMenu.prototype.Close = function ()
-{
-	var documentBody = $(document.body);
-	this.contextMenuDiv.remove ();
-	documentBody.unbind ('mousedown');
+	this.modalDiv.Open (positionX, positionY);
+	var modalDivElem = this.modalDiv.GetDiv ();
+	modalDivElem.addClass ('contextmenu');
+	this.AddCommands (modalDivElem, this.commands);
+	this.modalDiv.FitToElement (this.parentElement);
 };
 
 ContextMenu.prototype.AddCommands = function (parentDiv, commands)
@@ -98,7 +50,7 @@ ContextMenu.prototype.AddCommand = function (parentDiv, command)
 	
 	var myThis = this;
 	itemDiv.click (function () {
-		myThis.Close ();
+		myThis.modalDiv.Close ();
 		myThis.onCommand (command.id);
 	});
 };

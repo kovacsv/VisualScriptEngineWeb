@@ -61,6 +61,15 @@ div.links
 	margin-top : 40px;
 }
 
+div.modal
+{
+	position : absolute;
+	left : 0px;
+	top : 0px;
+	white-space : nowrap;
+	overflow : auto;
+}
+
 div.contextmenu
 {
 	color : #000000;
