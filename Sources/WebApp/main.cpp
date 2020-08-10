@@ -59,10 +59,16 @@ static bool MainLoop (Application* app)
 				{
 					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
 					NUIE::MouseButton button = GetMouseButtonFromEvent (sdlEvent);
-					if (sdlEvent.button.clicks == 1) {
-						nodeEditor.OnMouseDown (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
-					} else if (sdlEvent.button.clicks == 2) {
+					if (sdlEvent.button.clicks == 2) {
 						nodeEditor.OnMouseDoubleClick (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+					} else {
+						Uint8 clicks = sdlEvent.button.clicks;
+						if (clicks > 2) {
+							clicks -= 2;
+						}
+						for (Uint8 clickIndex = 0; clickIndex < clicks; clickIndex++) {
+							nodeEditor.OnMouseDown (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+						}
 					}
 				}
 				break;
