@@ -26,13 +26,13 @@ Application.prototype.InitMenu = function (menuDivName)
 		myThis.CreateNode (nodeIndex);
 	});
 	nodeTree.Build ();
-}
+};
 
 Application.prototype.ResizeCanvas = function (width, height)
 {
 	var resizeWindowFunc = Module.cwrap ('ResizeWindow', null, ['number', 'number']);
 	resizeWindowFunc (width, height);
-}
+};
 
 Application.prototype.CreateNode = function (nodeIndex)
 {
@@ -40,7 +40,7 @@ Application.prototype.CreateNode = function (nodeIndex)
 	var positionX = this.canvas.width () / 2.0;
 	var positionY = this.canvas.height () / 2.0;
 	createNodeFunc (nodeIndex, positionX, positionY);
-}
+};
 
 Application.prototype.ContextMenuRequest = function (positionX, positionY, commands)
 {
@@ -50,4 +50,4 @@ Application.prototype.ContextMenuRequest = function (positionX, positionY, comma
 		contextMenuResponseFunc (commandId);			
 	});
 	contextMenu.Open (positionX, positionY);
-}
+};
