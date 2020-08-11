@@ -5,7 +5,7 @@ var ContextMenu = function (parentElement, commands, onCommand)
 	this.onCommand = onCommand;
 	
 	var myThis = this;
-	this.modalDiv = new ModalDiv ({
+	this.popUpDiv = new PopUpDiv ({
 		onOpen : function () {
 		},
 		onClose : function () {
@@ -16,11 +16,11 @@ var ContextMenu = function (parentElement, commands, onCommand)
 
 ContextMenu.prototype.Open = function (positionX, positionY)
 {
-	this.modalDiv.Open (positionX, positionY);
-	var modalDivElem = this.modalDiv.GetDiv ();
-	modalDivElem.addClass ('contextmenu');
-	this.AddCommands (modalDivElem, this.commands);
-	this.modalDiv.FitToElement (this.parentElement);
+	this.popUpDiv.Open (positionX, positionY);
+	var popUpDivElem = this.popUpDiv.GetDiv ();
+	popUpDivElem.addClass ('contextmenu');
+	this.AddCommands (popUpDivElem, this.commands);
+	this.popUpDiv.FitToElement (this.parentElement);
 };
 
 ContextMenu.prototype.AddCommands = function (parentDiv, commands)
@@ -50,7 +50,7 @@ ContextMenu.prototype.AddCommand = function (parentDiv, command)
 	
 	var myThis = this;
 	itemDiv.click (function () {
-		myThis.modalDiv.Close ();
+		myThis.popUpDiv.Close ();
 		myThis.onCommand (command.id);
 	});
 };

@@ -1,15 +1,15 @@
-var ModalDiv = function (eventHandlers)
+var PopUpDiv = function (eventHandlers)
 {
 	this.eventHandlers = eventHandlers;
-	this.modalDiv = null;
+	this.popUpDiv = null;
 };
 
-ModalDiv.prototype.Open = function (positionX, positionY)
+PopUpDiv.prototype.Open = function (positionX, positionY)
 {
 	var documentBody = $(document.body);
 	
-	this.modalDiv = $('<div>').addClass ('modal').appendTo (documentBody);
-	this.modalDiv.offset ({
+	this.popUpDiv = $('<div>').addClass ('popup').appendTo (documentBody);
+	this.popUpDiv.offset ({
 		left : positionX,
 		top : positionY
 	});
@@ -27,27 +27,27 @@ ModalDiv.prototype.Open = function (positionX, positionY)
 	}
 };
 
-ModalDiv.prototype.Close = function ()
+PopUpDiv.prototype.Close = function ()
 {
 	var documentBody = $(document.body);
-	this.modalDiv.remove ();
+	this.popUpDiv.remove ();
 	documentBody.unbind ('mousedown');
 	if (this.eventHandlers.onClose) {
 		this.eventHandlers.onClose ();
 	}	
 };
 
-ModalDiv.prototype.GetDiv = function ()
+PopUpDiv.prototype.GetDiv = function ()
 {
-	return this.modalDiv;
+	return this.popUpDiv;
 };
 
-ModalDiv.prototype.FitToElement = function (elem)
+PopUpDiv.prototype.FitToElement = function (elem)
 {
 	var repairOffset = false;
-	var offset = this.modalDiv.offset ();
-	var width = this.modalDiv.outerWidth ();
-	var height = this.modalDiv.outerHeight ();
+	var offset = this.popUpDiv.offset ();
+	var width = this.popUpDiv.outerWidth ();
+	var height = this.popUpDiv.outerHeight ();
 	var parentOffset = elem.offset ();
 	var parentRight = parentOffset.left + elem.outerWidth ();
 	var parentBottom = parentOffset.top + elem.outerHeight ();
@@ -60,17 +60,17 @@ ModalDiv.prototype.FitToElement = function (elem)
 		repairOffset = true;
 	}
 	if (repairOffset) {
-		this.modalDiv.offset (offset);
+		this.popUpDiv.offset (offset);
 	}	
 };
 
-ModalDiv.prototype.IsItemInDiv = function (item)
+PopUpDiv.prototype.IsItemInDiv = function (item)
 {
 	var parents = item.parents ();
 	var i, curr;
 	for (i = 0; i < parents.length; i++) {
 		curr = parents[i];
-		if (curr == this.modalDiv[0]) {
+		if (curr == this.popUpDiv[0]) {
 			return true;
 		}
 	}
