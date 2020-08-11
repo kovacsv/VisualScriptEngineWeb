@@ -20,17 +20,12 @@
 		{
 			var commandsJsonStr = UTF8ToString (commandsJsonFromCpp);
 			var commandJson = JSON.parse (commandsJsonStr);
-			
-			var canvasDiv = $('#canvas');
-			var positionX = canvasDiv.offset ().left + mouseX
-			var positionY = canvasDiv.offset ().top + mouseY;
-			
-			application.ContextMenuRequest (positionX, positionY, commandJson);
+			application.OpenContextMenu (mouseX, mouseY, commandJson);
 		}
 		
 		function OnDoubleClick (mouseX, mouseY)
 		{
-			// TODO: handle double click
+			application.OpenNodeTreePopUp (mouseX, mouseY);
 		}		
 
 		function OnResize ()

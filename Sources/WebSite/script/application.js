@@ -23,9 +23,11 @@ Application.prototype.InitMenu = function (menuDivName)
 	var menuDiv = $('#' + menuDivName);
 	var myThis = this;
 	var nodeTree = new NodeTree (menuDiv, function (nodeIndex) {
-		myThis.CreateNode (nodeIndex);
+		var positionX = myThis.canvas.width () / 2.0;
+		var positionY = myThis.canvas.height () / 2.0;
+		myThis.CreateNode (nodeIndex, positionX, positionY);
 	});
-	nodeTree.Build ();
+	nodeTree.BuildWithSearch ();
 };
 
 Application.prototype.ResizeCanvas = function (width, height)
@@ -34,20 +36,33 @@ Application.prototype.ResizeCanvas = function (width, height)
 	resizeWindowFunc (width, height);
 };
 
-Application.prototype.CreateNode = function (nodeIndex)
+Application.prototype.CreateNode = function (nodeIndex, positionX, positionY)
 {
 	var createNodeFunc = this.module.cwrap ('CreateNode', null, ['number', 'number', 'number']);
-	var positionX = this.canvas.width () / 2.0;
-	var positionY = this.canvas.height () / 2.0;
 	createNodeFunc (nodeIndex, positionX, positionY);
 };
 
-Application.prototype.ContextMenuRequest = function (positionX, positionY, commands)
+Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 {
+	var positionX = this.canvas.offset ().left + mouseX
+	var positionY = this.canvas.offset ().top + mouseY;	
+	
 	var module = this.module;
 	var contextMenu = new ContextMenu (this.canvas, commands.commands, function (commandId) {
 		var contextMenuResponseFunc = module.cwrap ('ContextMenuResponse', null, ['number']);
 		contextMenuResponseFunc (commandId);			
 	});
 	contextMenu.Open (positionX, positionY);
+};
+
+Application.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
+{
+	var positionX = this.canvas.offset ().left + mouseX
+	var positionY = this.canvas.offset ().top + mouseY;		
+	
+	var myThis = this;
+	var nodeTreePopUp = new NodeTreePopUp (this.canvas, function (nodeIndex) {
+		myThis.CreateNode (nodeIndex, mouseX, mouseY);
+	});
+	nodeTreePopUp.Open (positionX, positionY);
 };

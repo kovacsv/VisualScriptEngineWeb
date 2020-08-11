@@ -7,8 +7,6 @@ var NodeTree = function (parentDiv, onNodeClick)
 
 NodeTree.prototype.Build = function ()
 {
-	this.AddSearchField ();
-
 	this.nodeGroups = [];
 	var inputs = this.AddNodeGroup ('Inputs');
 	this.AddNode (inputs, 'Boolean', 0);
@@ -27,6 +25,12 @@ NodeTree.prototype.Build = function ()
 	var other = this.AddNodeGroup ('Other');
 	this.AddNode (other, 'List Builder', 10);	
 	this.AddNode (other, 'Viewer', 11);	
+};
+
+NodeTree.prototype.BuildWithSearch = function ()
+{
+	this.AddSearchField ();
+	this.Build ();
 };
 
 NodeTree.prototype.AddSearchField = function ()
@@ -127,4 +131,33 @@ NodeTree.prototype.CloseGroup = function (nodeGroup)
 {
 	nodeGroup.subItemsDiv.hide ();
 	nodeGroup.groupItem.imgItem.attr ('src', 'images/folder_closed.png');	
+};
+
+var NodeTreePopUp = function (parentElement, onNodeClick)
+{
+	this.parentElement = parentElement;
+	this.onNodeClick = onNodeClick;
+	
+	var myThis = this;
+	this.popUpDiv = new PopUpDiv ({
+		onOpen : function () {
+		},
+		onClose : function () {
+		}
+	});
+};
+
+NodeTreePopUp.prototype.Open = function (positionX, positionY)
+{
+	this.popUpDiv.Open (positionX, positionY);
+	var popUpDivElem = this.popUpDiv.GetDiv ();
+	popUpDivElem.addClass ('nodetreepopup');
+	
+	var myThis = this;
+	var nodeTree = new NodeTree (popUpDivElem, function (nodeIndex) {
+		myThis.popUpDiv.Close ();
+		myThis.onNodeClick (nodeIndex);
+	});
+	nodeTree.Build ();
+	this.popUpDiv.FitToElement (this.parentElement);
 };
