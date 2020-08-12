@@ -2,10 +2,24 @@ var NodeTree = function (parentDiv, onNodeClick)
 {
 	this.parentDiv = parentDiv;
 	this.onNodeClick = onNodeClick;
+	this.isDragDropEnabled = false;
 	this.nodeGroups = null;
 };
 
-NodeTree.prototype.Build = function ()
+NodeTree.prototype.BuildAsMenu = function ()
+{
+	this.isDragDropEnabled = true;
+	this.AddSearchField ();
+	this.BuildTree ();
+};
+
+NodeTree.prototype.BuildAsPopUp = function ()
+{
+	this.isDragDropEnabled = false;
+	this.BuildTree ();
+};
+
+NodeTree.prototype.BuildTree = function ()
 {
 	this.nodeGroups = [];
 	var inputs = this.AddNodeGroup ('Inputs');
@@ -25,12 +39,6 @@ NodeTree.prototype.Build = function ()
 	var other = this.AddNodeGroup ('Other');
 	this.AddNode (other, 'List Builder', 10);	
 	this.AddNode (other, 'Viewer', 11);	
-};
-
-NodeTree.prototype.BuildWithSearch = function ()
-{
-	this.AddSearchField ();
-	this.Build ();
 };
 
 NodeTree.prototype.AddSearchField = function ()
@@ -77,7 +85,13 @@ NodeTree.prototype.AddNode = function (nodeGroup, nodeName, nodeIndex)
 	item.mainItem.click (function () {
 		myThis.onNodeClick (nodeIndex);
 	});
-
+	if (this.isDragDropEnabled) {
+		item.mainItem.attr ('draggable', 'true');
+		item.mainItem.on ('dragstart', function (ev) {
+			ev.originalEvent.dataTransfer.setData ('nodeindex', nodeIndex.toString ());
+		});
+	}
+	
 	nodeGroup.nodes.push (node);
 	return node;
 };
@@ -158,6 +172,6 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 		myThis.popUpDiv.Close ();
 		myThis.onNodeClick (nodeIndex);
 	});
-	nodeTree.Build ();
+	nodeTree.BuildAsPopUp ();
 	this.popUpDiv.FitToElement (this.parentElement);
 };

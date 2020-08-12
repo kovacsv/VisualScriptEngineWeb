@@ -11,6 +11,19 @@ Application.prototype.InitCanvas = function (canvas)
 	this.canvas.on ('mouseenter', function () {
 		myThis.canvas.focus ();
 	});
+	this.canvas.on ('dragover', function (ev) {
+		ev.preventDefault ();
+	});
+	this.canvas.on ('drop', function (ev) {
+		ev.preventDefault ();
+		var mouseX = ev.clientX - myThis.canvas.offset ().left;
+		var mouseY = ev.clientY - myThis.canvas.offset ().top;
+		var data = ev.originalEvent.dataTransfer.getData ('nodeindex');
+		if (data.length > 0) {
+			var nodeIndex = parseInt (data);
+			myThis.CreateNode (nodeIndex, mouseX, mouseY);
+		}
+	});
 };
 
 Application.prototype.InitModule = function (module)
@@ -27,7 +40,7 @@ Application.prototype.InitMenu = function (menuDivName)
 		var positionY = myThis.canvas.height () / 2.0;
 		myThis.CreateNode (nodeIndex, positionX, positionY);
 	});
-	nodeTree.BuildWithSearch ();
+	nodeTree.BuildAsMenu ();
 };
 
 Application.prototype.ResizeCanvas = function (width, height)
@@ -44,7 +57,7 @@ Application.prototype.CreateNode = function (nodeIndex, positionX, positionY)
 
 Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 {
-	var positionX = this.canvas.offset ().left + mouseX
+	var positionX = this.canvas.offset ().left + mouseX;
 	var positionY = this.canvas.offset ().top + mouseY;	
 	
 	var module = this.module;
@@ -57,7 +70,7 @@ Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 
 Application.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 {
-	var positionX = this.canvas.offset ().left + mouseX
+	var positionX = this.canvas.offset ().left + mouseX;
 	var positionY = this.canvas.offset ().top + mouseY;		
 	
 	var myThis = this;
