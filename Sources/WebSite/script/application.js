@@ -89,11 +89,10 @@ Application.prototype.OpenSettingsDialog = function (parameters)
 	var positionX = this.canvas.offset ().left + this.canvas.width () / 2;
 	var positionY = this.canvas.offset ().top + this.canvas.height () / 2;
 	
-	var module = this.module;
+	var myThis = this;
 	var parameterSettings = new ParameterSettings (this.canvas, parameters.parameters, function (changedParameters) {
-		alert (JSON.stringify (changedParameters))
-		var parameterSettingsResponseFunc = module.cwrap ('ParameterSettingsResponse', null, []);
-		parameterSettingsResponseFunc ();
+		var parameterSettingsResponseFunc = myThis.module.cwrap ('ParameterSettingsResponse', null, ['number', 'number']);
+		parameterSettingsResponseFunc (myThis.lastMousePos[0], myThis.lastMousePos[1]);
 	});
 	parameterSettings.Open (positionX, positionY);
 };

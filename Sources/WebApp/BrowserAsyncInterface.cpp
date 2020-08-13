@@ -77,6 +77,8 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 	} else if (state == State::ContextMenuResponseArrived){
 		state = State::Normal;
 		return GetCommandById (commands, contextMenuData.selectedCommandId);
+	} else if (state == State::ParametersResponseArrived) {
+		return GetCommandById (commands, FirstCommandId); // settings
 	}
 #else
 	(void) position;
@@ -137,12 +139,11 @@ bool BrowserAsyncInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePt
 void BrowserAsyncInterface::ParameterSettingsResponse (int mouseX, int mouseY)
 {
 #ifdef EMSCRIPTEN
-	// state = State::ParametersResponseArrived;
+	state = State::ParametersResponseArrived;
 
-	// TODO: Trigger parameter settings again
-	state = State::Normal;
-	(void) mouseX;
-	(void) mouseY;
+	// Trigger context menu callback again
+	nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, mouseX, mouseY);
+	nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, mouseX, mouseY);
 #else
 	(void) mouseX;
 	(void) mouseY;
