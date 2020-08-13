@@ -42,6 +42,7 @@ static NUIE::MenuCommandPtr GetCommandById (const NUIE::MenuCommandStructure& co
 }
 
 BrowserAsyncInterface::ContextMenuData::ContextMenuData () :
+	commandStructure (),
 	selectedCommandId (InvalidCommandId)
 {
 
@@ -68,17 +69,13 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 #ifdef EMSCRIPTEN
 	if (state == State::Normal) {
 		state = State::WaitingForContextMenuResponse;
+		contextMenuData.commandStructure = commands;
 		contextMenuData.selectedCommandId = InvalidCommandId;
 		std::string commandsJson = ConvertMenuCommandsToJson (commands);
 		EM_ASM ({
 			ContextMenuRequest ($0, $1, $2);
 		}, position.GetX (), position.GetY (), commandsJson.c_str ());
 		return nullptr;
-	} else if (state == State::ContextMenuResponseArrived){
-		state = State::Normal;
-		return GetCommandById (commands, contextMenuData.selectedCommandId);
-	} else if (state == State::ParametersResponseArrived) {
-		return GetCommandById (commands, FirstCommandId); // settings
 	}
 #else
 	(void) position;
@@ -86,19 +83,13 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 	return nullptr;
 }
 
-void BrowserAsyncInterface::ContextMenuResponse (int mouseX, int mouseY, int commandId)
+void BrowserAsyncInterface::ContextMenuResponse (int commandId)
 {
 #ifdef EMSCRIPTEN
-	state = State::ContextMenuResponseArrived;
-	contextMenuData.selectedCommandId = commandId;
-
-	// Trigger context menu callback again
-	nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, mouseX, mouseY);
-	nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, mouseX, mouseY);
+	state = State::Normal;
+	NUIE::MenuCommandPtr command = GetCommandById (contextMenuData.commandStructure, commandId);
+	nodeEditor.ExecuteMenuCommand (command);
 #else
-	(void) mouseX;
-	(void) mouseY;
-	(void) nodeEditor;
 	(void) commandId;
 #endif
 }
@@ -124,28 +115,18 @@ bool BrowserAsyncInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePt
 			ParameterSettingsRequest ($0);
 		}, parametersJson.c_str ());
 		return false;
-	} else if (state == State::ParametersResponseArrived) {
-		state = State::Normal;
-		// TODO: handle parameter changes
-		return false;
 	}
 #else
-	std::string paramsJson = ConvertParametersToJson (parameters);
+	(void) parameters;
 #endif
 
 	return false;
 }
 
-void BrowserAsyncInterface::ParameterSettingsResponse (int mouseX, int mouseY)
+void BrowserAsyncInterface::ParameterSettingsResponse ()
 {
 #ifdef EMSCRIPTEN
-	state = State::ParametersResponseArrived;
-
-	// Trigger context menu callback again
-	nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, mouseX, mouseY);
-	nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, mouseX, mouseY);
+	state = State::Normal;
 #else
-	(void) mouseX;
-	(void) mouseY;
 #endif
 }

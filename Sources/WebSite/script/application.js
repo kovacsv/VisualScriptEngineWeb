@@ -2,7 +2,6 @@ var Application = function ()
 {
 	this.canvas = null;
 	this.module = null;
-	this.lastMousePos = [0, 0];
 };
 
 Application.prototype.InitCanvas = function (canvas)
@@ -25,12 +24,6 @@ Application.prototype.InitCanvas = function (canvas)
 			myThis.CreateNode (nodeIndex, mouseX, mouseY);
 		}
 	});
-	this.canvas.on ('mouseup', function (ev) {
-		myThis.lastMousePos = myThis.GetCanvasCoordinates (ev.clientX, ev.clientY);
-	});
-	this.canvas.on ('dblclick', function (ev) {
-		myThis.lastMousePos = myThis.GetCanvasCoordinates (ev.clientX, ev.clientY);
-	});	
 };
 
 Application.prototype.InitModule = function (module)
@@ -56,15 +49,6 @@ Application.prototype.ResizeCanvas = function (width, height)
 	resizeWindowFunc (width, height);
 };
 
-Application.prototype.GetCanvasCoordinates = function (eventX, eventY)
-{
-	var offset = this.canvas.offset ();
-	return [
-		eventX - offset.left,
-		eventY - offset.top
-	];
-};
-
 Application.prototype.CreateNode = function (nodeIndex, positionX, positionY)
 {
 	var createNodeFunc = this.module.cwrap ('CreateNode', null, ['number', 'number', 'number']);
@@ -78,8 +62,8 @@ Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 	
 	var myThis = this;
 	var contextMenu = new ContextMenu (this.canvas, commands.commands, function (commandId) {
-		var contextMenuResponseFunc = myThis.module.cwrap ('ContextMenuResponse', null, ['number', 'number', 'number']);
-		contextMenuResponseFunc (myThis.lastMousePos[0], myThis.lastMousePos[1], commandId);			
+		var contextMenuResponseFunc = myThis.module.cwrap ('ContextMenuResponse', null, ['number']);
+		contextMenuResponseFunc (commandId);			
 	});
 	contextMenu.Open (positionX, positionY);
 };
@@ -91,8 +75,8 @@ Application.prototype.OpenSettingsDialog = function (parameters)
 	
 	var myThis = this;
 	var parameterSettings = new ParameterSettings (this.canvas, parameters.parameters, function (changedParameters) {
-		var parameterSettingsResponseFunc = myThis.module.cwrap ('ParameterSettingsResponse', null, ['number', 'number']);
-		parameterSettingsResponseFunc (myThis.lastMousePos[0], myThis.lastMousePos[1]);
+		var parameterSettingsResponseFunc = myThis.module.cwrap ('ParameterSettingsResponse', null, []);
+		parameterSettingsResponseFunc ();
 	});
 	parameterSettings.Open (positionX, positionY);
 };

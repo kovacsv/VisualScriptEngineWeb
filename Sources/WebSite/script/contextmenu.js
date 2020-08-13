@@ -3,13 +3,14 @@ var ContextMenu = function (parentElement, commands, onCommand)
 	this.parentElement = parentElement;
 	this.commands = commands;
 	this.onCommand = onCommand;
+	this.selectedCommandId = -1;
 	
 	var myThis = this;
 	this.popUpDiv = new PopUpDiv ({
 		onOpen : function () {
 		},
 		onClose : function () {
-			myThis.onCommand (-1);
+			myThis.onCommand (myThis.selectedCommandId);
 		}
 	});
 };
@@ -47,11 +48,10 @@ ContextMenu.prototype.AddCommand = function (parentDiv, command)
 	}
 	var textItem = $('<span>').html (command.name).appendTo (itemDiv);
 	itemDiv.appendTo (parentDiv);
-	
 	var myThis = this;
 	itemDiv.click (function () {
+		myThis.selectedCommandId = command.id;
 		myThis.popUpDiv.Close ();
-		myThis.onCommand (command.id);
 	});
 };
 
