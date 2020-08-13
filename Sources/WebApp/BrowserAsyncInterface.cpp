@@ -1,6 +1,5 @@
 #include "BrowserAsyncInterface.hpp"
-
-#include "NE_StringUtils.hpp"
+#include "JSONConversion.hpp"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -12,9 +11,6 @@
 #define UNUSED_IN_CPP __attribute__ ((unused))
 #endif
 #endif
-
-static const int InvalidCommandId = -1;
-static const int FirstCommandId = 1;
 
 UNUSED_IN_CPP
 static NUIE::MenuCommandPtr GetCommandById (const std::vector<NUIE::MenuCommandPtr>& commandList, int commandId, int& currentId)
@@ -43,45 +39,6 @@ static NUIE::MenuCommandPtr GetCommandById (const NUIE::MenuCommandStructure& co
 	int currentId = FirstCommandId;
 	std::vector<NUIE::MenuCommandPtr> commandList = commands.GetCommands ();
 	return GetCommandById (commandList, commandId, currentId);
-}
-
-UNUSED_IN_CPP
-static void AddCommandsToJson (std::vector<NUIE::MenuCommandPtr> commandList, int& currentId, std::wstring& json)
-{
-	json += L"\"commands\" : [";
-	for (size_t i = 0; i < commandList.size (); i++) {
-		const NUIE::MenuCommandPtr& command = commandList[i];
-		json += L"{";
-		json += L"\"name\" : \"" + NE::ReplaceAll (command->GetName (), L"\"", L"\\\"") + L"\",";
-		json += L"\"id\" : " + std::to_wstring (currentId) + L",";
-		json += L"\"isChecked\" : ";
-		json += (command->IsChecked () ? L"true" : L"false");
-		if (command->HasChildCommands ()) {
-			json += L",";
-			std::vector<NUIE::MenuCommandPtr> childCommandList = command->GetChildCommands ();
-			AddCommandsToJson (childCommandList, currentId, json);
-		}
-		json += L"}";
-		if (i < commandList.size () - 1) {
-			json += L",";
-		}
-		currentId++;
-	}
-	json += L"]";
-}
-
-UNUSED_IN_CPP
-static std::string ConvertMenuCommandsToJson (const NUIE::MenuCommandStructure& commands)
-{
-	std::wstring json = L"";
-	json += L"{";
-
-	std::vector<NUIE::MenuCommandPtr> commandList = commands.GetCommands ();
-	int currentId = FirstCommandId;
-	AddCommandsToJson (commandList, currentId, json);
-
-	json += L"}";
-	return NE::WStringToString (json);
 }
 
 BrowserAsyncInterface::ContextMenuData::ContextMenuData () :
