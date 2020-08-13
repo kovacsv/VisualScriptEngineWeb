@@ -72,6 +72,12 @@ Application.prototype.OpenSettingsDialog = function (parameters)
 {
 	// TODO: open settings dialog
 	
+	var positionX = this.canvas.offset ().left + this.canvas.width () / 2;
+	var positionY = this.canvas.offset ().top + this.canvas.height () / 2;
+	
+	var parameterSettings = new ParameterSettings (this.canvas, parameters.parameters);
+	parameterSettings.Open (positionX, positionY);
+	
 	var module = this.module;
 	var parameterSettingsResponseFunc = module.cwrap ('ParameterSettingsResponse', null, []);
 	parameterSettingsResponseFunc ();			

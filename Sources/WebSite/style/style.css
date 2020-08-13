@@ -104,6 +104,41 @@ div.contextmenusubitems div.contextmenuitem
 	padding-left : 30px;
 }
 
+div.parametersettings
+{
+	color : #000000;
+	background : #ffffff;
+	border : 1px solid #cccccc;
+}
+
+table.parametertable
+{
+
+}
+
+table.parametertable td
+{
+	padding : 10px;
+}
+
+div.parameterbuttons
+{
+	margin : 0px 10px;
+	padding : 10px 0px;
+	border-top : 1px solid #cccccc;
+	overflow : auto;
+}
+
+div.parameterbutton
+{
+	background : #eeeeee;
+	padding : 5px 10px;
+	margin-right : 10px;
+	border-radius : 5px;
+	cursor : pointer;
+	float : right;
+}
+
 div.nodetreepopup
 {
 	color : #000000;
