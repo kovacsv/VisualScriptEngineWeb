@@ -10,7 +10,9 @@ public:
 	{
 		Normal,
 		WaitingForContextMenuResponse,
-		ContextMenuResponseArrived
+		ContextMenuResponseArrived,
+		WaitingForParametersResponse,
+		ParametersResponseArrived
 	};
 
 	class ContextMenuData
@@ -22,6 +24,14 @@ public:
 		int				selectedCommandId;
 	};
 
+	class ParameterSettingsData
+	{
+	public:
+		ParameterSettingsData ();
+
+		NUIE::Point		position;
+	};
+
 	BrowserAsyncInterface (NUIE::NodeEditor& nodeEditor);
 
 	bool					AreEventsSuspended () const;
@@ -29,7 +39,10 @@ public:
 	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
 	void					ContextMenuResponse (int commandId);
 
-	void					OnDoubleClick (const NUIE::Point& position);
+	void					DoubleClickRequest (const NUIE::Point& position);
+
+	bool					ParameterSettingsRequest (NUIE::ParameterInterfacePtr parameters);
+	void					ParameterSettingsResponse ();
 
 private:
 	NUIE::NodeEditor&	nodeEditor;

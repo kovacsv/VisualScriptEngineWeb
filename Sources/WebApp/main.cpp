@@ -205,6 +205,12 @@ void ContextMenuResponse (int commandId)
 	browserInteface.ContextMenuResponse (commandId);
 }
 
+void ParameterSettingsResponse ()
+{
+	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
+	browserInteface.ParameterSettingsResponse ();
+}
+
 };
 
 int EventFilter (void*, SDL_Event* sdlEvent)

@@ -23,6 +23,13 @@
 			application.OpenContextMenu (mouseX, mouseY, commandJson);
 		}
 		
+		function ParameterSettingsRequest (parametersJsonFromCpp)
+		{
+			var parametersJsonStr = UTF8ToString (parametersJsonFromCpp);
+			var parametersJson = JSON.parse (parametersJsonStr);
+			application.OpenSettingsDialog (parametersJson);
+		}		
+		
 		function OnDoubleClick (mouseX, mouseY)
 		{
 			application.OpenNodeTreePopUp (mouseX, mouseY);

@@ -10,12 +10,17 @@ using namespace rapidjson;
 const int InvalidCommandId = -1;
 const int FirstCommandId = 1; 
 
+static void AddString (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, const std::string& value)
+{
+	Value jsonValue;
+	jsonValue.SetString (value.c_str (), (SizeType) value.length (), allocator);
+	obj.AddMember (key, jsonValue, allocator);
+}
+
 static void AddString (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, const std::wstring& value)
 {
 	std::string str = NE::WStringToString (value);
-	Value jsonValue;
-	jsonValue.SetString (str.c_str (), (SizeType) str.length (), allocator);
-	obj.AddMember (key, jsonValue, allocator);
+	AddString (obj, allocator, key, str);
 }
 
 static void AddInt (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, int value)
@@ -30,6 +35,16 @@ static void AddBool (Value& obj, Document::AllocatorType& allocator, const Gener
 	Value jsonValue;
 	jsonValue.SetBool (value);
 	obj.AddMember (key, jsonValue, allocator);
+}
+
+static std::string DocumentToString (const Document& doc)
+{
+	StringBuffer buffer;
+	Writer<StringBuffer> writer (buffer);
+	doc.Accept (writer);
+
+	std::string docString (buffer.GetString ());
+	return docString;
 }
 
 static void AddCommandsToJson (std::vector<NUIE::MenuCommandPtr> commandList, int& currentId, Value& commands, Document::AllocatorType& allocator)
@@ -67,10 +82,26 @@ std::string ConvertMenuCommandsToJson (const NUIE::MenuCommandStructure& command
 	AddCommandsToJson (commandList, currentId, commandArr, allocator);
 	doc.AddMember ("commands", commandArr, allocator);
 
-	StringBuffer buffer;
-	Writer<StringBuffer> writer (buffer);
-	doc.Accept (writer);
+	return DocumentToString (doc);
+}
 
-	std::string docString (buffer.GetString ());
-	return docString;
+std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& parameters)
+{
+	Document doc;
+	Document::AllocatorType& allocator = doc.GetAllocator ();
+	doc.SetObject ();
+
+	Value paramArr;
+	paramArr.SetArray ();
+
+	for (size_t i = 0; i < parameters->GetParameterCount (); i++) {
+		Value paramObj;
+		paramObj.SetObject ();
+		AddString (paramObj, allocator, "name", parameters->GetParameterName (i));
+		AddString (paramObj, allocator, "type", parameters->GetParameterType (i).GetId ());
+		paramArr.PushBack (paramObj, allocator);
+	}
+
+	doc.AddMember ("parameters", paramArr, allocator);
+	return DocumentToString (doc);
 }

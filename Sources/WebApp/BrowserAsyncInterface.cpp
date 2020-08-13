@@ -102,7 +102,7 @@ void BrowserAsyncInterface::ContextMenuResponse (int commandId)
 #endif
 }
 
-void BrowserAsyncInterface::OnDoubleClick (const NUIE::Point& position)
+void BrowserAsyncInterface::DoubleClickRequest (const NUIE::Point& position)
 {
 #ifdef EMSCRIPTEN
 	EM_ASM ({
@@ -110,5 +110,38 @@ void BrowserAsyncInterface::OnDoubleClick (const NUIE::Point& position)
 	}, position.GetX (), position.GetY ());
 #else
 	(void) position;
+#endif
+}
+
+bool BrowserAsyncInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePtr parameters)
+{
+#ifdef EMSCRIPTEN
+	if (state == State::Normal) {
+		state = State::WaitingForParametersResponse;
+		std::string parametersJson = ConvertParametersToJson (parameters);
+		EM_ASM ({
+			ParameterSettingsRequest ($0);
+		}, parametersJson.c_str ());
+		return false;
+	} else if (state == State::ParametersResponseArrived) {
+		state = State::Normal;
+		// TODO: handle parameter changes
+		return false;
+	}
+#else
+	std::string paramsJson = ConvertParametersToJson (parameters);
+#endif
+
+	return false;
+}
+
+void BrowserAsyncInterface::ParameterSettingsResponse ()
+{
+#ifdef EMSCRIPTEN
+	// state = State::ParametersResponseArrived;
+
+	// TODO: Trigger parameter settings again
+	state = State::Normal;
+#else
 #endif
 }

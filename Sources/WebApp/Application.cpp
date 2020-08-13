@@ -78,17 +78,17 @@ NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position
 
 void AppEventHandler::OnDoubleClick (NUIE::MouseButton, const NUIE::Point& position)
 {
-	browserInterface->OnDoubleClick (position);
+	browserInterface->DoubleClickRequest (position);
 }
 
-bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr, const NUIE::UINodePtr&)
+bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodePtr&)
 {
-	return false;
+	return browserInterface->ParameterSettingsRequest (parameters);
 }
 
-bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr, const NUIE::UINodeGroupPtr&)
+bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodeGroupPtr&)
 {
-	return false;
+	return browserInterface->ParameterSettingsRequest (parameters);
 }
 
 AppUIEnvironment::AppUIEnvironment (SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface) :

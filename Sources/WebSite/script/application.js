@@ -68,6 +68,15 @@ Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 	contextMenu.Open (positionX, positionY);
 };
 
+Application.prototype.OpenSettingsDialog = function (parameters)
+{
+	// TODO: open settings dialog
+	
+	var module = this.module;
+	var parameterSettingsResponseFunc = module.cwrap ('ParameterSettingsResponse', null, []);
+	parameterSettingsResponseFunc ();			
+};
+
 Application.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 {
 	var positionX = this.canvas.offset ().left + mouseX;
