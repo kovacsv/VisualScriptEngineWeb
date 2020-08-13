@@ -66,19 +66,21 @@ private:
 class Application
 {
 public:
-	Application (SDL_Window* window, SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface);
+	Application (SDL_Window* window, SDL_Renderer* renderer);
 
-	SDL_Rect			GetWindowRect () const;
-	void				ResizeWindow (int width, int height);
+	SDL_Rect				GetWindowRect () const;
+	void					ResizeWindow (int width, int height);
 
-	NUIE::NodeEditor&	GetNodeEditor ();
+	NUIE::NodeEditor&		GetNodeEditor ();
+	BrowserAsyncInterface&	GetBrowserInterface ();
 
 private:
-	SDL_Window*			window;
-	SDL_Renderer*		renderer;
+	SDL_Window*				window;
+	SDL_Renderer*			renderer;
 
-	AppUIEnvironment	uiEnvironment;
-	NUIE::NodeEditor	nodeEditor;
+	AppUIEnvironment		uiEnvironment;
+	NUIE::NodeEditor		nodeEditor;
+	BrowserAsyncInterface	browserInterface;
 };
 
 #endif

@@ -22,16 +22,18 @@ public:
 		int				selectedCommandId;
 	};
 
-	BrowserAsyncInterface ();
+	BrowserAsyncInterface (NUIE::NodeEditor& nodeEditor);
 
 	bool					AreEventsSuspended () const;
 
 	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
-	void					ContextMenuResponse (NUIE::NodeEditor& nodeEditor, int commandId);
+	void					ContextMenuResponse (int commandId);
 
 	void					OnDoubleClick (const NUIE::Point& position);
 
 private:
+	NUIE::NodeEditor&	nodeEditor;
+
 	State				state;
 	ContextMenuData		contextMenuData;
 };

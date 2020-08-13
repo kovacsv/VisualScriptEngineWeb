@@ -13,8 +13,7 @@
 
 // #define ENABLE_EVENT_LOGGING
 
-static BrowserAsyncInterface	gBrowserInterface;
-static Application*				gAppForBrowser = nullptr;
+static Application* gAppForBrowser = nullptr;
 
 static NUIE::ModifierKeys GetModifierKeys ()
 {
@@ -42,7 +41,8 @@ static NUIE::MouseButton GetMouseButtonFromEvent (const SDL_Event& sdlEvent)
 
 static bool MainLoop (Application* app)
 {
-	bool enableEvents = !gBrowserInterface.AreEventsSuspended ();
+	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
+	bool enableEvents = !browserInteface.AreEventsSuspended ();
 	NUIE::NodeEditor& nodeEditor = app->GetNodeEditor ();
 
 	SDL_Event sdlEvent;
@@ -170,11 +170,12 @@ void ResizeWindow (int width, int height)
 
 void CreateNode (int nodeIndex, int xPosition, int yPosition)
 {
-	if (gBrowserInterface.AreEventsSuspended ()) {
+	if (gAppForBrowser == nullptr) {
 		return;
 	}
 
-	if (gAppForBrowser == nullptr) {
+	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
+	if (browserInteface.AreEventsSuspended ()) {
 		return;
 	}
 
@@ -200,8 +201,8 @@ void CreateNode (int nodeIndex, int xPosition, int yPosition)
 
 void ContextMenuResponse (int commandId)
 {
-	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-	gBrowserInterface.ContextMenuResponse (nodeEditor, commandId);
+	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
+	browserInteface.ContextMenuResponse (commandId);
 }
 
 };
@@ -241,7 +242,7 @@ int main (int, char**)
 	SDL_CreateWindowAndRenderer (InitialWindowWidth, InitialWindowHeight, 0, &window, &renderer);
 
 	{
-		Application app (window, renderer, &gBrowserInterface);
+		Application app (window, renderer);
 		gAppForBrowser = &app;
 
 #ifdef EMSCRIPTEN

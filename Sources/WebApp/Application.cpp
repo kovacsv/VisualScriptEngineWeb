@@ -169,11 +169,12 @@ double AppUIEnvironment::GetMouseMoveMinOffset ()
 	return 2.0;
 }
 
-Application::Application (SDL_Window* window, SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface) :
+Application::Application (SDL_Window* window, SDL_Renderer* renderer) :
 	window (window),
 	renderer (renderer),
-	uiEnvironment (renderer, browserInterface),
-	nodeEditor (uiEnvironment)
+	uiEnvironment (renderer, &browserInterface),
+	nodeEditor (uiEnvironment),
+	browserInterface (nodeEditor)
 {
 	uiEnvironment.Init (&nodeEditor);
 	nodeEditor.Update ();
@@ -200,4 +201,9 @@ void Application::ResizeWindow (int width, int height)
 NUIE::NodeEditor& Application::GetNodeEditor ()
 {
 	return nodeEditor;
+}
+
+BrowserAsyncInterface& Application::GetBrowserInterface ()
+{
+	return browserInterface;
 }

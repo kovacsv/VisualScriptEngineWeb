@@ -48,7 +48,8 @@ BrowserAsyncInterface::ContextMenuData::ContextMenuData () :
 
 }
 
-BrowserAsyncInterface::BrowserAsyncInterface () :
+BrowserAsyncInterface::BrowserAsyncInterface (NUIE::NodeEditor& nodeEditor) :
+	nodeEditor (nodeEditor),
 	state (State::Normal),
 	contextMenuData ()
 {
@@ -85,7 +86,7 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 	return nullptr;
 }
 
-void BrowserAsyncInterface::ContextMenuResponse (NUIE::NodeEditor& nodeEditor, int commandId)
+void BrowserAsyncInterface::ContextMenuResponse (int commandId)
 {
 #ifdef EMSCRIPTEN
 	state = State::ContextMenuResponseArrived;
