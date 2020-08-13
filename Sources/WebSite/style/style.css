@@ -111,14 +111,37 @@ div.parametersettings
 	border : 1px solid #cccccc;
 }
 
+div.parametersettingstitle
+{
+	font-size : 1.2em;
+	padding : 10px;
+}
+
 table.parametertable
 {
-
+	margin-bottom : 5px;
 }
 
 table.parametertable td
 {
-	padding : 10px;
+	padding : 5px 10px;
+}
+
+table.parametertable input
+{
+	padding : 5px;
+	border : 1px solid #dddddd;
+	box-sizing : border-box;
+	outline : none;
+}
+
+table.parametertable select
+{
+	width : 100%;
+	padding : 5px;
+	border : 1px solid #dddddd;
+	box-sizing : border-box;
+	outline : none;
 }
 
 div.parameterbuttons

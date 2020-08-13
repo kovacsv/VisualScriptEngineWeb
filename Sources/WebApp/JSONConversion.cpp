@@ -1,4 +1,5 @@
 #include "JSONConversion.hpp"
+#include "NE_SingleValues.hpp"
 #include "NE_StringUtils.hpp"
 
 #include "rapidjson/document.h"
@@ -23,17 +24,24 @@ static void AddString (Value& obj, Document::AllocatorType& allocator, const Gen
 	AddString (obj, allocator, key, str);
 }
 
-static void AddInt (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, int value)
+static void AddBoolean (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, bool value)
+{
+	Value jsonValue;
+	jsonValue.SetBool (value);
+	obj.AddMember (key, jsonValue, allocator);
+}
+
+static void AddInteger (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, int value)
 {
 	Value jsonValue;
 	jsonValue.SetInt (value);
 	obj.AddMember (key, jsonValue, allocator);
 }
 
-static void AddBool (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, bool value)
+static void AddDouble (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, double value)
 {
 	Value jsonValue;
-	jsonValue.SetBool (value);
+	jsonValue.SetDouble (value);
 	obj.AddMember (key, jsonValue, allocator);
 }
 
@@ -54,8 +62,8 @@ static void AddCommandsToJson (std::vector<NUIE::MenuCommandPtr> commandList, in
 		Value commandObj (kObjectType);
 		
 		AddString (commandObj, allocator, "name", command->GetName ());
-		AddInt (commandObj, allocator, "id", currentId);
-		AddBool (commandObj, allocator, "isChecked", command->IsChecked ());
+		AddInteger (commandObj, allocator, "id", currentId);
+		AddBoolean (commandObj, allocator, "isChecked", command->IsChecked ());
 		if (command->HasChildCommands ()) {
 			Value childCommandArr;
 			childCommandArr.SetArray ();
@@ -99,6 +107,48 @@ std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& paramete
 		paramObj.SetObject ();
 		AddString (paramObj, allocator, "name", parameters->GetParameterName (i));
 		AddString (paramObj, allocator, "type", parameters->GetParameterType (i).GetId ());
+
+		Value valueObj;
+		valueObj.SetObject ();
+		NE::ValueConstPtr value = parameters->GetParameterValue (i);
+		NUIE::ParameterType type = parameters->GetParameterType (i);
+		if (type == NUIE::ParameterType::Boolean) {
+			if (NE::Value::IsType<NE::BooleanValue> (value)) {
+				AddBoolean (valueObj, allocator, "boolVal", NE::BooleanValue::Get (value));
+			}
+		} else if (type == NUIE::ParameterType::Integer) {
+			if (NE::Value::IsType<NE::IntValue> (value)) {
+				AddInteger (valueObj, allocator, "intVal", NE::IntValue::Get (value));
+			}
+		} else if (type == NUIE::ParameterType::Float) {
+			if (NE::Value::IsType<NE::FloatValue> (value)) {
+				AddDouble (valueObj, allocator, "numVal", NE::FloatValue::Get (value));
+			}
+		} else if (type == NUIE::ParameterType::Double) {
+			if (NE::Value::IsType<NE::DoubleValue> (value)) {
+				AddDouble (valueObj, allocator, "numVal", NE::DoubleValue::Get (value));
+			}
+		} else if (type == NUIE::ParameterType::String) {
+			if (NE::Value::IsType<NE::StringValue> (value)) {
+				AddString (valueObj, allocator, "strVal", NE::StringValue::Get (value));
+			}
+		} else if (type == NUIE::ParameterType::Enumeration) {
+			if (NE::Value::IsType<NE::IntValue> (value)) {
+				AddInteger (valueObj, allocator, "intVal", NE::IntValue::Get (value));
+				std::vector<std::wstring> choices = parameters->GetParameterValueChoices (i);
+				Value choicesArr;
+				choicesArr.SetArray ();
+				for (const std::wstring& choice : choices) {
+					Value choiceStrVal;
+					std::string choiceStr = NE::WStringToString (choice);
+					choiceStrVal.SetString (choiceStr.c_str (), (SizeType) choiceStr.length (), allocator);
+					choicesArr.PushBack (choiceStrVal, allocator);
+				}
+				valueObj.AddMember ("choices", choicesArr, allocator);
+			}
+		}
+
+		paramObj.AddMember ("value", valueObj, allocator);
 		paramArr.PushBack (paramObj, allocator);
 	}
 

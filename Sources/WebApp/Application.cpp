@@ -76,7 +76,7 @@ NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position
 	return browserInterface->ContextMenuRequest (position, commands);
 }
 
-void AppEventHandler::OnDoubleClick (NUIE::MouseButton, const NUIE::Point& position)
+void AppEventHandler::OnDoubleClick (const NUIE::Point& position, NUIE::MouseButton)
 {
 	browserInterface->DoubleClickRequest (position);
 }
