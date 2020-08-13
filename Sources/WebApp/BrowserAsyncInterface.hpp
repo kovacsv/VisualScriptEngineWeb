@@ -20,7 +20,6 @@ public:
 	public:
 		ContextMenuData ();
 
-		NUIE::Point		position;
 		int				selectedCommandId;
 	};
 
@@ -37,12 +36,12 @@ public:
 	bool					AreEventsSuspended () const;
 
 	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
-	void					ContextMenuResponse (int commandId);
+	void					ContextMenuResponse (int mouseX, int mouseY, int commandId);
 
 	void					DoubleClickRequest (const NUIE::Point& position);
 
 	bool					ParameterSettingsRequest (NUIE::ParameterInterfacePtr parameters);
-	void					ParameterSettingsResponse ();
+	void					ParameterSettingsResponse (int mouseX, int mouseY);
 
 private:
 	NUIE::NodeEditor&	nodeEditor;

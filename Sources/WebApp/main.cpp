@@ -199,16 +199,16 @@ void CreateNode (int nodeIndex, int xPosition, int yPosition)
 	}
 }
 
-void ContextMenuResponse (int commandId)
+void ContextMenuResponse (int mouseX, int mouseY, int commandId)
 {
 	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
-	browserInteface.ContextMenuResponse (commandId);
+	browserInteface.ContextMenuResponse (mouseX, mouseY, commandId);
 }
 
-void ParameterSettingsResponse ()
+void ParameterSettingsResponse (int mouseX, int mouseY)
 {
 	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
-	browserInteface.ParameterSettingsResponse ();
+	browserInteface.ParameterSettingsResponse (mouseX, mouseY);
 }
 
 };

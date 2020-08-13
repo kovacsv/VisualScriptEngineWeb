@@ -42,7 +42,6 @@ static NUIE::MenuCommandPtr GetCommandById (const NUIE::MenuCommandStructure& co
 }
 
 BrowserAsyncInterface::ContextMenuData::ContextMenuData () :
-	position (),
 	selectedCommandId (InvalidCommandId)
 {
 
@@ -69,7 +68,6 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 #ifdef EMSCRIPTEN
 	if (state == State::Normal) {
 		state = State::WaitingForContextMenuResponse;
-		contextMenuData.position = position;
 		contextMenuData.selectedCommandId = InvalidCommandId;
 		std::string commandsJson = ConvertMenuCommandsToJson (commands);
 		EM_ASM ({
@@ -86,17 +84,18 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 	return nullptr;
 }
 
-void BrowserAsyncInterface::ContextMenuResponse (int commandId)
+void BrowserAsyncInterface::ContextMenuResponse (int mouseX, int mouseY, int commandId)
 {
 #ifdef EMSCRIPTEN
 	state = State::ContextMenuResponseArrived;
 	contextMenuData.selectedCommandId = commandId;
 
 	// Trigger context menu callback again
-	NUIE::Point position = contextMenuData.position;
-	nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, (int) position.GetX (), (int) position.GetY ());
-	nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, (int) position.GetX (), (int) position.GetY ());
+	nodeEditor.OnMouseDown (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, mouseX, mouseY);
+	nodeEditor.OnMouseUp (NUIE::EmptyModifierKeys, NUIE::MouseButton::Right, mouseX, mouseY);
 #else
+	(void) mouseX;
+	(void) mouseY;
 	(void) nodeEditor;
 	(void) commandId;
 #endif
@@ -135,13 +134,17 @@ bool BrowserAsyncInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePt
 	return false;
 }
 
-void BrowserAsyncInterface::ParameterSettingsResponse ()
+void BrowserAsyncInterface::ParameterSettingsResponse (int mouseX, int mouseY)
 {
 #ifdef EMSCRIPTEN
 	// state = State::ParametersResponseArrived;
 
 	// TODO: Trigger parameter settings again
 	state = State::Normal;
+	(void) mouseX;
+	(void) mouseY;
 #else
+	(void) mouseX;
+	(void) mouseY;
 #endif
 }
