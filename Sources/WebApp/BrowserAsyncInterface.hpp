@@ -18,8 +18,8 @@ public:
 	public:
 		ContextMenuData ();
 
-		NUIE::MenuCommandStructure	commandStructure;
-		int							selectedCommandId;
+		NUIE::MenuCommandStructure		commandStructure;
+		int								selectedCommandId;
 	};
 
 	class ParameterSettingsData
@@ -27,7 +27,7 @@ public:
 	public:
 		ParameterSettingsData ();
 
-		NUIE::Point		position;
+		NUIE::ParameterInterfacePtr		paramInterface;
 	};
 
 	BrowserAsyncInterface (NUIE::NodeEditor& nodeEditor);
@@ -40,13 +40,14 @@ public:
 	void					DoubleClickRequest (const NUIE::Point& position);
 
 	bool					ParameterSettingsRequest (NUIE::ParameterInterfacePtr parameters);
-	void					ParameterSettingsResponse ();
+	void					ParameterSettingsResponse (const std::string& changedParametersJsonStr);
 
 private:
-	NUIE::NodeEditor&	nodeEditor;
+	NUIE::NodeEditor&		nodeEditor;
 
-	State				state;
-	ContextMenuData		contextMenuData;
+	State					state;
+	ContextMenuData			contextMenuData;
+	ParameterSettingsData	paramSettingsData;
 };
 
 #endif

@@ -48,10 +48,17 @@ BrowserAsyncInterface::ContextMenuData::ContextMenuData () :
 
 }
 
+BrowserAsyncInterface::ParameterSettingsData::ParameterSettingsData () :
+	paramInterface (nullptr)
+{
+
+}
+
 BrowserAsyncInterface::BrowserAsyncInterface (NUIE::NodeEditor& nodeEditor) :
 	nodeEditor (nodeEditor),
 	state (State::Normal),
-	contextMenuData ()
+	contextMenuData (),
+	paramSettingsData ()
 {
 
 }
@@ -89,6 +96,7 @@ void BrowserAsyncInterface::ContextMenuResponse (int commandId)
 	state = State::Normal;
 	NUIE::MenuCommandPtr command = GetCommandById (contextMenuData.commandStructure, commandId);
 	nodeEditor.ExecuteMenuCommand (command);
+	contextMenuData.commandStructure = NUIE::MenuCommandStructure ();
 #else
 	(void) commandId;
 #endif
@@ -110,6 +118,7 @@ bool BrowserAsyncInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePt
 #ifdef EMSCRIPTEN
 	if (state == State::Normal) {
 		state = State::WaitingForParametersResponse;
+		paramSettingsData.paramInterface = parameters;
 		std::string parametersJson = ConvertParametersToJson (parameters);
 		EM_ASM ({
 			ParameterSettingsRequest ($0);
@@ -123,10 +132,15 @@ bool BrowserAsyncInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePt
 	return false;
 }
 
-void BrowserAsyncInterface::ParameterSettingsResponse ()
+void BrowserAsyncInterface::ParameterSettingsResponse (const std::string& changedParametersJsonStr)
 {
 #ifdef EMSCRIPTEN
 	state = State::Normal;
+	if (ProcessChangedParametersJson (changedParametersJsonStr, paramSettingsData.paramInterface)) {
+		nodeEditor.ApplyParameterChanges (paramSettingsData.paramInterface);
+	}
+	paramSettingsData.paramInterface = nullptr;
 #else
+	(void) changedParametersJsonStr;
 #endif
 }

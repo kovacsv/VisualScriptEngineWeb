@@ -155,3 +155,56 @@ std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& paramete
 	doc.AddMember ("parameters", paramArr, allocator);
 	return DocumentToString (doc);
 }
+
+bool ProcessChangedParametersJson (const std::string& changeParametersJsonStr, NUIE::ParameterInterfacePtr& parameters)
+{
+	if (changeParametersJsonStr.empty ()) {
+		return false;
+	}
+
+	Document doc;
+	doc.Parse (changeParametersJsonStr.c_str ());
+	if (doc.HasParseError ()) {
+		return false;
+	}
+	if (!doc.HasMember ("params")) {
+		return false;
+	}
+
+	bool wasChange = false;
+	Value::Array paramsArr = doc["params"].GetArray ();
+	for (SizeType i = 0; i < paramsArr.Size (); i++) {
+		const Value& paramVal = paramsArr[i];
+		if (paramVal.IsNull ()) {
+			continue;
+		}
+		const Value& valueObj = paramVal["value"];
+		NUIE::ParameterType type = parameters->GetParameterType (i);
+		NE::ValuePtr resultVal = nullptr;
+		if (type == NUIE::ParameterType::Boolean) {
+			bool boolVal = valueObj["boolVal"].GetBool ();
+			resultVal = NE::ValuePtr (new NE::BooleanValue (boolVal));
+		} else if (type == NUIE::ParameterType::Integer) {
+			int intVal = valueObj["intVal"].GetInt ();
+			resultVal = NE::ValuePtr (new NE::IntValue (intVal));
+		} else if (type == NUIE::ParameterType::Float) {
+			float numVal = valueObj["numVal"].GetFloat ();
+			resultVal = NE::ValuePtr (new NE::FloatValue (numVal));
+		} else if (type == NUIE::ParameterType::Double) {
+			double numVal = valueObj["numVal"].GetDouble ();
+			resultVal = NE::ValuePtr (new NE::DoubleValue (numVal));
+		} else if (type == NUIE::ParameterType::String) {
+			std::string strVal = valueObj["strVal"].GetString ();
+			resultVal = NE::ValuePtr (new NE::StringValue (NE::StringToWString (strVal)));
+		} else if (type == NUIE::ParameterType::Enumeration) {
+			int intVal = valueObj["intVal"].GetInt ();
+			resultVal = NE::ValuePtr (new NE::IntValue (intVal));
+		}
+		if (resultVal != nullptr) {
+			parameters->SetParameterValue (i, resultVal);
+			wasChange = true;
+		}
+	}
+	
+	return wasChange;
+}

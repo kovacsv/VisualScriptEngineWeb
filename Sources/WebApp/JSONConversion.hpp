@@ -7,7 +7,8 @@
 extern const int InvalidCommandId;
 extern const int FirstCommandId;
 
-std::string ConvertMenuCommandsToJson (const NUIE::MenuCommandStructure& commands);
-std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& parameters);
+std::string		ConvertMenuCommandsToJson (const NUIE::MenuCommandStructure& commands);
+std::string		ConvertParametersToJson (const NUIE::ParameterInterfacePtr& parameters);
+bool			ProcessChangedParametersJson (const std::string& changeParametersJsonStr, NUIE::ParameterInterfacePtr& parameters);
 
 #endif

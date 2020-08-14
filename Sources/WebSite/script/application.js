@@ -75,8 +75,12 @@ Application.prototype.OpenSettingsDialog = function (parameters)
 	
 	var myThis = this;
 	var parameterSettings = new ParameterSettings (this.canvas, parameters.parameters, function (changedParameters) {
-		var parameterSettingsResponseFunc = myThis.module.cwrap ('ParameterSettingsResponse', null, []);
-		parameterSettingsResponseFunc ();
+		var responseString = '';
+		if (changedParameters != null) {
+			responseString = JSON.stringify (changedParameters);
+		}
+		var parameterSettingsResponseFunc = myThis.module.cwrap ('ParameterSettingsResponse', null, ['string']);
+		parameterSettingsResponseFunc (responseString);
 	});
 	parameterSettings.Open (positionX, positionY);
 };

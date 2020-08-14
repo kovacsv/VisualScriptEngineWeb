@@ -64,13 +64,13 @@ ParameterSettings.prototype.GenerateTable = function ()
 			if (parameter.type == 'boolean') {
 				value.boolVal = (control.val () == 0 ? true : false);
 			} else if (parameter.type == 'integer') {
-				value.intVal = control.val ();
+				value.intVal = parseInt (control.val ());
 			} else if (parameter.type == 'float' || parameter.type == 'double') {
-				value.numVal = control.val ();
+				value.numVal = parseFloat (control.val ());
 			} else if (parameter.type == 'string') {
 				value.strVal = control.val ();
 			} else if (parameter.type == 'enumeration') {
-				value.intVal = control.val ();
+				value.intVal = parseInt (control.val ());
 			}
 			changedParams.params[paramIndex] = {};
 			changedParams.params[paramIndex].value = value;

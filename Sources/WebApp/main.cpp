@@ -205,10 +205,11 @@ void ContextMenuResponse (int commandId)
 	browserInteface.ContextMenuResponse (commandId);
 }
 
-void ParameterSettingsResponse ()
+void ParameterSettingsResponse (char* changedParametersJson)
 {
+	std::string changedParametersJsonStr (changedParametersJson);
 	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
-	browserInteface.ParameterSettingsResponse ();
+	browserInteface.ParameterSettingsResponse (changedParametersJson);
 }
 
 };
