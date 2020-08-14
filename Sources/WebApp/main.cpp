@@ -102,47 +102,6 @@ static bool MainLoop (Application* app)
 					}
 				}
 				break;
-			case SDL_KEYUP:
-				{
-					NUIE::Key pressedKey (NUIE::KeyCode::Undefined);
-					bool isControlPressed = (sdlEvent.key.keysym.mod & SDL_SCANCODE_LCTRL);
-					if (isControlPressed) {
-						switch (sdlEvent.key.keysym.sym) {
-							case SDLK_a:
-								pressedKey.SetKeyCode (NUIE::KeyCode::SelectAll);
-								break;
-							case SDLK_c:
-								pressedKey.SetKeyCode (NUIE::KeyCode::Copy);
-								break;
-							case SDLK_v:
-								pressedKey.SetKeyCode (NUIE::KeyCode::Paste);
-								break;
-							case SDLK_g:
-								pressedKey.SetKeyCode (NUIE::KeyCode::Group);
-								break;
-							case SDLK_z:
-								pressedKey.SetKeyCode (NUIE::KeyCode::Undo);
-								break;
-							case SDLK_y:
-								pressedKey.SetKeyCode (NUIE::KeyCode::Redo);
-								break;
-						}
-					} else {
-						switch (sdlEvent.key.keysym.sym) {
-							case SDLK_ESCAPE:
-								pressedKey.SetKeyCode (NUIE::KeyCode::Escape);
-								break;
-							case SDLK_DELETE:
-							case SDLK_BACKSPACE:
-								pressedKey.SetKeyCode (NUIE::KeyCode::Delete);
-								break;
-						}
-					}
-					if (pressedKey.IsValid ()) {
-						nodeEditor.OnKeyPress (pressedKey);
-					}
-				}
-				break;
 		}
 	}
 
@@ -166,6 +125,42 @@ void ResizeWindow (int width, int height)
 		return;
 	}
 	gAppForBrowser->ResizeWindow (width, height);
+}
+
+void HandleKeyPress (char* keyCode)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+
+	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
+	if (browserInteface.AreEventsSuspended ()) {
+		return;
+	}
+
+	std::string keyCodeStr (keyCode);
+	NUIE::Key pressedKey (NUIE::KeyCode::Undefined);
+	if (keyCodeStr == "SelectAll") {
+		pressedKey.SetKeyCode (NUIE::KeyCode::SelectAll);
+	} else if (keyCodeStr == "Copy") {
+		pressedKey.SetKeyCode (NUIE::KeyCode::Copy);
+	} else if (keyCodeStr == "Paste") {
+		pressedKey.SetKeyCode (NUIE::KeyCode::Paste);
+	} else if (keyCodeStr == "Group") {
+		pressedKey.SetKeyCode (NUIE::KeyCode::Group);
+	} else if (keyCodeStr == "Undo") {
+		pressedKey.SetKeyCode (NUIE::KeyCode::Undo);
+	} else if (keyCodeStr == "Redo") {
+		pressedKey.SetKeyCode (NUIE::KeyCode::Redo);
+	} else if (keyCodeStr == "Escape") {
+		pressedKey.SetKeyCode (NUIE::KeyCode::Escape);
+	} else if (keyCodeStr == "Delete") {
+		pressedKey.SetKeyCode (NUIE::KeyCode::Delete);
+	}
+	if (pressedKey.IsValid ()) {
+		NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
+		nodeEditor.OnKeyPress (pressedKey);
+	}
 }
 
 void CreateNode (int nodeIndex, int xPosition, int yPosition)
@@ -221,7 +216,8 @@ int EventFilter (void*, SDL_Event* sdlEvent)
 	if (sdlEvent->type == SDL_FINGERDOWN ||
 		sdlEvent->type == SDL_FINGERUP ||
 		sdlEvent->type == SDL_FINGERMOTION ||
-		sdlEvent->type == SDL_KEYDOWN)
+		sdlEvent->type == SDL_KEYDOWN ||
+		sdlEvent->type == SDL_KEYUP)
 	{
 		return 0;
 	}
@@ -232,6 +228,9 @@ int main (int, char**)
 {
 	SDL_Init (SDL_INIT_VIDEO);
 	SDL_SetEventFilter (EventFilter, nullptr);
+	SDL_EventState (SDL_TEXTINPUT, SDL_DISABLE);
+	SDL_EventState (SDL_KEYDOWN, SDL_DISABLE);
+	SDL_EventState (SDL_KEYUP, SDL_DISABLE);
 	TTF_Init ();
 
 	SDL_Window *window;
@@ -245,7 +244,6 @@ int main (int, char**)
 	InitialWindowHeight = 10;
 #endif
 
-	SDL_SetHint (SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
 	SDL_CreateWindowAndRenderer (InitialWindowWidth, InitialWindowHeight, 0, &window, &renderer);
 
 	{

@@ -7,10 +7,11 @@ var Application = function ()
 Application.prototype.InitCanvas = function (canvas)
 {
 	this.canvas = canvas;
+};
+
+Application.prototype.InitDragAndDrop = function ()
+{
 	var myThis = this;
-	this.canvas.on ('mouseenter', function () {
-		myThis.canvas.focus ();
-	});
 	this.canvas.on ('dragover', function (ev) {
 		ev.preventDefault ();
 	});
@@ -29,6 +30,56 @@ Application.prototype.InitCanvas = function (canvas)
 Application.prototype.InitModule = function (module)
 {
 	this.module = module;
+	this.InitDragAndDrop ();
+	this.InitKeyboardEvents ();	
+};
+
+Application.prototype.InitKeyboardEvents = function ()
+{
+	var overCanvas = false;
+	
+	var myThis = this;
+	this.canvas.on ('mouseenter', function (ev) {
+		overCanvas = true;
+	});
+	this.canvas.on ('mouseleave', function (ev) {
+		overCanvas = false;
+	});
+	
+	var handleKeyPressFunc = this.module.cwrap ('HandleKeyPress', null, ['string']);
+	
+	$(window).keydown (function (ev) {
+		if (!overCanvas) {
+			return;
+		}
+		var keyCode = null;
+		var isControlPressed = ev.ctrlKey;
+		if (isControlPressed) {
+			if (ev.which == 65) {
+				keyCode = 'SelectAll';
+			} else if (ev.which == 67) {
+				keyCode = 'Copy';
+			} else if (ev.which == 86) {
+				keyCode = 'Paste';
+			} else if (ev.which == 71) {
+				keyCode = 'Group';
+			} else if (ev.which == 90) {
+				keyCode = 'Undo';
+			} else if (ev.which == 89) {
+				keyCode = 'Redo';
+			}
+		} else {
+			if (ev.which == 8 || ev.which == 46) {
+				keyCode = 'Delete';
+			} else if (ev.which == 27) {
+				keyCode = 'Escape';
+			}
+		}
+		if (keyCode != null) {
+			handleKeyPressFunc (keyCode);
+			ev.preventDefault();
+		}
+	});
 };
 
 Application.prototype.InitMenu = function (menuDivName)
