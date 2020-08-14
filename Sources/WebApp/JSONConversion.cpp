@@ -201,8 +201,10 @@ bool ProcessChangedParametersJson (const std::string& changeParametersJsonStr, N
 			resultVal = NE::ValuePtr (new NE::IntValue (intVal));
 		}
 		if (resultVal != nullptr) {
-			parameters->SetParameterValue (i, resultVal);
-			wasChange = true;
+			if (parameters->IsValidParameterValue (i, resultVal)) {
+				parameters->SetParameterValue (i, resultVal);
+				wasChange = true;
+			}
 		}
 	}
 	
