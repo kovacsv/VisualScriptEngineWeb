@@ -10,10 +10,7 @@ call emmake mingw32-make || goto :error
 popd
 echo Build Succeeded.
 
-xcopy Sources\WebSite\*.* %2 /s /i /Y > NUL
-copy BuildEm\Release\WebApp.js %2\WebApp.js > NUL
-copy BuildEm\Release\WebApp.wasm %2\WebApp.wasm > NUL
-copy BuildEm\Release\WebApp.data %2\WebApp.data > NUL
+xcopy BuildEm\Release\*.* %2 /s /i /Y > NUL
 
 popd
 exit /b 0

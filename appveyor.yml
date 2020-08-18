@@ -13,8 +13,6 @@ platform:
   - x64
 
 before_build:
-  - set VSE_DEVKIT_DIR=C:\Dependencies\VisualScriptEngine-master\Build\DevKit
-  - python InstallDepsWin.py C:\Dependencies cmake msbuild %configuration%
   - mkdir Build
   - cd Build
   - cmake -G "Visual Studio 15 2017 Win64" ..

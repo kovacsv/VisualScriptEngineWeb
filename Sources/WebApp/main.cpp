@@ -244,7 +244,8 @@ int main (int, char**)
 	InitialWindowHeight = 10;
 #endif
 
-	SDL_CreateWindowAndRenderer (InitialWindowWidth, InitialWindowHeight, 0, &window, &renderer);
+	window = SDL_CreateWindow ("VisualScriptEngineWeb", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, InitialWindowWidth, InitialWindowHeight, 0);
+	renderer = SDL_CreateRenderer (window, -1, 0);
 
 	{
 		Application app (window, renderer);
