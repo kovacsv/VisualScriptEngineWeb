@@ -14,7 +14,7 @@ const int FirstCommandId = 1;
 static void AddString (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, const std::string& value)
 {
 	Value jsonValue;
-	jsonValue.SetString (value.c_str (), (SizeType) value.length (), allocator);
+	jsonValue.SetString (value.c_str (), allocator);
 	obj.AddMember (key, jsonValue, allocator);
 }
 
@@ -63,14 +63,17 @@ static void AddCommandsToJson (std::vector<NUIE::MenuCommandPtr> commandList, in
 		
 		AddString (commandObj, allocator, "name", command->GetName ());
 		AddInteger (commandObj, allocator, "id", currentId);
-		AddBoolean (commandObj, allocator, "isChecked", command->IsChecked ());
+		bool isChecked = false;
 		if (command->HasChildCommands ()) {
 			Value childCommandArr;
 			childCommandArr.SetArray ();
 			std::vector<NUIE::MenuCommandPtr> childCommandList = command->GetChildCommands ();
 			AddCommandsToJson (childCommandList, currentId, childCommandArr, allocator);
 			commandObj.AddMember ("commands", childCommandArr, allocator);
+		} else {
+			isChecked = command->IsChecked ();
 		}
+		AddBoolean (commandObj, allocator, "isChecked", isChecked);
 		commands.PushBack (commandObj, allocator);
 		currentId++;
 	}
@@ -88,8 +91,8 @@ std::string ConvertMenuCommandsToJson (const NUIE::MenuCommandStructure& command
 	std::vector<NUIE::MenuCommandPtr> commandList = commands.GetCommands ();
 	int currentId = FirstCommandId;
 	AddCommandsToJson (commandList, currentId, commandArr, allocator);
+	
 	doc.AddMember ("commands", commandArr, allocator);
-
 	return DocumentToString (doc);
 }
 
