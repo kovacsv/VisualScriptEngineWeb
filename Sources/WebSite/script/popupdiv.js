@@ -1,6 +1,7 @@
 var PopUpDiv = function (eventHandlers)
 {
 	this.eventHandlers = eventHandlers;
+	this.mouseDownHandler = null;
 	this.popUpDiv = null;
 };
 
@@ -15,11 +16,12 @@ PopUpDiv.prototype.Open = function (positionX, positionY)
 	});
 	
 	var myThis = this;
-	documentBody.bind ('mousedown', function (ev) {
+	this.mouseDownHandler = function (ev) {
 		if (!myThis.IsItemInDiv ($(ev.target))) {
 			myThis.Close ();
 		}
-	});
+	};
+	documentBody.bind ('mousedown', this.mouseDownHandler);
 	
 	if (this.eventHandlers.onOpen) {
 		this.eventHandlers.onOpen ();
@@ -29,8 +31,8 @@ PopUpDiv.prototype.Open = function (positionX, positionY)
 PopUpDiv.prototype.Close = function ()
 {
 	var documentBody = $(document.body);
+	documentBody.unbind ('mousedown', this.mouseDownHandler);
 	this.popUpDiv.remove ();
-	documentBody.unbind ('mousedown');
 	if (this.eventHandlers.onClose) {
 		this.eventHandlers.onClose ();
 	}	
