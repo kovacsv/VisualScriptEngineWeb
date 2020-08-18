@@ -54,10 +54,8 @@ target_include_directories (WebApp PUBLIC ${VSELibFolder})
 target_include_directories (WebApp PUBLIC ${RapidJsonLibFolder}/include)
 
 get_filename_component (WebAppSourcesFolderAbsolute "${WebAppSourcesFolder}" ABSOLUTE)
-get_filename_component (WebSiteSourcesFolderAbsolute "${WebSiteSourcesFolder}" ABSOLUTE)
 if (${EMSCRIPTEN})
 	add_custom_command (TARGET WebApp PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebSiteSourcesFolderAbsolute}" $<TARGET_FILE_DIR:WebApp>
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppSourcesFolderAbsolute}/Assets" ${CMAKE_BINARY_DIR}/Assets
 	)
 	set (SDLUsedLibraries -sUSE_SDL=2 -sUSE_SDL_TTF=2)
