@@ -1,3 +1,5 @@
 /Build/*
 /BuildEm/*
 EmscriptenBuildLocal.bat
+*.out.wasm
+*.out.js
