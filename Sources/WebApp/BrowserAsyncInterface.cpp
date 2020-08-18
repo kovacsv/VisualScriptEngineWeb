@@ -94,8 +94,10 @@ void BrowserAsyncInterface::ContextMenuResponse (int commandId)
 {
 #ifdef EMSCRIPTEN
 	state = State::Normal;
-	NUIE::MenuCommandPtr command = GetCommandById (contextMenuData.commandStructure, commandId);
-	nodeEditor.ExecuteMenuCommand (command);
+	if (commandId != InvalidCommandId) {
+		NUIE::MenuCommandPtr command = GetCommandById (contextMenuData.commandStructure, commandId);
+		nodeEditor.ExecuteMenuCommand (command);
+	}
 	contextMenuData.commandStructure = NUIE::MenuCommandStructure ();
 #else
 	(void) commandId;
