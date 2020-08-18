@@ -14,7 +14,6 @@ set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 set (CMAKE_SUPPRESS_REGENERATION 1)
 set (CMAKE_CONFIGURATION_TYPES Debug;Release;RelWithDebInfo)
 set (CMAKE_DEBUG_POSTFIX "Debug")
-set (VSE_DEVKIT_DIR $ENV{VSE_DEVKIT_DIR} CACHE PATH "VisualScriptEngine devkit directory.")
 
 add_definitions (-DUNICODE -D_UNICODE)
 
@@ -24,6 +23,7 @@ set (LibSourcesFolder Libs)
 set (SDLLibFolder ${LibSourcesFolder}/SDL2-2.0.12)
 set (SDLTTFLibFolder ${LibSourcesFolder}/SDL2_ttf-2.0.15)
 set (RapidJsonLibFolder ${LibSourcesFolder}/rapidjson-1.1.0)
+set (VSELibFolder ${LibSourcesFolder}/VisualScriptEngine)
 link_directories (${SDLLibFolder}/lib/x64)
 link_directories (${SDLTTFLibFolder}/lib/x64)
 
@@ -37,12 +37,8 @@ file (GLOB
 )
 file (GLOB
 	VisualScriptEngineFiles
-	${VSE_DEVKIT_DIR}/include/NE_*.hpp
-	${VSE_DEVKIT_DIR}/source/NE_*.cpp
-	${VSE_DEVKIT_DIR}/include/NUIE_*.hpp
-	${VSE_DEVKIT_DIR}/source/NUIE_*.cpp
-	${VSE_DEVKIT_DIR}/include/BI_*.hpp
-	${VSE_DEVKIT_DIR}/source/BI_*.cpp
+	${VSELibFolder}/*.hpp
+	${VSELibFolder}/*.cpp
 )
 set (
 	WebAppFiles
@@ -53,7 +49,7 @@ source_group ("Sources" FILES ${WebAppFiles})
 source_group ("VisualScriptEngine" FILES ${VisualScriptEngineFiles})
 add_executable (WebApp ${WebAppFiles})
 set_target_properties (WebApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
-target_include_directories (WebApp PUBLIC ${VSE_DEVKIT_DIR}/include)
+target_include_directories (WebApp PUBLIC ${VSELibFolder})
 target_include_directories (WebApp PUBLIC ${RapidJsonLibFolder}/include)
 if (${EMSCRIPTEN})
 	set (SDLUsedLibraries -sUSE_SDL=2 -sUSE_SDL_TTF=2)

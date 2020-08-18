@@ -26,14 +26,7 @@ emsdk install mingw-4.6.2-32bit
 emsdk activate mingw-4.6.2-32bit
 ```
 
-### 2. Build VisualScriptEngine
-
-* [Download the latest version of VisualScriptEngine from here](https://github.com/kovacsv/VisualScriptEngine/archive/master.zip).
-* Generate the project with cmake, and build it with the configurations you need (Debug, Release, RelWithDebInfo).
-* Build the `INSTALL` project for both configurations.
-* Set the `VSE_DEVKIT_DIR` environment variable to VisualScriptEngine DevKit folder.
-
-### 3. Generate the Visual Studio Project
+### 2. Generate the Visual Studio Project
 
 You can create the project with CMake, and build it with Visual Studio.
 
@@ -44,7 +37,7 @@ cmake -G "Visual Studio 15 2017 Win64" ..
 cd ..
 ```
 
-### 4. Generate the Web Application
+### 3. Generate the Web Application
 
 The easiest way is to run the `EmscriptenBuild.bat` file from the root directory. It needs two command line parameters:
 - The Emscripten SDK folder (e.g. "C:\Emscripten\emsdk").
