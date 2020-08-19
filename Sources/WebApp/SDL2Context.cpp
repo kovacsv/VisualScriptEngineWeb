@@ -5,7 +5,7 @@
 #include <vector>
 #include <cmath>
 
-//#define USE_SDL_GFX
+// #define USE_SDL_GFX
 
 static const float TextRatioX = 1.1f;
 static const float TextRatioY = 1.0f;
@@ -102,7 +102,8 @@ void SDL2Context::DrawBezier (const NUIE::Point& p1, const NUIE::Point& p2, cons
 		xPoints.push_back (point.x);
 		yPoints.push_back (point.y);
 	}
-	aaBezierColor (renderer, &xPoints[0], &yPoints[0], 4, 20, (float) pen.GetThickness (), 0xff000000);
+	const NUIE::Color& color = pen.GetColor ();
+	aaBezierRGBA (renderer, &xPoints[0], &yPoints[0], 4, 20, (float) pen.GetThickness (), color.GetR (), color.GetG (), color.GetB (), 255);
 #else
 	// TODO: SDL_RenderDrawLines emscripten port is buggy when the end is near the bottom of the screen
 	std::vector<NUIE::Point> points = NUIE::SegmentBezier (20, p1, p2, p3, p4);
