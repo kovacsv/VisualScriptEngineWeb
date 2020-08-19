@@ -12,9 +12,15 @@ The [Emscripten](https://emscripten.org) port of [VisualScriptEngine](https://gi
 
 ## Building on Windows
 
-### 1. Install Emscripten SDK
+### 1. Install Prerequisites
 
-You can find detailed instruction on [Emscripten Downloand and install](https://emscripten.org/docs/getting_started/downloads.html) page. You have to use the following commands to set up the environment for VisualScriptEngineWeb:
+You have to install the following software:
+- [CMake](https://cmake.org) (3.16 minimum version is needed).
+- [Python](https://www.python.org) (version 2.7+ or 3.5+).
+
+### 2. Install Emscripten SDK
+
+You can find detailed instruction on [Emscripten Download and install](https://emscripten.org/docs/getting_started/downloads.html) page. You have to use the following commands to set up the environment for VisualScriptEngineWeb:
 
 ```
 git clone https://github.com/emscripten-core/emsdk.git
@@ -26,7 +32,7 @@ emsdk install mingw-4.6.2-32bit
 emsdk activate mingw-4.6.2-32bit
 ```
 
-### 2. Generate the Visual Studio Project
+### 3. Generate the Visual Studio Project
 
 You can create the project with CMake, and build it with Visual Studio.
 
@@ -37,7 +43,7 @@ cmake -G "Visual Studio 15 2017 Win64" ..
 cd ..
 ```
 
-### 3. Generate the Web Application
+### 4. Generate the Web Application
 
 The easiest way is to run the `EmscriptenBuild.bat` file from the root directory. It needs two command line parameters:
 - The Emscripten SDK folder (e.g. "C:\Emscripten\emsdk").
