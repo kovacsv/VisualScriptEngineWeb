@@ -1,14 +1,5 @@
 cmake_minimum_required (VERSION 3.6)
 
-function (SetCompilerOptions module)
-	target_compile_options (${module} PUBLIC "$<$<CONFIG:Debug>:-DDEBUG>")
-	if (WIN32)
-		target_compile_options (${module} PUBLIC /W4 /WX)
-	else ()
-		target_compile_options (${module} PUBLIC -std=c++11 -Wall -Wextra -Werror)
-	endif ()
-endfunction ()
-
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 set (CMAKE_SUPPRESS_REGENERATION 1)
@@ -22,6 +13,7 @@ project (VisualScriptEngineWeb)
 set (LibSourcesFolder Libs)
 set (SDLLibFolder ${LibSourcesFolder}/SDL2-2.0.12)
 set (SDLTTFLibFolder ${LibSourcesFolder}/SDL2_ttf-2.0.15)
+set (SDLGfxLibFolder ${LibSourcesFolder}/SDL2_gfx-bbcsdl)
 set (RapidJsonLibFolder ${LibSourcesFolder}/rapidjson-1.1.0)
 set (VSELibFolder ${LibSourcesFolder}/VisualScriptEngine)
 link_directories (${SDLLibFolder}/lib/x64)
@@ -37,6 +29,11 @@ file (GLOB
 	${WebAppSourcesFolder}/*.cpp
 )
 file (GLOB
+	SDLGfxFiles
+	${SDLGfxLibFolder}/*.h
+	${SDLGfxLibFolder}/*.c
+)
+file (GLOB
 	VisualScriptEngineFiles
 	${VSELibFolder}/*.hpp
 	${VSELibFolder}/*.cpp
@@ -44,12 +41,15 @@ file (GLOB
 set (
 	WebAppFiles
 	${WebAppClientFiles}
+	${SDLGfxFiles}
 	${VisualScriptEngineFiles}
 )
 source_group ("Sources" FILES ${WebAppFiles})
+source_group ("SDLGfx" FILES ${SDLGfxFiles})
 source_group ("VisualScriptEngine" FILES ${VisualScriptEngineFiles})
 add_executable (WebApp ${WebAppFiles})
 set_target_properties (WebApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+target_include_directories (WebApp PUBLIC ${SDLGfxLibFolder})
 target_include_directories (WebApp PUBLIC ${VSELibFolder})
 target_include_directories (WebApp PUBLIC ${RapidJsonLibFolder}/include)
 
@@ -82,5 +82,11 @@ else ()
 		COMMAND ${CMAKE_COMMAND} -E copy "${LibFreeTypeDllFullPath}" $<TARGET_FILE_DIR:WebApp>
 	)
 endif ()
-
-SetCompilerOptions (WebApp)
+target_compile_options (WebApp PUBLIC "$<$<CONFIG:Debug>:-DDEBUG>")
+if (WIN32)
+	target_compile_options (WebApp PUBLIC /W4 /WX)
+	set_source_files_properties (${SDLGfxFiles} PROPERTIES COMPILE_FLAGS "/wd4028 /wd4100 /wd4211 /wd4244 /wd4267 /wd4305 /wd4310 /wd4456 /wd4701")
+else ()
+	target_compile_options (WebApp PUBLIC -Wall -Wextra -Werror)
+	set_source_files_properties (${SDLGfxFiles} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+endif ()
