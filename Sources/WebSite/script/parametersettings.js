@@ -9,10 +9,22 @@ var ParameterSettings = function (parentElement, parameters, onClose)
 	this.result = null;
 	
 	var myThis = this;
+	var keyHandler = function (ev) {
+		if (ev.which == 13) {
+			myThis.result = myThis.changedParams;
+			myThis.popUpDiv.Close ();
+		} else if (ev.which == 27) {
+			myThis.popUpDiv.Close ();
+		}
+	};
+
+	var windowObj = $(window);
 	this.popUpDiv = new PopUpDiv ({
 		onOpen : function () {
+			windowObj.bind ('keyup', keyHandler);
 		},
 		onClose : function () {
+			windowObj.unbind ('keyup', keyHandler);
 			myThis.onClose (myThis.result);
 		}
 	});
