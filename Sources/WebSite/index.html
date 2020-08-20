@@ -40,9 +40,11 @@
 		{
 			var windowObj = $(window);
 			var canvasObj = $('#canvas');
+			var leftObj = $('#left');
 			var canvasOffset = canvasObj.offset ();
 			var newWidth = windowObj.width () - canvasOffset.left - 12;
 			var newHeight = windowObj.height () - canvasOffset.top - 12;
+			leftObj.height (newHeight);
 			application.ResizeCanvas (newWidth, newHeight);
 		}
 		
@@ -75,14 +77,20 @@
 
 <body>
 	<div class="editor">
-		<!--
-		<div class="controls">
-			<div class="controlbutton">New</div>
-			<div class="controlbutton">Open</div>
-			<div class="controlbutton">Save</div>
+		<div class="header">
+			<div class="headerleft">VISUAL SCRIPT ENGINE</div>
+			<div class="headerright"><a href="https://github.com/kovacsv/VisualScriptEngineWeb"><img src="images/github.png" alt="GitHub"></a></div>
 		</div>
-		-->
-		<div class="left">
+		<div class="controls">
+			<div class="controlbutton" title="New"><img class="controlimage" src="images/folder_opened.png"></div>
+			<div class="controlbutton"><img src="images/plus.png"></div>
+			<div class="controlbutton"><img src="images/plus.png"></div>
+			<div class="controlbutton"><img src="images/plus.png"></div>
+			<div class="controlbutton"><img src="images/plus.png"></div>
+			<div class="controlbutton"><img src="images/plus.png"></div>
+			<div class="controlbutton"><img src="images/plus.png"></div>
+		</div>
+		<div class="left" id="left">
 			<div class="leftcontent">
 				<div class="nodetree" id="nodetree"></div>
 			</div>

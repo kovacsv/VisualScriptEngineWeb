@@ -15,10 +15,61 @@ div.editor
 	
 }
 
+div.header
+{
+	color : #fafafa;
+	background : #263238;
+	overflow : auto;
+}
+
+div.header img
+{
+	display : block;
+}
+
+div.headerleft
+{
+	font-size : 18px;
+	padding : 14px 10px;
+	float : left;
+}
+
+div.headerright
+{
+	padding : 12px 10px;
+	float : right;
+}
+
+div.controls
+{
+	color : #222222;
+	background : #f5f5f5;
+	margin-left : 2px;
+	margin-bottom : 10px;
+	padding : 4px 10px;
+	overflow : auto;
+}
+
+div.controlbutton
+{
+	padding : 6px;
+	cursor : pointer;
+	float : left;
+}
+
+div.controlbutton:hover
+{
+	background : #90c8f6;
+}
+
+div.controlbutton img
+{
+	display : block;
+}
+
 div.left
 {
 	width : 230px;
-	height : 100%;
 	position : absolute;
 	left : 0px;
 	right : 0px;
@@ -27,7 +78,7 @@ div.left
 
 div.leftcontent
 {
-	padding : 10px;
+	padding : 0px 10px;
 }
 
 div.nodetree
@@ -38,31 +89,6 @@ div.nodetree
 div.right
 {
 	margin-left : 230px;
-}
-
-div.controls
-{
-	padding : 10px;
-	overflow : auto;
-}
-
-div.controlbutton
-{
-	padding : 5px 10px;
-	cursor : pointer;
-	border : 1px solid #cccccc;
-	margin-right : 10px;
-	float : left;
-}
-
-div.controlbutton:hover
-{
-	background : #90c8f6;
-}
-
-div.controlbutton img.controlimage
-{
-	display : block;
 }
 
 input.nodetreesearch
@@ -77,7 +103,7 @@ input.nodetreesearch
 
 div.nodetreeitem
 {
-	padding : 5px 10px;
+	padding : 5px 0px;
 	cursor : pointer;
 	user-select : none;
 }
@@ -223,7 +249,6 @@ a:hover
 
 #canvas
 {
-	margin-top : 10px;
 	border : 1px solid #dddddd;
 	outline : none;
 }
