@@ -30,14 +30,39 @@ div.leftcontent
 	padding : 10px;
 }
 
-div.right
+div.nodetree
 {
-	margin-left : 240px;
+
 }
 
-div.menu
+div.right
 {
+	margin-left : 230px;
+}
 
+div.controls
+{
+	padding : 10px;
+	overflow : auto;
+}
+
+div.controlbutton
+{
+	padding : 5px 10px;
+	cursor : pointer;
+	border : 1px solid #cccccc;
+	margin-right : 10px;
+	float : left;
+}
+
+div.controlbutton:hover
+{
+	background : #90c8f6;
+}
+
+div.controlbutton img.controlimage
+{
+	display : block;
 }
 
 input.nodetreesearch
