@@ -105,7 +105,6 @@ void SDL2Context::DrawBezier (const NUIE::Point& p1, const NUIE::Point& p2, cons
 		const NUIE::Color& color = pen.GetColor ();
 		aaBezierRGBA (renderer, &xPoints[0], &yPoints[0], 4, 20, (float) pen.GetThickness (), color.GetR (), color.GetG (), color.GetB (), 255);
 	} else {
-		// TODO:SDL_RenderDrawLines emscripten port is buggy when the end is near the bottom of the screen
 		static const bool UseDrawLines = true;
 		std::vector<NUIE::Point> points = NUIE::SegmentBezier (20, p1, p2, p3, p4);
 		if (UseDrawLines) {
