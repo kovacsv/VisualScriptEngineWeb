@@ -50,7 +50,8 @@
 		
 		function OnReady ()
 		{
-			application.InitMenu ('nodetree');
+			application.InitControls ('controls');
+			application.InitNodeTree ('nodetree');
 		}
 
 		function OnRuntimeInitialized (module)
@@ -81,18 +82,8 @@
 			<div class="headerleft">VISUAL SCRIPT ENGINE</div>
 			<div class="headerright"><a href="https://github.com/kovacsv/VisualScriptEngineWeb"><img src="images/github.png" alt="GitHub"></a></div>
 		</div>
-		<div class="controls">
-			<div class="controlbutton" title="New"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
-			<div class="controlbutton"><img src="images/plus.png"></div>
+		<div class="controls" id="controls">
+
 		</div>
 		<div class="left" id="left">
 			<div class="leftcontent">

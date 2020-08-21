@@ -43,7 +43,8 @@ NodeTree.prototype.BuildTree = function ()
 
 NodeTree.prototype.AddSearchField = function ()
 {
-	var searchField = $('<input>').attr ('type', 'text').addClass ('nodetreesearch').attr ('placeholder', 'Search Nodes...').appendTo (this.parentDiv);
+	var searchFieldDiv = $('<div>').addClass ('nodetreesearchdiv').appendTo (this.parentDiv);
+	var searchField = $('<input>').attr ('type', 'text').addClass ('nodetreesearch').attr ('placeholder', 'Search Nodes...').appendTo (searchFieldDiv);
 	var myThis = this;
 	searchField.on ('input', function () {
 		var searchText = searchField.val ().toLowerCase ();

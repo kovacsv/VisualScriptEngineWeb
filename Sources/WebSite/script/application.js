@@ -80,9 +80,30 @@ Application.prototype.InitKeyboardEvents = function ()
 	});
 };
 
-Application.prototype.InitMenu = function (menuDivName)
+Application.prototype.InitControls = function (controlsDivName)
 {
-	var menuDiv = $('#' + menuDivName);
+	function AddControl (app, parentDiv, icon, title, command)
+	{
+		var buttonDiv = $('<div>').addClass ('controlbutton').attr ('title', title).appendTo (parentDiv);
+		// var buttonImg = $('<img>').attr ('src', icon).attr ('alt', title).appendTo (buttonDiv);
+		buttonDiv.html (title);
+		buttonDiv.click (function () {
+			app.ExecuteCommand (command);
+		});
+	}
+	
+	var controlsDiv = $('#' + controlsDivName);
+	AddControl (this, controlsDiv, 'images/plus.png', 'New', 'New');
+	AddControl (this, controlsDiv, 'images/plus.png', 'Undo', 'Undo');
+	AddControl (this, controlsDiv, 'images/plus.png', 'Redo', 'Redo');
+	AddControl (this, controlsDiv, 'images/plus.png', 'Copy', 'Copy');
+	AddControl (this, controlsDiv, 'images/plus.png', 'Paste', 'Paste');
+	AddControl (this, controlsDiv, 'images/plus.png', 'Delete', 'Delete');
+};
+
+Application.prototype.InitNodeTree = function (nodeTreeDivName)
+{
+	var menuDiv = $('#' + nodeTreeDivName);
 	var myThis = this;
 	var nodeTree = new NodeTree (menuDiv, function (nodeIndex) {
 		var positionX = myThis.canvas.width () / 2.0;
