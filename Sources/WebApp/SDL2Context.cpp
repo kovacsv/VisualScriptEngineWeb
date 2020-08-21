@@ -196,5 +196,11 @@ bool SDL2Context::CanDrawIcon ()
 
 void SDL2Context::DrawIcon (const NUIE::Rect& /*rect*/, const NUIE::IconId& /*iconId*/)
 {
-
+	// SDL_Surface* surface = IMG_Load ("Assets/Image.png");
+	// SDL_Texture* texture = SDL_CreateTextureFromSurface (renderer, surface);
+	// SDL_FreeSurface (surface);
+	// 
+	// SDL_Rect sdlRect = CreateRect (rect);
+	// SDL_RenderCopy (renderer, texture, NULL, &sdlRect);
+	// SDL_DestroyTexture (texture);
 }

@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <SDL_image.h>
 
 #include "NE_Cache.hpp"
 #include "NUIE_DrawingContext.hpp"
