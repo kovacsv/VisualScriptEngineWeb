@@ -85,20 +85,23 @@ Application.prototype.InitControls = function (controlsDivName)
 	function AddControl (app, parentDiv, icon, title, command)
 	{
 		var buttonDiv = $('<div>').addClass ('controlbutton').attr ('title', title).appendTo (parentDiv);
-		// var buttonImg = $('<img>').attr ('src', icon).attr ('alt', title).appendTo (buttonDiv);
-		buttonDiv.html (title);
+		if (icon != null) {
+			$('<img>').attr ('src', 'images/command_icons/' + icon).attr ('alt', title).appendTo (buttonDiv);
+		} else {
+			buttonDiv.html (title);
+		}
 		buttonDiv.click (function () {
 			app.ExecuteCommand (command);
 		});
 	}
 	
 	var controlsDiv = $('#' + controlsDivName);
-	AddControl (this, controlsDiv, 'images/plus.png', 'New', 'New');
-	AddControl (this, controlsDiv, 'images/plus.png', 'Undo', 'Undo');
-	AddControl (this, controlsDiv, 'images/plus.png', 'Redo', 'Redo');
-	AddControl (this, controlsDiv, 'images/plus.png', 'Copy', 'Copy');
-	AddControl (this, controlsDiv, 'images/plus.png', 'Paste', 'Paste');
-	AddControl (this, controlsDiv, 'images/plus.png', 'Delete', 'Delete');
+	AddControl (this, controlsDiv, 'New.png', 'New', 'New');
+	AddControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
+	AddControl (this, controlsDiv, 'Redo.png', 'Redo', 'Redo');
+	AddControl (this, controlsDiv, null, 'Copy', 'Copy');
+	AddControl (this, controlsDiv, null, 'Paste', 'Paste');
+	AddControl (this, controlsDiv, null, 'Delete', 'Delete');
 };
 
 Application.prototype.InitNodeTree = function (nodeTreeDivName)
