@@ -23,22 +23,22 @@ NodeTree.prototype.BuildTree = function ()
 {
 	this.nodeGroups = [];
 	var inputs = this.AddNodeGroup ('Inputs');
-	this.AddNode (inputs, 'Boolean', 0);
-	this.AddNode (inputs, 'Integer', 1);
-	this.AddNode (inputs, 'Number', 2);
-	this.AddNode (inputs, 'Integer Increment', 3);
-	this.AddNode (inputs, 'Number Increment', 4);
-	this.AddNode (inputs, 'Number Distribution', 5);
+	this.AddNode (inputs, 'Boolean.png', 'Boolean', 0);
+	this.AddNode (inputs, 'Integer.png', 'Integer', 1);
+	this.AddNode (inputs, 'Double.png', 'Number', 2);
+	this.AddNode (inputs, 'IntegerIncremented.png', 'Integer Increment', 3);
+	this.AddNode (inputs, 'DoubleIncremented.png', 'Number Increment', 4);
+	this.AddNode (inputs, 'DoubleDistributed.png', 'Number Distribution', 5);
 	
 	var arithmetics = this.AddNodeGroup ('Arithmetics');
-	this.AddNode (arithmetics, 'Addition', 6);
-	this.AddNode (arithmetics, 'Subtraction', 7);
-	this.AddNode (arithmetics, 'Multiplication', 8);
-	this.AddNode (arithmetics, 'Division', 9);
+	this.AddNode (arithmetics, 'Addition.png', 'Addition', 6);
+	this.AddNode (arithmetics, 'Subtraction.png', 'Subtraction', 7);
+	this.AddNode (arithmetics, 'Multiplication.png', 'Multiplication', 8);
+	this.AddNode (arithmetics, 'Division.png', 'Division', 9);
 	
 	var other = this.AddNodeGroup ('Other');
-	this.AddNode (other, 'List Builder', 10);	
-	this.AddNode (other, 'Viewer', 11);	
+	this.AddNode (other, 'ListBuilder.png', 'List Builder', 10);	
+	this.AddNode (other, 'Viewer.png', 'Viewer', 11);	
 };
 
 NodeTree.prototype.AddSearchField = function ()
@@ -72,9 +72,9 @@ NodeTree.prototype.AddSearchField = function ()
 	});
 };
 
-NodeTree.prototype.AddNode = function (nodeGroup, nodeName, nodeIndex)
+NodeTree.prototype.AddNode = function (nodeGroup, nodeIcon, nodeName, nodeIndex)
 {
-	var item = this.CreateItem ('images/plus.png', nodeName);
+	var item = this.CreateItem ('images/node_icons/' + nodeIcon, nodeName);
 	item.mainItem.appendTo (nodeGroup.subItemsDiv);
 
 	var node = {
@@ -126,7 +126,7 @@ NodeTree.prototype.AddNodeGroup = function (groupName)
 NodeTree.prototype.CreateItem = function (imgSrc, name)
 {
 	var mainItem = $('<div>').addClass ('nodetreeitem');
-	var imgItem = $('<img>').addClass ('icon').attr ('src', imgSrc).appendTo (mainItem);
+	var imgItem = $('<img>').addClass ('nodetreeicon').attr ('src', imgSrc).appendTo (mainItem);
 	var textItem = $('<span>').html (name).appendTo (mainItem);
 	var result = {
 		mainItem : mainItem,

@@ -242,11 +242,11 @@ div.nodetreepopup
 	border : 1px solid #cccccc;
 }
 
-img.icon
+img.nodetreeicon
 {
 	width : 18px;
 	height : 18px;
-	margin-right : 3px;
+	margin-right : 8px;
 	margin-bottom : -4px;
 }
 
