@@ -13,11 +13,13 @@ project (VisualScriptEngineWeb)
 set (LibSourcesFolder Libs)
 set (SDLLibFolder ${LibSourcesFolder}/SDL2-2.0.12)
 set (SDLTTFLibFolder ${LibSourcesFolder}/SDL2_ttf-2.0.15)
+set (SDLImageLibFolder ${LibSourcesFolder}/SDL2_image-2.0.5)
 set (SDLGfxLibFolder ${LibSourcesFolder}/SDL2_gfx-bbcsdl)
 set (RapidJsonLibFolder ${LibSourcesFolder}/rapidjson-1.1.0)
 set (VSELibFolder ${LibSourcesFolder}/VisualScriptEngine)
 link_directories (${SDLLibFolder}/lib/x64)
 link_directories (${SDLTTFLibFolder}/lib/x64)
+link_directories (${SDLImageLibFolder}/lib/x64)
 
 # WebApp
 
@@ -58,12 +60,12 @@ if (${EMSCRIPTEN})
 	add_custom_command (TARGET WebApp PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppSourcesFolderAbsolute}/Assets" ${CMAKE_BINARY_DIR}/Assets
 	)
-	set (SDLUsedLibraries -sUSE_SDL=2 -sUSE_SDL_TTF=2)
+	set (SDLUsedLibraries -sUSE_SDL=2 -sUSE_SDL_TTF=2 -sUSE_SDL_IMAGE=2)
 	target_compile_options (WebApp PUBLIC ${SDLUsedLibraries})
 	target_link_options (WebApp PUBLIC ${SDLUsedLibraries})
 	target_link_options (WebApp PUBLIC "-sEXPORTED_FUNCTIONS=[\"_main\", \"_ResizeWindow\", \"_ExecuteCommand\", \"_CreateNode\", \"_ContextMenuResponse\", \"_ParameterSettingsResponse\"]")
 	target_link_options (WebApp PUBLIC "-sEXTRA_EXPORTED_RUNTIME_METHODS=[\"ccall\", \"cwrap\"]")
-	target_link_options (WebApp PUBLIC --preload-file Assets)
+	target_link_options (WebApp PUBLIC --use-preload-plugins --preload-file Assets)
 	add_definitions (-DSIZEOFSIZET=4)
 else ()
 	add_custom_command (TARGET WebApp PRE_BUILD
@@ -71,15 +73,32 @@ else ()
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppSourcesFolderAbsolute}/Assets" ${CMAKE_BINARY_DIR}/Assets
 	)
 	set_target_properties (WebApp PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
-	target_include_directories (WebApp PUBLIC ${SDLLibFolder}/include ${SDLTTFLibFolder}/include)
-	target_link_libraries (WebApp SDL2 SDL2main SDL2_ttf)
+	target_include_directories (
+		WebApp PUBLIC
+		${SDLLibFolder}/include
+		${SDLTTFLibFolder}/include
+		${SDLImageLibFolder}/include
+	)
+	target_link_libraries (WebApp SDL2 SDL2main SDL2_ttf SDL2_image)
 	get_filename_component (SDLDllFullPath "${SDLLibFolder}/lib/x64/SDL2.dll" ABSOLUTE)
-	get_filename_component (SDLTTFDllFullPath "${SDLTTFLibFolder}/lib/x64/SDL2_ttf.dll" ABSOLUTE)
-	get_filename_component (LibFreeTypeDllFullPath "${SDLTTFLibFolder}/lib/x64/libfreetype-6.dll" ABSOLUTE)
+	get_filename_component (SDLTTFDllFullPath1 "${SDLTTFLibFolder}/lib/x64/SDL2_ttf.dll" ABSOLUTE)
+	get_filename_component (SDLTTFDllFullPath2 "${SDLTTFLibFolder}/lib/x64/libfreetype-6.dll" ABSOLUTE)
+	get_filename_component (SDLImageDllFullPath1 "${SDLImageLibFolder}/lib/x64/SDL2_image.dll" ABSOLUTE)
+	get_filename_component (SDLImageDllFullPath2 "${SDLImageLibFolder}/lib/x64/libjpeg-9.dll" ABSOLUTE)
+	get_filename_component (SDLImageDllFullPath3 "${SDLImageLibFolder}/lib/x64/libpng16-16.dll" ABSOLUTE)
+	get_filename_component (SDLImageDllFullPath4 "${SDLImageLibFolder}/lib/x64/libtiff-5.dll" ABSOLUTE)
+	get_filename_component (SDLImageDllFullPath5 "${SDLImageLibFolder}/lib/x64/libwebp-7.dll" ABSOLUTE)
+	get_filename_component (SDLImageDllFullPath6 "${SDLImageLibFolder}/lib/x64/zlib1.dll" ABSOLUTE)
 	add_custom_command (TARGET WebApp POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy "${SDLDllFullPath}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLTTFDllFullPath}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${LibFreeTypeDllFullPath}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLTTFDllFullPath1}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLTTFDllFullPath2}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath1}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath2}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath3}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath4}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath5}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath6}" $<TARGET_FILE_DIR:WebApp>
 	)
 endif ()
 target_compile_options (WebApp PUBLIC "$<$<CONFIG:Debug>:-DDEBUG>")
