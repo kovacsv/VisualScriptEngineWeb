@@ -46,37 +46,35 @@ Application.prototype.InitKeyboardEvents = function ()
 		overCanvas = false;
 	});
 	
-	var handleKeyPressFunc = this.module.cwrap ('HandleKeyPress', null, ['string']);
-	
 	$(window).keydown (function (ev) {
 		if (!overCanvas) {
 			return;
 		}
-		var keyCode = null;
+		var command = null;
 		var isControlPressed = ev.ctrlKey;
 		if (isControlPressed) {
 			if (ev.which == 65) {
-				keyCode = 'SelectAll';
+				command = 'SelectAll';
 			} else if (ev.which == 67) {
-				keyCode = 'Copy';
+				command = 'Copy';
 			} else if (ev.which == 86) {
-				keyCode = 'Paste';
+				command = 'Paste';
 			} else if (ev.which == 71) {
-				keyCode = 'Group';
+				command = 'Group';
 			} else if (ev.which == 90) {
-				keyCode = 'Undo';
+				command = 'Undo';
 			} else if (ev.which == 89) {
-				keyCode = 'Redo';
+				command = 'Redo';
 			}
 		} else {
 			if (ev.which == 8 || ev.which == 46) {
-				keyCode = 'Delete';
+				command = 'Delete';
 			} else if (ev.which == 27) {
-				keyCode = 'Escape';
+				command = 'Escape';
 			}
 		}
-		if (keyCode != null) {
-			handleKeyPressFunc (keyCode);
+		if (command != null) {
+			myThis.ExecuteCommand (command);
 			ev.preventDefault();
 		}
 	});
@@ -92,6 +90,12 @@ Application.prototype.InitMenu = function (menuDivName)
 		myThis.CreateNode (nodeIndex, positionX, positionY);
 	});
 	nodeTree.BuildAsMenu ();
+};
+
+Application.prototype.ExecuteCommand = function (command)
+{
+	var executeCommandFunc = this.module.cwrap ('ExecuteCommand', null, ['string']);
+	executeCommandFunc (command);
 };
 
 Application.prototype.ResizeCanvas = function (width, height)

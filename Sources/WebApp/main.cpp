@@ -127,7 +127,7 @@ void ResizeWindow (int width, int height)
 	gAppForBrowser->ResizeWindow (width, height);
 }
 
-void HandleKeyPress (char* keyCode)
+void ExecuteCommand (char* keyCode)
 {
 	if (gAppForBrowser == nullptr) {
 		return;
@@ -139,27 +139,23 @@ void HandleKeyPress (char* keyCode)
 	}
 
 	std::string keyCodeStr (keyCode);
-	NUIE::Key pressedKey (NUIE::KeyCode::Undefined);
+	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
 	if (keyCodeStr == "SelectAll") {
-		pressedKey.SetKeyCode (NUIE::KeyCode::SelectAll);
+		nodeEditor.OnKeyPress (NUIE::KeyCode::SelectAll);
 	} else if (keyCodeStr == "Copy") {
-		pressedKey.SetKeyCode (NUIE::KeyCode::Copy);
+		nodeEditor.OnKeyPress (NUIE::KeyCode::Copy);
 	} else if (keyCodeStr == "Paste") {
-		pressedKey.SetKeyCode (NUIE::KeyCode::Paste);
+		nodeEditor.OnKeyPress (NUIE::KeyCode::Paste);
 	} else if (keyCodeStr == "Group") {
-		pressedKey.SetKeyCode (NUIE::KeyCode::Group);
+		nodeEditor.OnKeyPress (NUIE::KeyCode::Group);
 	} else if (keyCodeStr == "Undo") {
-		pressedKey.SetKeyCode (NUIE::KeyCode::Undo);
+		nodeEditor.OnKeyPress (NUIE::KeyCode::Undo);
 	} else if (keyCodeStr == "Redo") {
-		pressedKey.SetKeyCode (NUIE::KeyCode::Redo);
+		nodeEditor.OnKeyPress (NUIE::KeyCode::Redo);
 	} else if (keyCodeStr == "Escape") {
-		pressedKey.SetKeyCode (NUIE::KeyCode::Escape);
+		nodeEditor.OnKeyPress (NUIE::KeyCode::Escape);
 	} else if (keyCodeStr == "Delete") {
-		pressedKey.SetKeyCode (NUIE::KeyCode::Delete);
-	}
-	if (pressedKey.IsValid ()) {
-		NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-		nodeEditor.OnKeyPress (pressedKey);
+		nodeEditor.OnKeyPress (NUIE::KeyCode::Delete);
 	}
 }
 
