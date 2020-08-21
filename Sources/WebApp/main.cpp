@@ -39,6 +39,32 @@ static NUIE::MouseButton GetMouseButtonFromEvent (const SDL_Event& sdlEvent)
 	return NUIE::MouseButton::Left;
 }
 
+static void AddNode (NUIE::NodeEditor& nodeEditor, const NUIE::Point& position, int nodeIndex)
+{
+	NUIE::UINodePtr uiNode = nullptr;
+	switch (nodeIndex) {
+		case 0: uiNode = NUIE::UINodePtr (new BI::BooleanNode (NE::LocString (L"Boolean"), position, true)); break;
+		case 1: uiNode = NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), position, 0, 1)); break;
+		case 2: uiNode = NUIE::UINodePtr (new BI::DoubleUpDownNode (NE::LocString (L"Number"), position, 0.0, 1.0)); break;
+		case 3: uiNode = NUIE::UINodePtr (new BI::IntegerIncrementedNode (NE::LocString (L"Integer Increment"), position)); break;
+		case 4: uiNode = NUIE::UINodePtr (new BI::DoubleIncrementedNode (NE::LocString (L"Number Increment"), position)); break;
+		case 5: uiNode = NUIE::UINodePtr (new BI::DoubleDistributedNode (NE::LocString (L"Number Distribution"), position)); break;
+		case 6: uiNode = NUIE::UINodePtr (new BI::AdditionNode (NE::LocString (L"Addition"), position)); break;
+		case 7: uiNode = NUIE::UINodePtr (new BI::SubtractionNode (NE::LocString (L"Subtraction"), position)); break;
+		case 8: uiNode = NUIE::UINodePtr (new BI::MultiplicationNode (NE::LocString (L"Multiplication"), position)); break;
+		case 9: uiNode = NUIE::UINodePtr (new BI::DivisionNode (NE::LocString (L"Division"), position)); break;
+		case 10: uiNode = NUIE::UINodePtr (new BI::ListBuilderNode (NE::LocString (L"List Builder"), position)); break;
+		case 11: uiNode = NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), position, 5)); break;
+	}
+	if (uiNode != nullptr) {
+		if (NE::Node::IsType<BI::BasicUINode> (uiNode)) {
+			BI::BasicUINodePtr basicUINode = NE::Node::Cast<BI::BasicUINode> (uiNode);
+			basicUINode->SetIconId (NUIE::IconId (nodeIndex));
+		}
+		nodeEditor.AddNode (uiNode);
+	}
+}
+
 static bool MainLoop (Application* app)
 {
 	BrowserAsyncInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
@@ -175,21 +201,7 @@ void CreateNode (int nodeIndex, int xPosition, int yPosition)
 	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
 	NUIE::Point viewPosition (xPosition, yPosition);
 	NUIE::Point position = nodeEditor.ViewToModel (viewPosition);
-
-	switch (nodeIndex) {
-		case 0: nodeEditor.AddNode (NUIE::UINodePtr (new BI::BooleanNode (NE::LocString (L"Boolean"), position, true))); break;
-		case 1: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), position, 0, 1))); break;
-		case 2: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleUpDownNode (NE::LocString (L"Number"), position, 0.0, 1.0))); break;
-		case 3: nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerIncrementedNode (NE::LocString (L"Integer Increment"), position))); break;
-		case 4: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleIncrementedNode (NE::LocString (L"Number Increment"), position))); break;
-		case 5: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DoubleDistributedNode (NE::LocString (L"Number Distribution"), position))); break;
-		case 6: nodeEditor.AddNode (NUIE::UINodePtr (new BI::AdditionNode (NE::LocString (L"Addition"), position))); break;
-		case 7: nodeEditor.AddNode (NUIE::UINodePtr (new BI::SubtractionNode (NE::LocString (L"Subtraction"), position))); break;
-		case 8: nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiplicationNode (NE::LocString (L"Multiplication"), position))); break;
-		case 9: nodeEditor.AddNode (NUIE::UINodePtr (new BI::DivisionNode (NE::LocString (L"Division"), position))); break;
-		case 10: nodeEditor.AddNode (NUIE::UINodePtr (new BI::ListBuilderNode (NE::LocString (L"List Builder"), position))); break;
-		case 11: nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), position, 5))); break;
-	}
+	AddNode (nodeEditor, position, nodeIndex);
 }
 
 void ContextMenuResponse (int commandId)
@@ -255,6 +267,10 @@ int main (int, char**)
 		);
 		emscripten_set_main_loop_arg (EmscriptenMainLoop, &app, 0, true);
 #else
+		NUIE::NodeEditor& nodeEditor = app.GetNodeEditor ();
+		AddNode (nodeEditor, NUIE::Point (100.0, 100.0), 1);
+		AddNode (nodeEditor, NUIE::Point (400.0, 300.0), 11);
+
 		while (true) {
 			if (!MainLoop (&app)) {
 				break;

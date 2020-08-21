@@ -178,11 +178,6 @@ Application::Application (SDL_Window* window, SDL_Renderer* renderer) :
 {
 	uiEnvironment.Init (&nodeEditor);
 	nodeEditor.Update ();
-
-#ifndef EMSCRIPTEN
-	nodeEditor.AddNode (NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), NUIE::Point (100.0, 100.0), 0, 1)));
-	nodeEditor.AddNode (NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), NUIE::Point (400.0, 300.0), 5)));
-#endif
 }
 
 SDL_Rect Application::GetWindowRect () const
