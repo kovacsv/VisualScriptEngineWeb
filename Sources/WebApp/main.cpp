@@ -208,6 +208,7 @@ void OpenFile (char* charBuffer, int size)
 	buffer.assign (charBuffer, charBuffer + size);
 	NE::MemoryInputStream inputStream (buffer);
 	nodeEditor.Open (inputStream);
+	nodeEditor.CenterToWindow ();
 }
 
 void CreateNode (int nodeIndex, int xPosition, int yPosition)
