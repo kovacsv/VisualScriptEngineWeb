@@ -142,7 +142,7 @@ Application.prototype.InitControls = function (controlsDivName)
 	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo', 'Redo');
 	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy', 'Copy');
 	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste', 'Paste');
-	AddCommandControl (this, controlsDiv, null, 'Delete', 'Delete');
+	AddCommandControl (this, controlsDiv, 'Delete.png', 'Delete', 'Delete');
 };
 
 Application.prototype.InitNodeTree = function (nodeTreeDivName)
