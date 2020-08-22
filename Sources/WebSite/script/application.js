@@ -96,12 +96,7 @@ Application.prototype.InitFileInput = function ()
 		var reader = new FileReader ();
 		reader.onloadend = function (ev) {
 			if (ev.target.readyState == FileReader.DONE) {
-				var buffer = new Int8Array (ev.target.result);
-				var heapPtr = myThis.module._malloc (buffer.length);
-				var heapBuffer = new Int8Array (HEAP8.buffer, heapPtr, buffer.length);
-				heapBuffer.set(buffer);
-				myThis.appInterface.OpenFile (heapBuffer.byteOffset, buffer.length);
-				myThis.module._free (heapBuffer.byteOffset);
+				myThis.OpenFile (ev.target.result);
 			}
 		};
 		reader.readAsArrayBuffer (files[0]);		
@@ -135,7 +130,7 @@ Application.prototype.InitControls = function (controlsDivName)
 	var controlsDiv = $('#' + controlsDivName);
 	AddCommandControl (this, controlsDiv, 'New.png', 'New', 'New');
 	AddControl (controlsDiv, null, 'Open', function () {
-		myThis.OpenFile ();
+		myThis.ShowOpenFileDialog ();
 	});
 	AddCommandControl (this, controlsDiv, null, 'Save', 'Save');
 	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
@@ -207,10 +202,20 @@ Application.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 	nodeTreePopUp.Open (positionX, positionY);
 };
 
-Application.prototype.OpenFile = function ()
+Application.prototype.ShowOpenFileDialog = function ()
 {
 	var file = document.getElementById ('file');
 	file.click ();
+};
+
+Application.prototype.OpenFile = function (fileBuffer)
+{
+	var buffer = new Int8Array (fileBuffer);
+	var heapPtr = this.module._malloc (buffer.length);
+	var heapBuffer = new Int8Array (HEAP8.buffer, heapPtr, buffer.length);
+	heapBuffer.set(buffer);
+	this.appInterface.OpenFile (heapBuffer.byteOffset, buffer.length);
+	this.module._free (heapBuffer.byteOffset);
 };
 
 Application.prototype.SaveFile = function (data, size)
