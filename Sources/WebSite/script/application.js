@@ -137,7 +137,7 @@ Application.prototype.InitControls = function (controlsDivName)
 	AddControl (controlsDiv, 'Open.png', 'Open', function () {
 		myThis.OpenFile ();
 	});
-	AddCommandControl (this, controlsDiv, null, 'Save', 'Save');
+	AddCommandControl (this, controlsDiv, 'Save.png', 'Save', 'Save');
 	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
 	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo', 'Redo');
 	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy', 'Copy');
