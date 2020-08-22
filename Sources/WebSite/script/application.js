@@ -2,6 +2,7 @@ var Application = function ()
 {
 	this.canvas = null;
 	this.module = null;
+	this.appInterface = null;
 };
 
 Application.prototype.InitCanvas = function (canvas)
@@ -30,6 +31,7 @@ Application.prototype.InitDragAndDrop = function ()
 Application.prototype.InitModule = function (module)
 {
 	this.module = module;
+	this.appInterface = new AppInterface (this.module);
 	this.InitDragAndDrop ();
 	this.InitKeyboardEvents ();	
 };
@@ -111,27 +113,19 @@ Application.prototype.InitNodeTree = function (nodeTreeDivName)
 	var nodeTree = new NodeTree (menuDiv, function (nodeIndex) {
 		var positionX = myThis.canvas.width () / 2.0;
 		var positionY = myThis.canvas.height () / 2.0;
-		myThis.CreateNode (nodeIndex, positionX, positionY);
+		myThis.appInterface.CreateNode (nodeIndex, positionX, positionY);
 	});
 	nodeTree.BuildAsMenu ();
 };
 
 Application.prototype.ExecuteCommand = function (command)
 {
-	var executeCommandFunc = this.module.cwrap ('ExecuteCommand', null, ['string']);
-	executeCommandFunc (command);
+	this.appInterface.ExecuteCommand (command);
 };
 
 Application.prototype.ResizeCanvas = function (width, height)
 {
-	var resizeWindowFunc = Module.cwrap ('ResizeWindow', null, ['number', 'number']);
-	resizeWindowFunc (width, height);
-};
-
-Application.prototype.CreateNode = function (nodeIndex, positionX, positionY)
-{
-	var createNodeFunc = this.module.cwrap ('CreateNode', null, ['number', 'number', 'number']);
-	createNodeFunc (nodeIndex, positionX, positionY);
+	this.appInterface.ResizeWindow (width, height);
 };
 
 Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
@@ -141,8 +135,7 @@ Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 	
 	var myThis = this;
 	var contextMenu = new ContextMenu (this.canvas, commands.commands, function (commandId) {
-		var contextMenuResponseFunc = myThis.module.cwrap ('ContextMenuResponse', null, ['number']);
-		contextMenuResponseFunc (commandId);			
+		myThis.appInterface.ContextMenuResponse (commandId);			
 	});
 	contextMenu.Open (positionX, positionY);
 };
@@ -158,8 +151,7 @@ Application.prototype.OpenSettingsDialog = function (parameters)
 		if (changedParameters != null) {
 			responseString = JSON.stringify (changedParameters);
 		}
-		var parameterSettingsResponseFunc = myThis.module.cwrap ('ParameterSettingsResponse', null, ['string']);
-		parameterSettingsResponseFunc (responseString);
+		myThis.appInterface.ParameterSettingsResponse (responseString);
 	});
 	parameterSettings.Open (positionX, positionY);
 };
@@ -171,7 +163,7 @@ Application.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 	
 	var myThis = this;
 	var nodeTreePopUp = new NodeTreePopUp (this.canvas, function (nodeIndex) {
-		myThis.CreateNode (nodeIndex, mouseX, mouseY);
+		myThis.appInterface.CreateNode (nodeIndex, mouseX, mouseY);
 	});
 	nodeTreePopUp.Open (positionX, positionY);
 };
