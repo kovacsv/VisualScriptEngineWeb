@@ -134,7 +134,7 @@ Application.prototype.InitControls = function (controlsDivName)
 	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
 	AddCommandControl (this, controlsDiv, 'New.png', 'New', 'New');
-	AddControl (controlsDiv, null, 'Open', function () {
+	AddControl (controlsDiv, 'Open.png', 'Open', function () {
 		myThis.OpenFile ();
 	});
 	AddCommandControl (this, controlsDiv, null, 'Save', 'Save');
