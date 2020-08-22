@@ -6,6 +6,7 @@
 #include <emscripten.h>
 #endif
 
+#include "NE_MemoryStream.hpp"
 #include "NUIE_NodeEditor.hpp"
 #include "BI_BuiltInNodes.hpp"
 
@@ -168,6 +169,15 @@ void ExecuteCommand (char* command)
 	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
 	if (commandStr == "New") {
 		nodeEditor.New ();
+	} else if (commandStr == "Save") {
+#ifdef EMSCRIPTEN
+		NE::MemoryOutputStream outputStream;
+		nodeEditor.Save (outputStream);
+		const std::vector<char>& buffer = outputStream.GetBuffer ();
+		EM_ASM ({
+			SaveFile ($0, $1);
+		}, buffer.data (), buffer.size ());
+#endif
 	} else if (commandStr == "SelectAll") {
 		nodeEditor.OnKeyPress (NUIE::KeyCode::SelectAll);
 	} else if (commandStr == "Copy") {

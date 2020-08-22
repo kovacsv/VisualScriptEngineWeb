@@ -84,7 +84,7 @@ Application.prototype.InitKeyboardEvents = function ()
 
 Application.prototype.InitControls = function (controlsDivName)
 {
-	function AddControl (app, parentDiv, icon, title, command)
+	function AddCommandControl (app, parentDiv, icon, title, command)
 	{
 		var buttonDiv = $('<div>').addClass ('controlbutton').attr ('title', title).appendTo (parentDiv);
 		if (icon != null) {
@@ -98,12 +98,13 @@ Application.prototype.InitControls = function (controlsDivName)
 	}
 	
 	var controlsDiv = $('#' + controlsDivName);
-	AddControl (this, controlsDiv, 'New.png', 'New', 'New');
-	AddControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
-	AddControl (this, controlsDiv, 'Redo.png', 'Redo', 'Redo');
-	AddControl (this, controlsDiv, null, 'Copy', 'Copy');
-	AddControl (this, controlsDiv, null, 'Paste', 'Paste');
-	AddControl (this, controlsDiv, null, 'Delete', 'Delete');
+	AddCommandControl (this, controlsDiv, 'New.png', 'New', 'New');
+	AddCommandControl (this, controlsDiv, null, 'Save', 'Save');
+	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
+	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo', 'Redo');
+	AddCommandControl (this, controlsDiv, null, 'Copy', 'Copy');
+	AddCommandControl (this, controlsDiv, null, 'Paste', 'Paste');
+	AddCommandControl (this, controlsDiv, null, 'Delete', 'Delete');
 };
 
 Application.prototype.InitNodeTree = function (nodeTreeDivName)
