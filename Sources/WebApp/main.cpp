@@ -197,6 +197,19 @@ void ExecuteCommand (char* command)
 	}
 }
 
+void OpenFile (char* charBuffer, int size)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+
+	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
+	std::vector<char> buffer;
+	buffer.assign (charBuffer, charBuffer + size);
+	NE::MemoryInputStream inputStream (buffer);
+	nodeEditor.Open (inputStream);
+}
+
 void CreateNode (int nodeIndex, int xPosition, int yPosition)
 {
 	if (gAppForBrowser == nullptr) {

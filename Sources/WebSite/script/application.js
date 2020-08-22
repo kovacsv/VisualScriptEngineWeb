@@ -10,6 +10,15 @@ Application.prototype.InitCanvas = function (canvas)
 	this.canvas = canvas;
 };
 
+Application.prototype.InitModule = function (module)
+{
+	this.module = module;
+	this.appInterface = new AppInterface (this.module);
+	this.InitDragAndDrop ();
+	this.InitKeyboardEvents ();	
+	this.InitFileInput ();
+};
+
 Application.prototype.InitDragAndDrop = function ()
 {
 	var myThis = this;
@@ -23,17 +32,9 @@ Application.prototype.InitDragAndDrop = function ()
 		var data = ev.originalEvent.dataTransfer.getData ('nodeindex');
 		if (data.length > 0) {
 			var nodeIndex = parseInt (data);
-			myThis.CreateNode (nodeIndex, mouseX, mouseY);
+			myThis.appInterface.CreateNode (nodeIndex, mouseX, mouseY);
 		}
 	});
-};
-
-Application.prototype.InitModule = function (module)
-{
-	this.module = module;
-	this.appInterface = new AppInterface (this.module);
-	this.InitDragAndDrop ();
-	this.InitKeyboardEvents ();	
 };
 
 Application.prototype.InitKeyboardEvents = function ()
@@ -82,9 +83,35 @@ Application.prototype.InitKeyboardEvents = function ()
 	});
 };
 
+Application.prototype.InitFileInput = function ()
+{
+	var myThis = this;
+	var file = $('#file');
+	file.on ('change', function () {
+		var files = file.prop('files');
+		if (files.length == 0) {
+			return;
+		}
+		
+		var reader = new FileReader ();
+		reader.onloadend = function (ev) {
+			if (ev.target.readyState == FileReader.DONE) {
+				var buffer = new Int8Array (ev.target.result);
+				var heapPtr = myThis.module._malloc (buffer.length);
+				var heapBuffer = new Int8Array (HEAP8.buffer, heapPtr, buffer.length);
+				heapBuffer.set(buffer);
+				myThis.appInterface.OpenFile (heapBuffer.byteOffset, buffer.length);
+				myThis.module._free (heapBuffer.byteOffset);
+			}
+		};
+		reader.readAsArrayBuffer (files[0]);		
+		
+	});
+};
+
 Application.prototype.InitControls = function (controlsDivName)
 {
-	function AddCommandControl (app, parentDiv, icon, title, command)
+	function AddControl (parentDiv, icon, title, onClick)
 	{
 		var buttonDiv = $('<div>').addClass ('controlbutton').attr ('title', title).appendTo (parentDiv);
 		if (icon != null) {
@@ -93,12 +120,23 @@ Application.prototype.InitControls = function (controlsDivName)
 			buttonDiv.html (title);
 		}
 		buttonDiv.click (function () {
+			onClick ();
+		});
+	}	
+	
+	function AddCommandControl (app, parentDiv, icon, title, command)
+	{
+		AddControl (parentDiv, icon, title, function () {
 			app.ExecuteCommand (command);
 		});
 	}
 	
+	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
 	AddCommandControl (this, controlsDiv, 'New.png', 'New', 'New');
+	AddControl (controlsDiv, null, 'Open', function () {
+		myThis.OpenFile ();
+	});
 	AddCommandControl (this, controlsDiv, null, 'Save', 'Save');
 	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
 	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo', 'Redo');
@@ -168,3 +206,30 @@ Application.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 	});
 	nodeTreePopUp.Open (positionX, positionY);
 };
+
+Application.prototype.OpenFile = function ()
+{
+	var file = document.getElementById ('file');
+	file.click ();
+};
+
+Application.prototype.SaveFile = function (data, size)
+{
+	var dataArr = new Int8Array (size);
+	var i;
+	for (i = 0; i < size; i++) {
+		dataArr[i] = HEAP8[data + i];
+	}
+	
+	var blob = new Blob([dataArr], {type: "octet/stream"});
+	var url = window.URL.createObjectURL (blob);
+
+	var link = document.createElement ('a');
+	document.body.appendChild (link);
+	link.href = url;
+	link.download = 'Untitled.ne';
+	link.click ();
+	window.URL.revokeObjectURL (url);
+	document.body.removeChild (link);	
+};
+

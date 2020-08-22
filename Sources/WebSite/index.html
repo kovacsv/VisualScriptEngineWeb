@@ -39,22 +39,7 @@
 
 		function SaveFile (data, size)
 		{
-			var dataArr = new Int8Array (size);
-			var i;
-			for (i = 0; i < size; i++) {
-				dataArr[i] = HEAP8[data + i];
-			}
-			
-			var blob = new Blob([dataArr], {type: "octet/stream"});
-			var url = window.URL.createObjectURL (blob);
-
-			var link = document.createElement ('a');
-			document.body.appendChild (link);
-			link.href = url;
-			link.download = 'Untitled.ne';
-			link.click ();
-			window.URL.revokeObjectURL (url);
-			document.body.removeChild (link);
+			application.SaveFile (data, size);
 		}
 
 		function OnResize ()
@@ -104,7 +89,7 @@
 			<div class="headerright"><a href="https://github.com/kovacsv/VisualScriptEngineWeb"><img src="images/github.png" alt="GitHub"></a></div>
 		</div>
 		<div class="controls" id="controls">
-
+			<input type="file" id="file" style="display:none"></input>
 		</div>
 		<div class="left" id="left">
 			<div class="leftcontent">
