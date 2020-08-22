@@ -35,7 +35,27 @@
 		function OnDoubleClick (mouseX, mouseY)
 		{
 			application.OpenNodeTreePopUp (mouseX, mouseY);
-		}		
+		}
+
+		function SaveFile (data, size)
+		{
+			var dataArr = new Int8Array (size);
+			var i;
+			for (i = 0; i < size; i++) {
+				dataArr[i] = HEAP8[data + i];
+			}
+			
+			var blob = new Blob([dataArr], {type: "octet/stream"});
+			var url = window.URL.createObjectURL (blob);
+
+			var link = document.createElement ('a');
+			document.body.appendChild (link);
+			link.href = url;
+			link.download = 'Untitled.ne';
+			link.click ();
+			window.URL.revokeObjectURL (url);
+			document.body.removeChild (link);
+		}
 
 		function OnResize ()
 		{
