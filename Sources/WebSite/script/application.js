@@ -55,6 +55,7 @@ Application.prototype.InitKeyboardEvents = function ()
 		}
 		var command = null;
 		var isControlPressed = ev.ctrlKey;
+		var isShiftPressed = ev.shiftKey;
 		if (isControlPressed) {
 			if (ev.which == 65) {
 				command = 'SelectAll';
@@ -63,7 +64,11 @@ Application.prototype.InitKeyboardEvents = function ()
 			} else if (ev.which == 86) {
 				command = 'Paste';
 			} else if (ev.which == 71) {
-				command = 'Group';
+				if (isShiftPressed) {
+					command = 'Ungroup';
+				} else {
+					command = 'Group';
+				}
 			} else if (ev.which == 90) {
 				command = 'Undo';
 			} else if (ev.which == 89) {
@@ -125,6 +130,11 @@ Application.prototype.InitControls = function (controlsDivName)
 		});
 	}
 	
+	function AddSeparator (parentDiv)
+	{
+		$('<div>').addClass ('controlseparator').appendTo (parentDiv);
+	}	
+	
 	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
 	AddCommandControl (this, controlsDiv, 'New.png', 'New', 'New');
@@ -132,11 +142,16 @@ Application.prototype.InitControls = function (controlsDivName)
 		myThis.ShowOpenFileDialog ();
 	});
 	AddCommandControl (this, controlsDiv, 'Save.png', 'Save', 'Save');
+	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
 	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo', 'Redo');
+	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy', 'Copy');
 	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste', 'Paste');
 	AddCommandControl (this, controlsDiv, 'Delete.png', 'Delete', 'Delete');
+	AddSeparator (controlsDiv);
+	AddCommandControl (this, controlsDiv, null, 'Group', 'Group');
+	AddCommandControl (this, controlsDiv, null, 'Ungroup', 'Ungroup');
 };
 
 Application.prototype.InitNodeTree = function (nodeTreeDivName, searchInputName)
