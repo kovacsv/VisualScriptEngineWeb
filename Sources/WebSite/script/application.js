@@ -129,13 +129,8 @@ Application.prototype.InitControls = function (controlsDivName)
 	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
 	AddCommandControl (this, controlsDiv, 'New.png', 'New', 'New');
-<<<<<<< HEAD
 	AddControl (controlsDiv, 'Open.png', 'Open', function () {
-		myThis.OpenFile ();
-=======
-	AddControl (controlsDiv, null, 'Open', function () {
 		myThis.ShowOpenFileDialog ();
->>>>>>> 07a3b74421d4186e3b2427f2bb23bf561ce210a7
 	});
 	AddCommandControl (this, controlsDiv, 'Save.png', 'Save', 'Save');
 	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
