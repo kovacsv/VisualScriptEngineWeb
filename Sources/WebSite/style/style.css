@@ -257,7 +257,7 @@ div.thinscrollbar::-webkit-scrollbar
 
 div.thinscrollbar::-webkit-scrollbar-thumb
 {
-	background-color: #aaaaaa;
+	background: #aaaaaa;
 }
 
 a
