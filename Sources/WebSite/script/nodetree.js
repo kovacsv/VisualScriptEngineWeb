@@ -6,10 +6,10 @@ var NodeTree = function (parentDiv, onNodeClick)
 	this.nodeGroups = null;
 };
 
-NodeTree.prototype.BuildAsMenu = function ()
+NodeTree.prototype.BuildAsMenu = function (searchInput)
 {
 	this.isDragDropEnabled = true;
-	this.AddSearchField ();
+	this.InitSearchField (searchInput);
 	this.BuildTree ();
 };
 
@@ -41,13 +41,11 @@ NodeTree.prototype.BuildTree = function ()
 	this.AddNode (other, 'Viewer.png', 'Viewer', 11);	
 };
 
-NodeTree.prototype.AddSearchField = function ()
+NodeTree.prototype.InitSearchField = function (searchInput)
 {
-	var searchFieldDiv = $('<div>').addClass ('nodetreesearchdiv').appendTo (this.parentDiv);
-	var searchField = $('<input>').attr ('type', 'text').addClass ('nodetreesearch').attr ('placeholder', 'Search Nodes...').appendTo (searchFieldDiv);
 	var myThis = this;
-	searchField.on ('input', function () {
-		var searchText = searchField.val ().toLowerCase ();
+	searchInput.on ('input', function () {
+		var searchText = searchInput.val ().toLowerCase ();
 		var i, j, group, node, found, foundInGroup;
 		for (i = 0; i < myThis.nodeGroups.length; i++) {
 			group = myThis.nodeGroups[i];
@@ -166,7 +164,7 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 {
 	this.popUpDiv.Open (positionX, positionY);
 	var popUpDivElem = this.popUpDiv.GetDiv ();
-	popUpDivElem.addClass ('nodetreepopup');
+	popUpDivElem.addClass ('nodetreepopup thinscrollbar');
 	
 	var myThis = this;
 	var nodeTree = new NodeTree (popUpDivElem, function (nodeIndex) {

@@ -73,17 +73,17 @@ div.left
 	position : absolute;
 	left : 0px;
 	right : 0px;
-	overflow : auto;
 }
 
 div.leftcontent
 {
-	padding : 0px 0px;
+	
 }
 
 div.nodetree
 {
-
+	width : 220px;
+	overflow : auto;
 }
 
 div.right
@@ -248,6 +248,16 @@ img.nodetreeicon
 	height : 18px;
 	margin-right : 8px;
 	margin-bottom : -4px;
+}
+
+div.thinscrollbar::-webkit-scrollbar
+{
+	width : 3px;
+}
+
+div.thinscrollbar::-webkit-scrollbar-thumb
+{
+	background: #aaaaaa;
 }
 
 a

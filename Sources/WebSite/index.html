@@ -46,18 +46,18 @@
 		{
 			var windowObj = $(window);
 			var canvasObj = $('#canvas');
-			var leftObj = $('#left');
+			var nodeTreeObj = $('#nodetree');
 			var canvasOffset = canvasObj.offset ();
 			var newWidth = windowObj.width () - canvasOffset.left - 12;
 			var newHeight = windowObj.height () - canvasOffset.top - 12;
-			leftObj.height (newHeight);
+			nodeTreeObj.height (windowObj.height () - nodeTreeObj.offset ().top - 10);
 			application.ResizeCanvas (newWidth, newHeight);
 		}
 		
 		function OnReady ()
 		{
 			application.InitControls ('controls');
-			application.InitNodeTree ('nodetree');
+			application.InitNodeTree ('nodetree', 'nodetreesearch');
 		}
 
 		function OnRuntimeInitialized (module)
@@ -91,9 +91,12 @@
 		<div class="controls" id="controls">
 			<input type="file" id="file" accept=".ne" style="display:none"></input>
 		</div>
-		<div class="left" id="left">
+		<div class="left">
 			<div class="leftcontent">
-				<div class="nodetree" id="nodetree"></div>
+				<div class="nodetreesearchdiv">
+					<input type="text" id="nodetreesearch" class="nodetreesearch" placeholder="Search Nodes...">
+				</div>
+				<div class="nodetree thinscrollbar" id="nodetree"></div>
 			</div>
 		</div>
 		<div class="right">
