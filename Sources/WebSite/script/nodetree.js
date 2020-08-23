@@ -164,7 +164,7 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 {
 	this.popUpDiv.Open (positionX, positionY);
 	var popUpDivElem = this.popUpDiv.GetDiv ();
-	popUpDivElem.addClass ('nodetreepopup');
+	popUpDivElem.addClass ('nodetreepopup thinscrollbar');
 	
 	var myThis = this;
 	var nodeTree = new NodeTree (popUpDivElem, function (nodeIndex) {

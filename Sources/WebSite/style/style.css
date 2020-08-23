@@ -250,6 +250,16 @@ img.nodetreeicon
 	margin-bottom : -4px;
 }
 
+div.thinscrollbar::-webkit-scrollbar
+{
+	width : 3px;
+}
+
+div.thinscrollbar::-webkit-scrollbar-thumb
+{
+	background-color: #aaaaaa;
+}
+
 a
 {
 	color : #0366d6;
