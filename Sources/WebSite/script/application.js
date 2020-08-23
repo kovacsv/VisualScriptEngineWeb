@@ -92,7 +92,6 @@ Application.prototype.InitFileInput = function ()
 		if (files.length == 0) {
 			return;
 		}
-		
 		var reader = new FileReader ();
 		reader.onloadend = function (ev) {
 			if (ev.target.readyState == FileReader.DONE) {
@@ -238,4 +237,3 @@ Application.prototype.SaveFile = function (data, size)
 	window.URL.revokeObjectURL (url);
 	document.body.removeChild (link);	
 };
-
