@@ -140,16 +140,17 @@ Application.prototype.InitControls = function (controlsDivName)
 	AddCommandControl (this, controlsDiv, null, 'Delete', 'Delete');
 };
 
-Application.prototype.InitNodeTree = function (nodeTreeDivName)
+Application.prototype.InitNodeTree = function (nodeTreeDivName, searchInputName)
 {
 	var menuDiv = $('#' + nodeTreeDivName);
+	var searchInput = $('#' + searchInputName);
 	var myThis = this;
 	var nodeTree = new NodeTree (menuDiv, function (nodeIndex) {
 		var positionX = myThis.canvas.width () / 2.0;
 		var positionY = myThis.canvas.height () / 2.0;
 		myThis.appInterface.CreateNode (nodeIndex, positionX, positionY);
 	});
-	nodeTree.BuildAsMenu ();
+	nodeTree.BuildAsMenu (searchInput);
 };
 
 Application.prototype.ExecuteCommand = function (command)
