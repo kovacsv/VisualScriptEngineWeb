@@ -186,6 +186,8 @@ void ExecuteCommand (char* command)
 		nodeEditor.OnKeyPress (NUIE::KeyCode::Paste);
 	} else if (commandStr == "Group") {
 		nodeEditor.OnKeyPress (NUIE::KeyCode::Group);
+	} else if (commandStr == "Ungroup") {
+		nodeEditor.OnKeyPress (NUIE::KeyCode::Ungroup);
 	} else if (commandStr == "Undo") {
 		nodeEditor.OnKeyPress (NUIE::KeyCode::Undo);
 	} else if (commandStr == "Redo") {
