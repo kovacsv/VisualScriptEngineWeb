@@ -137,21 +137,21 @@ Application.prototype.InitControls = function (controlsDivName)
 	
 	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
-	AddCommandControl (this, controlsDiv, 'New.png', 'New', 'New');
-	AddControl (controlsDiv, 'Open.png', 'Open', function () {
+	AddCommandControl (this, controlsDiv, 'New.png', 'New \n(Ctrl+N)', 'New');
+	AddControl (controlsDiv, 'Open.png', 'Open \n(Ctrl+O)', function () {
 		myThis.ShowOpenFileDialog ();
 	});
-	AddCommandControl (this, controlsDiv, 'Save.png', 'Save', 'Save');
+	AddCommandControl (this, controlsDiv, 'Save.png', 'Save \n(Ctrl+S)', 'Save');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo', 'Undo');
-	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo', 'Redo');
+	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo \n(Ctrl+Z)', 'Undo');
+	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo \n(Ctrl+Shift+Z)', 'Redo');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy', 'Copy');
-	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste', 'Paste');
+	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy\n(Ctrl+C)', 'Copy');
+	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste\n(Ctrl+V)', 'Paste');
 	AddCommandControl (this, controlsDiv, 'Delete.png', 'Delete', 'Delete');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, null, 'Group', 'Group');
-	AddCommandControl (this, controlsDiv, null, 'Ungroup', 'Ungroup');
+	AddCommandControl (this, controlsDiv, 'Group.png', 'Group\n(Ctrl+G)', 'Group');
+	AddCommandControl (this, controlsDiv, 'Ungroup.png', 'Ungroup\n(Ctrl+Shift+G)', 'Ungroup');
 };
 
 Application.prototype.InitNodeTree = function (nodeTreeDivName, searchInputName)
