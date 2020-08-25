@@ -144,7 +144,7 @@ Application.prototype.InitControls = function (controlsDivName)
 	AddCommandControl (this, controlsDiv, 'Save.png', 'Save \n(Ctrl+S)', 'Save');
 	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo \n(Ctrl+Z)', 'Undo');
-	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo \n(Ctrl+Shift+Z)', 'Redo');
+	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo \n(Ctrl+Y)', 'Redo');
 	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy\n(Ctrl+C)', 'Copy');
 	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste\n(Ctrl+V)', 'Paste');
