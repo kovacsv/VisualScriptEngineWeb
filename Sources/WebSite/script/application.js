@@ -70,9 +70,11 @@ Application.prototype.InitKeyboardEvents = function ()
 					command = 'Group';
 				}
 			} else if (ev.which == 90) {
-				command = 'Undo';
-			} else if (ev.which == 89) {
-				command = 'Redo';
+				if (isShiftPressed) {
+					command = 'Redo';
+				} else {
+					command = 'Undo';
+				}
 			}
 		} else {
 			if (ev.which == 8 || ev.which == 46) {
@@ -144,7 +146,7 @@ Application.prototype.InitControls = function (controlsDivName)
 	AddCommandControl (this, controlsDiv, 'Save.png', 'Save \n(Ctrl+S)', 'Save');
 	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo \n(Ctrl+Z)', 'Undo');
-	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo \n(Ctrl+Y)', 'Redo');
+	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo \n(Ctrl+Shift+Z)', 'Redo');
 	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy\n(Ctrl+C)', 'Copy');
 	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste\n(Ctrl+V)', 'Paste');
