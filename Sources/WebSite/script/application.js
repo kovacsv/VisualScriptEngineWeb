@@ -114,12 +114,34 @@ Application.prototype.InitControls = function (controlsDivName)
 {
 	function AddControl (parentDiv, icon, title, onClick)
 	{
-		var buttonDiv = $('<div>').addClass ('controlbutton').attr ('title', title).appendTo (parentDiv);
+		var buttonDiv = $('<div>').addClass ('controlbutton').appendTo (parentDiv);
 		if (icon != null) {
 			$('<img>').attr ('src', 'images/command_icons/' + icon).attr ('alt', title).appendTo (buttonDiv);
 		} else {
 			buttonDiv.html (title);
 		}
+		
+		var documentBody = $(document.body);
+		var toolTip = null;
+		buttonDiv.hover (
+			function () {
+				var buttonOffset = buttonDiv.offset ();
+				toolTip = $('<div>').addClass ('tooltip').html (title).appendTo (documentBody);
+				var topOffset = buttonOffset.top + buttonDiv.outerHeight () + 10;
+				var leftOffset = buttonOffset.left + buttonDiv.outerWidth () / 2 - toolTip.outerWidth () / 2;
+				if (leftOffset < 5) {
+					leftOffset = 5;
+				}
+				toolTip.offset ({
+					top : topOffset,
+					left : leftOffset
+				});
+			},
+			function () {
+				toolTip.remove ();
+			}
+		);
+		
 		buttonDiv.click (function () {
 			onClick ();
 		});
@@ -139,21 +161,21 @@ Application.prototype.InitControls = function (controlsDivName)
 	
 	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
-	AddCommandControl (this, controlsDiv, 'New.png', 'New \n(Ctrl+N)', 'New');
-	AddControl (controlsDiv, 'Open.png', 'Open \n(Ctrl+O)', function () {
+	AddCommandControl (this, controlsDiv, 'New.png', 'New<br>(Ctrl+N)', 'New');
+	AddControl (controlsDiv, 'Open.png', 'Open<br>(Ctrl+O)', function () {
 		myThis.ShowOpenFileDialog ();
 	});
-	AddCommandControl (this, controlsDiv, 'Save.png', 'Save \n(Ctrl+S)', 'Save');
+	AddCommandControl (this, controlsDiv, 'Save.png', 'Save<br>(Ctrl+S)', 'Save');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo \n(Ctrl+Z)', 'Undo');
-	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo \n(Ctrl+Shift+Z)', 'Redo');
+	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo<br>(Ctrl+Z)', 'Undo');
+	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo<br>(Ctrl+Shift+Z)', 'Redo');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy\n(Ctrl+C)', 'Copy');
-	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste\n(Ctrl+V)', 'Paste');
+	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy<br>(Ctrl+C)', 'Copy');
+	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste<br>(Ctrl+V)', 'Paste');
 	AddCommandControl (this, controlsDiv, 'Delete.png', 'Delete', 'Delete');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Group.png', 'Group\n(Ctrl+G)', 'Group');
-	AddCommandControl (this, controlsDiv, 'Ungroup.png', 'Ungroup\n(Ctrl+Shift+G)', 'Ungroup');
+	AddCommandControl (this, controlsDiv, 'Group.png', 'Group<br>(Ctrl+G)', 'Group');
+	AddCommandControl (this, controlsDiv, 'Ungroup.png', 'Ungroup<br>(Ctrl+Shift+G)', 'Ungroup');
 };
 
 Application.prototype.InitNodeTree = function (nodeTreeDivName, searchInputName)

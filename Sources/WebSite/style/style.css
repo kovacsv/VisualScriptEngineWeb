@@ -68,7 +68,7 @@ div.controlseparator
 
 div.controlbutton:hover
 {
-	background : #CDE8FF;
+	background : #cde8ff;
 	border-radius: 2px
 }
 
@@ -161,6 +161,14 @@ div.contextmenu
 	border : 1px solid #cccccc;
 }
 
+img.contextmenuicon
+{
+	width : 18px;
+	height : 18px;
+	margin-right : 3px;
+	margin-bottom : -4px;
+}
+
 div.contextmenuitem
 {
 	padding : 6px 15px;
@@ -176,7 +184,7 @@ div.contextmenugroupitem
 
 div.contextmenuitem:hover
 {
-	background : #CDE8FF;
+	background : #cde8ff;
 }
 
 div.contextmenusubitems div.contextmenuitem
@@ -267,6 +275,17 @@ div.thinscrollbar::-webkit-scrollbar
 div.thinscrollbar::-webkit-scrollbar-thumb
 {
 	background: #aaaaaa;
+}
+
+div.tooltip
+{
+	color : #fafafa;
+	background : #000000;
+	width : 100px;
+	text-align : center;
+	padding : 7px;
+	border-radius : 6px;
+	position : absolute;
 }
 
 a
