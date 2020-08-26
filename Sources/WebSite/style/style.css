@@ -68,7 +68,8 @@ div.controlseparator
 
 div.controlbutton:hover
 {
-	background : #90c8f6;
+	background : #CDE8FF;
+	border-radius: 2px
 }
 
 div.controlbutton img
@@ -175,7 +176,7 @@ div.contextmenugroupitem
 
 div.contextmenuitem:hover
 {
-	background : #90c8f6;
+	background : #CDE8FF;
 }
 
 div.contextmenusubitems div.contextmenuitem
