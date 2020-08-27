@@ -1,6 +1,6 @@
 html, body
 {
-	color : #000000;
+	color : #4B4B4B;
 	background : #ffffff;
 	font-size : 14px;
 	font-family : Arial, cursive;
@@ -18,6 +18,7 @@ div.editor
 div.header
 {
 	color : #000000;
+	font-weight: bold;
 	background : #ffffff;
 	overflow : auto;
 }
@@ -127,6 +128,7 @@ div.nodetreeitem
 div.nodetreeitem:hover
 {
 	background : #ececec;
+	font-weight: bold;
 }
 
 div.nodetreesubitems
@@ -158,7 +160,7 @@ div.popup
 
 div.contextmenu
 {
-	color : #000000;
+	color : #4B4B4B;
 	background : #ffffff;
 	border : 1px solid #cccccc;
 }
@@ -186,6 +188,7 @@ div.contextmenugroupitem
 
 div.contextmenuitem:hover
 {
+	font-weight: bold;
 	background : #ececec;
 }
 
