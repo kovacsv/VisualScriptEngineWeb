@@ -288,6 +288,17 @@ div.tooltip
 	position : absolute;
 }
 
+div.tooltip div.tooltiptext
+{
+	font-size : 1.0em;
+}
+
+div.tooltip div.tooltipsubtext
+{
+	font-size : 0.8em;
+	margin-top : 3px;
+}
+
 a
 {
 	color : #0366d6;

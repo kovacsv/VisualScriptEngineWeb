@@ -112,13 +112,13 @@ Application.prototype.InitFileInput = function ()
 
 Application.prototype.InitControls = function (controlsDivName)
 {
-	function AddControl (parentDiv, icon, title, onClick)
+	function AddControl (parentDiv, icon, toolTipText, toolTipSubText, onClick)
 	{
 		var buttonDiv = $('<div>').addClass ('controlbutton').appendTo (parentDiv);
 		if (icon != null) {
-			$('<img>').attr ('src', 'images/command_icons/' + icon).attr ('alt', title).appendTo (buttonDiv);
+			$('<img>').attr ('src', 'images/command_icons/' + icon).attr ('alt', toolTipText).appendTo (buttonDiv);
 		} else {
-			buttonDiv.html (title);
+			buttonDiv.html (toolTipText);
 		}
 		
 		var documentBody = $(document.body);
@@ -126,7 +126,11 @@ Application.prototype.InitControls = function (controlsDivName)
 		buttonDiv.hover (
 			function () {
 				var buttonOffset = buttonDiv.offset ();
-				toolTip = $('<div>').addClass ('tooltip').html (title).appendTo (documentBody);
+				toolTip = $('<div>').addClass ('tooltip').appendTo (documentBody);
+				$('<div>').addClass ('tooltiptext').html (toolTipText).appendTo (toolTip);
+				if (toolTipSubText != null) {
+					$('<div>').addClass ('tooltipsubtext').html (toolTipSubText).appendTo (toolTip);
+				}
 				var topOffset = buttonOffset.top + buttonDiv.outerHeight () + 10;
 				var leftOffset = buttonOffset.left + buttonDiv.outerWidth () / 2 - toolTip.outerWidth () / 2;
 				if (leftOffset < 5) {
@@ -147,9 +151,9 @@ Application.prototype.InitControls = function (controlsDivName)
 		});
 	}	
 	
-	function AddCommandControl (app, parentDiv, icon, title, command)
+	function AddCommandControl (app, parentDiv, icon, toolTipText, toolTipSubText, command)
 	{
-		AddControl (parentDiv, icon, title, function () {
+		AddControl (parentDiv, icon, toolTipText, toolTipSubText, function () {
 			app.ExecuteCommand (command);
 		});
 	}
@@ -161,21 +165,21 @@ Application.prototype.InitControls = function (controlsDivName)
 	
 	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
-	AddCommandControl (this, controlsDiv, 'New.png', 'New<br>(Ctrl+N)', 'New');
-	AddControl (controlsDiv, 'Open.png', 'Open<br>(Ctrl+O)', function () {
+	AddCommandControl (this, controlsDiv, 'New.png', 'New', '(Ctrl+N)', 'New');
+	AddControl (controlsDiv, 'Open.png', 'Open', '(Ctrl+O)', function () {
 		myThis.ShowOpenFileDialog ();
 	});
-	AddCommandControl (this, controlsDiv, 'Save.png', 'Save<br>(Ctrl+S)', 'Save');
+	AddCommandControl (this, controlsDiv, 'Save.png', 'Save', '(Ctrl+S)', 'Save');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo<br>(Ctrl+Z)', 'Undo');
-	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo<br>(Ctrl+Shift+Z)', 'Redo');
+	AddCommandControl (this, controlsDiv, 'Undo.png', 'Undo', '(Ctrl+Z)', 'Undo');
+	AddCommandControl (this, controlsDiv, 'Redo.png', 'Redo', '(Ctrl+Shift+Z)', 'Redo');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy<br>(Ctrl+C)', 'Copy');
-	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste<br>(Ctrl+V)', 'Paste');
-	AddCommandControl (this, controlsDiv, 'Delete.png', 'Delete', 'Delete');
+	AddCommandControl (this, controlsDiv, 'Copy.png', 'Copy', '(Ctrl+C)', 'Copy');
+	AddCommandControl (this, controlsDiv, 'Paste.png', 'Paste', '(Ctrl+V)', 'Paste');
+	AddCommandControl (this, controlsDiv, 'Delete.png', 'Delete', '(Delete Key)', 'Delete');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Group.png', 'Group<br>(Ctrl+G)', 'Group');
-	AddCommandControl (this, controlsDiv, 'Ungroup.png', 'Ungroup<br>(Ctrl+Shift+G)', 'Ungroup');
+	AddCommandControl (this, controlsDiv, 'Group.png', 'Group', '(Ctrl+G)', 'Group');
+	AddCommandControl (this, controlsDiv, 'Ungroup.png', 'Ungroup', '(Ctrl+Shift+G)', 'Ungroup');
 };
 
 Application.prototype.InitNodeTree = function (nodeTreeDivName, searchInputName)
