@@ -263,7 +263,7 @@ Application.prototype.OpenFile = function (fileBuffer)
 	var buffer = new Int8Array (fileBuffer);
 	var heapPtr = this.module._malloc (buffer.length);
 	var heapBuffer = new Int8Array (HEAP8.buffer, heapPtr, buffer.length);
-	heapBuffer.set(buffer);
+	heapBuffer.set (buffer);
 	this.appInterface.OpenFile (heapBuffer.byteOffset, buffer.length);
 	this.module._free (heapBuffer.byteOffset);
 };
@@ -276,7 +276,7 @@ Application.prototype.SaveFile = function (data, size)
 		dataArr[i] = HEAP8[data + i];
 	}
 	
-	var blob = new Blob([dataArr], {type: "octet/stream"});
+	var blob = new Blob ([dataArr], {type: "octet/stream"});
 	var url = window.URL.createObjectURL (blob);
 
 	var link = document.createElement ('a');
