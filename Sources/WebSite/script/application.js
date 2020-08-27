@@ -170,11 +170,14 @@ Application.prototype.InitControls = function (controlsDivName)
 	
 	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
-	AddCommandControl (this, controlsDiv, 'New', 'New', 'Ctrl+N', 'New');
-	AddControl (controlsDiv, 'Open', 'Open', 'Ctrl+O', function () {
+	AddControl (controlsDiv, 'New', 'New', null, function () {
+		var newWindow = window.open ('.', '_blank');
+		newWindow.addEventListener('load', newWindow.alert('replace this with a good thing'), true);
+	});
+	AddControl (controlsDiv, 'Open', 'Open', null, function () {
 		myThis.ShowOpenFileDialog ();
 	});
-	AddCommandControl (this, controlsDiv, 'Save', 'Save', 'Ctrl+S', 'Save');
+	AddCommandControl (this, controlsDiv, 'Save', 'Save', null, 'Save');
 	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'Undo', 'Undo', 'Ctrl+Z', 'Undo');
 	AddCommandControl (this, controlsDiv, 'Redo', 'Redo', 'Ctrl+Shift+Z', 'Redo');

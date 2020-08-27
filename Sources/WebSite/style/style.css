@@ -71,6 +71,7 @@ div.controlseparator
 
 div.controlbutton:hover
 {
+	color : #fafafa;
 	background : #297fff;
 }
 
@@ -244,12 +245,18 @@ div.parameterbuttons
 
 div.parameterbutton
 {
-	background : #eeeeee;
+	background : #ececec;
 	padding : 5px 10px;
 	margin-left : 10px;
 	border-radius : 5px;
 	cursor : pointer;
 	float : right;
+}
+
+div.parameterbutton:hover
+{
+	color : #fafafa;
+	background : #297fff;
 }
 
 div.nodetreepopup
