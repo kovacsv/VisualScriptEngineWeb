@@ -171,8 +171,7 @@ Application.prototype.InitControls = function (controlsDivName)
 	var myThis = this;
 	var controlsDiv = $('#' + controlsDivName);
 	AddControl (controlsDiv, 'New', 'New', null, function () {
-		var newWindow = window.open ('.', '_blank');
-		newWindow.addEventListener('load', newWindow.alert('replace this with a good thing'), true);
+		window.open ('.', '_blank');
 	});
 	AddControl (controlsDiv, 'Open', 'Open', null, function () {
 		myThis.ShowOpenFileDialog ();
