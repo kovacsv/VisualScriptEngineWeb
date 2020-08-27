@@ -17,8 +17,8 @@ div.editor
 
 div.header
 {
-	color : #fafafa;
-	background : #263238;
+	color : #000000;
+	background : #ffffff;
 	overflow : auto;
 }
 
@@ -51,7 +51,10 @@ div.controls
 
 div.controlbutton
 {
+	background : #ececec;
+	border-radius : 25px;
 	padding : 6px;
+	margin : 0px 2px;
 	cursor : pointer;
 	float : left;
 	user-select : none;
@@ -61,15 +64,14 @@ div.controlseparator
 {
 	width : 1px;
 	height : 22px;
-	margin : 4px 5px;
+	margin : 4px 3px;
 	background : #cccccc;
 	float : left;
 }
 
 div.controlbutton:hover
 {
-	background : #cde8ff;
-	border-radius: 2px
+	background : #297fff;
 }
 
 div.controlbutton img
@@ -124,7 +126,7 @@ div.nodetreeitem
 
 div.nodetreeitem:hover
 {
-	background : #f5f5f5;
+	background : #ececec;
 }
 
 div.nodetreesubitems
@@ -184,7 +186,7 @@ div.contextmenugroupitem
 
 div.contextmenuitem:hover
 {
-	background : #cde8ff;
+	background : #ececec;
 }
 
 div.contextmenusubitems div.contextmenuitem
@@ -280,7 +282,7 @@ div.thinscrollbar::-webkit-scrollbar-thumb
 div.tooltip
 {
 	color : #fafafa;
-	background : #000000;
+	background : #297fff;
 	width : 100px;
 	text-align : center;
 	padding : 7px;
@@ -291,6 +293,7 @@ div.tooltip
 div.tooltip div.tooltiptext
 {
 	font-size : 1.0em;
+	font-weight : bold;
 }
 
 div.tooltip div.tooltipsubtext
