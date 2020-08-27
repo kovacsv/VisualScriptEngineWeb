@@ -29,9 +29,17 @@ div.header img
 
 div.headerleft
 {
+	color : #333333;
 	font-size : 18px;
 	padding : 14px 10px;
 	float : left;
+}
+
+div.headerleft img.logo
+{
+	float : left;
+	margin-top : -1px;
+	margin-right : 8px;
 }
 
 div.headerright
