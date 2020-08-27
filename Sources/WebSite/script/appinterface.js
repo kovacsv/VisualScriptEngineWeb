@@ -6,6 +6,7 @@ var AppInterface = function (module)
 	this.createNodeFunc = module.cwrap ('CreateNode', null, ['number', 'number', 'number']);
 	this.contextMenuResponseFunc = module.cwrap ('ContextMenuResponse', null, ['number']);
 	this.parameterSettingsResponseFunc = module.cwrap ('ParameterSettingsResponse', null, ['string']);
+	this.needToSaveFunc = module.cwrap ('NeedToSave', 'bool', []);
 };
 
 AppInterface.prototype.ResizeWindow = function (width, height)
@@ -36,4 +37,9 @@ AppInterface.prototype.ContextMenuResponse = function (commandId)
 AppInterface.prototype.ParameterSettingsResponse = function (responseStr)
 {
 	this.parameterSettingsResponseFunc (responseStr);
+};
+
+AppInterface.prototype.NeedToSave = function ()
+{
+	return this.needToSaveFunc ();
 };

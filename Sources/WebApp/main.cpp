@@ -243,6 +243,16 @@ void ParameterSettingsResponse (char* changedParametersJson)
 	browserInteface.ParameterSettingsResponse (changedParametersJson);
 }
 
+bool NeedToSave ()
+{
+	if (gAppForBrowser == nullptr) {
+		return false;
+	}
+
+	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
+	return nodeEditor.NeedToSave ();
+}
+
 };
 
 int EventFilter (void*, SDL_Event* sdlEvent)
