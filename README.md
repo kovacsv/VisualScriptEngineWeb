@@ -32,9 +32,9 @@ emsdk install mingw-4.6.2-32bit
 emsdk activate mingw-4.6.2-32bit
 ```
 
-### 3. Generate the Visual Studio Project
+### 3. Generate the Visual Studio Project (Optional)
 
-You can create the project with CMake, and build it with Visual Studio.
+You can create the project with CMake, and build it with Visual Studio. This step is optional. The Visual Studio project is useful if you would like to debug the functionalities, but it is not necessary for building the web application.
 
 ```
 mkdir Build
