@@ -179,23 +179,23 @@ void ExecuteCommand (char* command)
 		}, buffer.data (), buffer.size ());
 #endif
 	} else if (commandStr == "SelectAll") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::SelectAll);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::SelectAll);
 	} else if (commandStr == "Copy") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::Copy);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Copy);
 	} else if (commandStr == "Paste") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::Paste);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Paste);
 	} else if (commandStr == "Group") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::Group);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Group);
 	} else if (commandStr == "Ungroup") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::Ungroup);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Ungroup);
 	} else if (commandStr == "Undo") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::Undo);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Undo);
 	} else if (commandStr == "Redo") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::Redo);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Redo);
 	} else if (commandStr == "Escape") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::Escape);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Escape);
 	} else if (commandStr == "Delete") {
-		nodeEditor.OnKeyPress (NUIE::KeyCode::Delete);
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Delete);
 	}
 }
 
