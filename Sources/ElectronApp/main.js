@@ -2,7 +2,6 @@ const { app, BrowserWindow } = require ('electron');
 
 function CreateWindow ()
 {
-	// Create the browser window.
 	const browser = new BrowserWindow ({
 		width : 1000,
 		height : 800,
@@ -11,7 +10,12 @@ function CreateWindow ()
 		}
 	});
 	browser.loadFile ('index.html');
+	browser.setMenuBarVisibility (false);
 	//browser.webContents.openDevTools ();
+}
+
+if (require ('electron-squirrel-startup')) {
+	return app.quit ();
 }
 
 app.whenReady ().then (CreateWindow);
