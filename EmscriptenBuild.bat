@@ -1,5 +1,3 @@
-@echo %1
-
 pushd %~dp0
 mkdir BuildEm
 

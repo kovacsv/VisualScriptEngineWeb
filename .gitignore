@@ -1,5 +1,7 @@
 /Build/*
 /BuildEm/*
+/BuildEl/*
 EmscriptenBuildLocal.bat
+ElectronBuildLocal.bat
 *.out.wasm
 *.out.js
