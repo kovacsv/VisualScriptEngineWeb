@@ -35,13 +35,6 @@ div.headerleft
 	float : left;
 }
 
-div.headerleft img.logo
-{
-	float : left;
-	margin-top : -1px;
-	margin-right : 8px;
-}
-
 div.headerright
 {
 	padding : 12px 10px;
