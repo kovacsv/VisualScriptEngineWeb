@@ -205,7 +205,7 @@ div.contextmenusubitems div.contextmenuitem
 
 div.parametersettings
 {
-	color : #000000;
+	color : #4B4B4B;
 	background : #ffffff;
 	border : 1px solid #cccccc;
 }
@@ -269,7 +269,7 @@ div.parameterbutton:hover
 
 div.nodetreepopup
 {
-	color : #000000;
+	color : #4B4B4B;
 	background : #ffffff;
 	width : 220px;
 	max-height : 300px;
