@@ -1,11 +1,11 @@
-var Application = function ()
+var NodeEditor = function ()
 {
 	this.module = null;
 	this.canvas = null;
 	this.appInterface = null;
 };
 
-Application.prototype.Init = function (module, uiElements)
+NodeEditor.prototype.Init = function (module, uiElements)
 {
 	this.module = module;
 	this.canvas = uiElements.canvas;
@@ -18,7 +18,7 @@ Application.prototype.Init = function (module, uiElements)
 	this.InitFileInput ();
 };
 
-Application.prototype.InitControls = function (controlsDiv)
+NodeEditor.prototype.InitControls = function (controlsDiv)
 {
 	function AddControl (parentDiv, icon, toolTipText, toolTipSubText, onClick)
 	{
@@ -99,7 +99,7 @@ Application.prototype.InitControls = function (controlsDiv)
 	AddCommandControl (this, controlsDiv, 'Ungroup', 'Ungroup', 'Ctrl+Shift+G', 'Ungroup');
 };
 
-Application.prototype.InitNodeTree = function (nodeTreeDiv, searchInput)
+NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchInput)
 {
 	var myThis = this;
 	var nodeTree = new NodeTree (nodeTreeDiv, function (nodeIndex) {
@@ -110,7 +110,7 @@ Application.prototype.InitNodeTree = function (nodeTreeDiv, searchInput)
 	nodeTree.BuildAsMenu (searchInput);
 };
 
-Application.prototype.InitDragAndDrop = function ()
+NodeEditor.prototype.InitDragAndDrop = function ()
 {
 	var myThis = this;
 	this.canvas.on ('dragover', function (ev) {
@@ -128,7 +128,7 @@ Application.prototype.InitDragAndDrop = function ()
 	});
 };
 
-Application.prototype.InitKeyboardEvents = function ()
+NodeEditor.prototype.InitKeyboardEvents = function ()
 {
 	var overCanvas = false;
 	
@@ -181,7 +181,7 @@ Application.prototype.InitKeyboardEvents = function ()
 	});
 };
 
-Application.prototype.InitFileInput = function ()
+NodeEditor.prototype.InitFileInput = function ()
 {
 	var myThis = this;
 	var file = $('#file');
@@ -201,17 +201,17 @@ Application.prototype.InitFileInput = function ()
 	});
 };
 
-Application.prototype.ExecuteCommand = function (command)
+NodeEditor.prototype.ExecuteCommand = function (command)
 {
 	this.appInterface.ExecuteCommand (command);
 };
 
-Application.prototype.ResizeCanvas = function (width, height)
+NodeEditor.prototype.ResizeCanvas = function (width, height)
 {
 	this.appInterface.ResizeWindow (width, height);
 };
 
-Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
+NodeEditor.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 {
 	var positionX = this.canvas.offset ().left + mouseX;
 	var positionY = this.canvas.offset ().top + mouseY;	
@@ -223,7 +223,7 @@ Application.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 	contextMenu.Open (positionX, positionY);
 };
 
-Application.prototype.OpenSettingsDialog = function (parameters)
+NodeEditor.prototype.OpenSettingsDialog = function (parameters)
 {
 	var positionX = this.canvas.offset ().left + this.canvas.width () / 2;
 	var positionY = this.canvas.offset ().top + this.canvas.height () / 2;
@@ -239,7 +239,7 @@ Application.prototype.OpenSettingsDialog = function (parameters)
 	parameterSettings.Open (positionX, positionY);
 };
 
-Application.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
+NodeEditor.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 {
 	var positionX = this.canvas.offset ().left + mouseX;
 	var positionY = this.canvas.offset ().top + mouseY;		
@@ -251,13 +251,13 @@ Application.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 	nodeTreePopUp.Open (positionX, positionY);
 };
 
-Application.prototype.ShowOpenFileDialog = function ()
+NodeEditor.prototype.ShowOpenFileDialog = function ()
 {
 	var file = document.getElementById ('file');
 	file.click ();
 };
 
-Application.prototype.OpenFile = function (fileBuffer)
+NodeEditor.prototype.OpenFile = function (fileBuffer)
 {
 	var buffer = new Int8Array (fileBuffer);
 	var heapPtr = this.module._malloc (buffer.length);
@@ -267,7 +267,7 @@ Application.prototype.OpenFile = function (fileBuffer)
 	this.module._free (heapBuffer.byteOffset);
 };
 
-Application.prototype.SaveFile = function (data, size)
+NodeEditor.prototype.SaveFile = function (data, size)
 {
 	var dataArr = new Int8Array (size);
 	var i;

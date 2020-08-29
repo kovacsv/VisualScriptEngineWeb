@@ -15,10 +15,10 @@
 	<script type="text/javascript" src="script/parametersettings.js"></script>
 	<script type="text/javascript" src="script/nodetree.js"></script>
 	<script type="text/javascript" src="script/appinterface.js"></script>
-	<script type="text/javascript" src="script/application.js"></script>
+	<script type="text/javascript" src="script/nodeeditor.js"></script>
 	
 	<script type='text/javascript'>
-		var application = new Application ();
+		var editor = new NodeEditor ();
 
 		function OnResize ()
 		{
@@ -29,12 +29,12 @@
 			var newWidth = windowObj.width () - canvasOffset.left - 12;
 			var newHeight = windowObj.height () - canvasOffset.top - 12;
 			nodeTreeObj.height (windowObj.height () - nodeTreeObj.offset ().top - 10);
-			application.ResizeCanvas (newWidth, newHeight);
+			editor.ResizeCanvas (newWidth, newHeight);
 		}
 		
 		function OnRuntimeInitialized ()
 		{
-			application.Init (Module, {
+			editor.Init (Module, {
 				canvas : $('#canvas'),
 				controls : $('#controls'),
 				searchInput : $('#nodetreesearch'),
@@ -49,26 +49,26 @@
 		
 		function OnDoubleClick (mouseX, mouseY)
 		{
-			application.OpenNodeTreePopUp (mouseX, mouseY);
+			editor.OpenNodeTreePopUp (mouseX, mouseY);
 		}
 
 		function SaveFile (data, size)
 		{
-			application.SaveFile (data, size);
+			editor.SaveFile (data, size);
 		}		
 		
 		function ContextMenuRequest (mouseX, mouseY, commandsJsonFromCpp)
 		{
 			var commandsJsonStr = UTF8ToString (commandsJsonFromCpp);
 			var commandJson = JSON.parse (commandsJsonStr);
-			application.OpenContextMenu (mouseX, mouseY, commandJson);
+			editor.OpenContextMenu (mouseX, mouseY, commandJson);
 		}
 		
 		function ParameterSettingsRequest (parametersJsonFromCpp)
 		{
 			var parametersJsonStr = UTF8ToString (parametersJsonFromCpp);
 			var parametersJson = JSON.parse (parametersJsonStr);
-			application.OpenSettingsDialog (parametersJson);
+			editor.OpenSettingsDialog (parametersJson);
 		}
 
 		function OnValuesRecalculated (result)
