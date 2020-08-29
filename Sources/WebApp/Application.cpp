@@ -1,4 +1,6 @@
 #include "Application.hpp"
+
+#include "NE_MemoryStream.hpp"
 #include "BI_BuiltInNodes.hpp"
 
 #ifdef EMSCRIPTEN
@@ -130,6 +132,11 @@ Application::Application () :
 
 }
 
+Application::~Application ()
+{
+
+}
+
 void Application::Init ()
 {
 	SDL_Init (SDL_INIT_VIDEO);
@@ -176,17 +183,87 @@ void Application::Shut ()
 	SDL_Quit ();
 }
 
-SDL_Rect Application::GetWindowRect () const
-{
-	SDL_Rect rect;
-	SDL_RenderGetViewport (renderer, &rect);
-	return rect;
-}
-
 void Application::ResizeWindow (int width, int height)
 {
 	SDL_SetWindowSize (window, width, height);
 	nodeEditor.OnResize (width, height);
+}
+
+void Application::ExecuteCommand (const char* command)
+{
+	if (browserInterface.AreEventsSuspended ()) {
+		return;
+	}
+	std::string commandStr (command);
+	if (commandStr == "New") {
+		nodeEditor.New ();
+	} else if (commandStr == "Save") {
+		NE::MemoryOutputStream outputStream;
+		nodeEditor.Save (outputStream);
+		const std::vector<char>& buffer = outputStream.GetBuffer ();
+		browserInterface.SaveFile (buffer);
+	} else if (commandStr == "SelectAll") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::SelectAll);
+	} else if (commandStr == "Copy") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Copy);
+	} else if (commandStr == "Paste") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Paste);
+	} else if (commandStr == "Group") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Group);
+	} else if (commandStr == "Ungroup") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Ungroup);
+	} else if (commandStr == "Undo") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Undo);
+	} else if (commandStr == "Redo") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Redo);
+	} else if (commandStr == "Escape") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Escape);
+	} else if (commandStr == "Delete") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::Delete);
+	}
+}
+
+void Application::CreateNode (int nodeIndex, int xPosition, int yPosition)
+{
+	if (browserInterface.AreEventsSuspended ()) {
+		return;
+	}
+
+	NUIE::Point viewPosition (xPosition, yPosition);
+	NUIE::Point position = nodeEditor.ViewToModel (viewPosition);
+	NUIE::UINodePtr uiNode = GetNodeByIndex (nodeIndex, position);
+	if (uiNode != nullptr) {
+		if (NE::Node::IsType<BI::BasicUINode> (uiNode)) {
+			BI::BasicUINodePtr basicUINode = NE::Node::Cast<BI::BasicUINode> (uiNode);
+			basicUINode->SetIconId (NUIE::IconId (nodeIndex));
+		}
+		nodeEditor.AddNode (uiNode);
+	}
+}
+
+void Application::OpenFile (const char* buffer, int size)
+{
+	std::vector<char> bufferVec;
+	bufferVec.assign (buffer, buffer + size);
+	NE::MemoryInputStream inputStream (bufferVec);
+	nodeEditor.Open (inputStream);
+	nodeEditor.CenterToWindow ();
+}
+
+bool Application::NeedToSave () const
+{
+	return nodeEditor.NeedToSave ();
+}
+
+void Application::ContextMenuResponse (int commandId)
+{
+	browserInterface.ContextMenuResponse (commandId);
+}
+
+void Application::ParameterSettingsResponse (const char* changedParametersJson)
+{
+	std::string changedParametersJsonStr (changedParametersJson);
+	browserInterface.ParameterSettingsResponse (changedParametersJson);
 }
 
 NUIE::NodeEditor& Application::GetNodeEditor ()

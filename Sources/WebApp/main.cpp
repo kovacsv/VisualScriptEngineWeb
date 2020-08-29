@@ -3,41 +3,12 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#include "NE_MemoryStream.hpp"
-#include "NUIE_NodeEditor.hpp"
 #include "BI_BuiltInNodes.hpp"
-
 #include "Application.hpp"
 
 // #define ENABLE_EVENT_LOGGING
 
 static Application* gAppForBrowser = nullptr;
-
-static void AddNode (NUIE::NodeEditor& nodeEditor, const NUIE::Point& position, int nodeIndex)
-{
-	NUIE::UINodePtr uiNode = nullptr;
-	switch (nodeIndex) {
-		case 0: uiNode = NUIE::UINodePtr (new BI::BooleanNode (NE::LocString (L"Boolean"), position, true)); break;
-		case 1: uiNode = NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), position, 0, 1)); break;
-		case 2: uiNode = NUIE::UINodePtr (new BI::DoubleUpDownNode (NE::LocString (L"Number"), position, 0.0, 1.0)); break;
-		case 3: uiNode = NUIE::UINodePtr (new BI::IntegerIncrementedNode (NE::LocString (L"Integer Increment"), position)); break;
-		case 4: uiNode = NUIE::UINodePtr (new BI::DoubleIncrementedNode (NE::LocString (L"Number Increment"), position)); break;
-		case 5: uiNode = NUIE::UINodePtr (new BI::DoubleDistributedNode (NE::LocString (L"Number Distribution"), position)); break;
-		case 6: uiNode = NUIE::UINodePtr (new BI::AdditionNode (NE::LocString (L"Addition"), position)); break;
-		case 7: uiNode = NUIE::UINodePtr (new BI::SubtractionNode (NE::LocString (L"Subtraction"), position)); break;
-		case 8: uiNode = NUIE::UINodePtr (new BI::MultiplicationNode (NE::LocString (L"Multiplication"), position)); break;
-		case 9: uiNode = NUIE::UINodePtr (new BI::DivisionNode (NE::LocString (L"Division"), position)); break;
-		case 10: uiNode = NUIE::UINodePtr (new BI::ListBuilderNode (NE::LocString (L"List Builder"), position)); break;
-		case 11: uiNode = NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), position, 5)); break;
-	}
-	if (uiNode != nullptr) {
-		if (NE::Node::IsType<BI::BasicUINode> (uiNode)) {
-			BI::BasicUINodePtr basicUINode = NE::Node::Cast<BI::BasicUINode> (uiNode);
-			basicUINode->SetIconId (NUIE::IconId (nodeIndex));
-		}
-		nodeEditor.AddNode (uiNode);
-	}
-}
 
 extern "C"
 {
@@ -55,40 +26,7 @@ void ExecuteCommand (char* command)
 	if (gAppForBrowser == nullptr) {
 		return;
 	}
-
-	BrowserInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
-	if (browserInteface.AreEventsSuspended ()) {
-		return;
-	}
-
-	std::string commandStr (command);
-	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-	if (commandStr == "New") {
-		nodeEditor.New ();
-	} else if (commandStr == "Save") {
-		NE::MemoryOutputStream outputStream;
-		nodeEditor.Save (outputStream);
-		const std::vector<char>& buffer = outputStream.GetBuffer ();
-		browserInteface.SaveFile (buffer);
-	} else if (commandStr == "SelectAll") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::SelectAll);
-	} else if (commandStr == "Copy") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::Copy);
-	} else if (commandStr == "Paste") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::Paste);
-	} else if (commandStr == "Group") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::Group);
-	} else if (commandStr == "Ungroup") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::Ungroup);
-	} else if (commandStr == "Undo") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::Undo);
-	} else if (commandStr == "Redo") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::Redo);
-	} else if (commandStr == "Escape") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::Escape);
-	} else if (commandStr == "Delete") {
-		nodeEditor.ExecuteCommand (NUIE::CommandCode::Delete);
-	}
+	gAppForBrowser->ExecuteCommand (command);
 }
 
 void OpenFile (char* charBuffer, int size)
@@ -96,13 +34,7 @@ void OpenFile (char* charBuffer, int size)
 	if (gAppForBrowser == nullptr) {
 		return;
 	}
-
-	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-	std::vector<char> buffer;
-	buffer.assign (charBuffer, charBuffer + size);
-	NE::MemoryInputStream inputStream (buffer);
-	nodeEditor.Open (inputStream);
-	nodeEditor.CenterToWindow ();
+	gAppForBrowser->OpenFile (charBuffer, size);
 }
 
 void CreateNode (int nodeIndex, int xPosition, int yPosition)
@@ -110,29 +42,7 @@ void CreateNode (int nodeIndex, int xPosition, int yPosition)
 	if (gAppForBrowser == nullptr) {
 		return;
 	}
-
-	BrowserInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
-	if (browserInteface.AreEventsSuspended ()) {
-		return;
-	}
-
-	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-	NUIE::Point viewPosition (xPosition, yPosition);
-	NUIE::Point position = nodeEditor.ViewToModel (viewPosition);
-	AddNode (nodeEditor, position, nodeIndex);
-}
-
-void ContextMenuResponse (int commandId)
-{
-	BrowserInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
-	browserInteface.ContextMenuResponse (commandId);
-}
-
-void ParameterSettingsResponse (char* changedParametersJson)
-{
-	std::string changedParametersJsonStr (changedParametersJson);
-	BrowserInterface& browserInteface = gAppForBrowser->GetBrowserInterface ();
-	browserInteface.ParameterSettingsResponse (changedParametersJson);
+	gAppForBrowser->CreateNode (nodeIndex, xPosition, yPosition);
 }
 
 bool NeedToSave ()
@@ -140,22 +50,60 @@ bool NeedToSave ()
 	if (gAppForBrowser == nullptr) {
 		return false;
 	}
+	return gAppForBrowser->NeedToSave ();
+}
 
-	NUIE::NodeEditor& nodeEditor = gAppForBrowser->GetNodeEditor ();
-	return nodeEditor.NeedToSave ();
+void ContextMenuResponse (int commandId)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->ContextMenuResponse (commandId);
+}
+
+void ParameterSettingsResponse (char* changedParametersJson)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->ParameterSettingsResponse (changedParametersJson);
 }
 
 };
 
+class MyApplication : public Application
+{
+public:
+	virtual NUIE::UINodePtr GetNodeByIndex (int nodeIndex, const NUIE::Point& position) const override
+	{
+		NUIE::UINodePtr uiNode = nullptr;
+		switch (nodeIndex) {
+			case 0: uiNode = NUIE::UINodePtr (new BI::BooleanNode (NE::LocString (L"Boolean"), position, true)); break;
+			case 1: uiNode = NUIE::UINodePtr (new BI::IntegerUpDownNode (NE::LocString (L"Integer"), position, 0, 1)); break;
+			case 2: uiNode = NUIE::UINodePtr (new BI::DoubleUpDownNode (NE::LocString (L"Number"), position, 0.0, 1.0)); break;
+			case 3: uiNode = NUIE::UINodePtr (new BI::IntegerIncrementedNode (NE::LocString (L"Integer Increment"), position)); break;
+			case 4: uiNode = NUIE::UINodePtr (new BI::DoubleIncrementedNode (NE::LocString (L"Number Increment"), position)); break;
+			case 5: uiNode = NUIE::UINodePtr (new BI::DoubleDistributedNode (NE::LocString (L"Number Distribution"), position)); break;
+			case 6: uiNode = NUIE::UINodePtr (new BI::AdditionNode (NE::LocString (L"Addition"), position)); break;
+			case 7: uiNode = NUIE::UINodePtr (new BI::SubtractionNode (NE::LocString (L"Subtraction"), position)); break;
+			case 8: uiNode = NUIE::UINodePtr (new BI::MultiplicationNode (NE::LocString (L"Multiplication"), position)); break;
+			case 9: uiNode = NUIE::UINodePtr (new BI::DivisionNode (NE::LocString (L"Division"), position)); break;
+			case 10: uiNode = NUIE::UINodePtr (new BI::ListBuilderNode (NE::LocString (L"List Builder"), position)); break;
+			case 11: uiNode = NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), position, 5)); break;
+		}
+		return uiNode;
+	}
+};
+
 int main (int, char**)
 {
-	Application app;
+	MyApplication app;
 	gAppForBrowser = &app;
 	app.Init ();
 
 #ifndef EMSCRIPTEN
-	AddNode (app.GetNodeEditor (), NUIE::Point (100.0, 100.0), 1);
-	AddNode (app.GetNodeEditor (), NUIE::Point (400.0, 300.0), 11);
+	app.CreateNode (1, 100, 100);
+	app.CreateNode (11, 400, 300);
 #endif
 
 	app.Start ();

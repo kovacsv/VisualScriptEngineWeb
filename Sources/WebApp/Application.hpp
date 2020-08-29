@@ -11,16 +11,25 @@ class Application
 {
 public:
 	Application ();
+	virtual ~Application ();
 
-	void					Init ();
-	void					Start ();
-	void					Shut ();
+	void						Init ();
+	void						Start ();
+	void						Shut ();
 
-	SDL_Rect				GetWindowRect () const;
-	void					ResizeWindow (int width, int height);
+	void						ResizeWindow (int width, int height);
+	void						ExecuteCommand (const char* command);
+	void						CreateNode (int nodeIndex, int xPosition, int yPosition);
+	void						OpenFile (const char* buffer, int size);
+	bool						NeedToSave () const;
 
-	NUIE::NodeEditor&		GetNodeEditor ();
-	BrowserInterface&	GetBrowserInterface ();
+	void						ContextMenuResponse (int commandId);
+	void						ParameterSettingsResponse (const char* changedParametersJson);
+
+	NUIE::NodeEditor&			GetNodeEditor ();
+	BrowserInterface&			GetBrowserInterface ();
+
+	virtual NUIE::UINodePtr		GetNodeByIndex (int nodeIndex, const NUIE::Point& position) const = 0;
 
 private:
 	SDL_Window*				window;
@@ -28,7 +37,7 @@ private:
 
 	AppUIEnvironment		uiEnvironment;
 	NUIE::NodeEditor		nodeEditor;
-	BrowserInterface	browserInterface;
+	BrowserInterface		browserInterface;
 };
 
 #endif
