@@ -1,75 +1,7 @@
 #include <iostream>
 
-#include <SDL.h>
-#include <SDL_ttf.h>
-
-#include "BI_BuiltInNodes.hpp"
 #include "Application.hpp"
-
-// #define ENABLE_EVENT_LOGGING
-
-static Application* gAppForBrowser = nullptr;
-
-extern "C"
-{
-
-void ResizeWindow (int width, int height)
-{
-	if (gAppForBrowser == nullptr) {
-		return;
-	}
-	gAppForBrowser->ResizeWindow (width, height);
-}
-
-void ExecuteCommand (char* command)
-{
-	if (gAppForBrowser == nullptr) {
-		return;
-	}
-	gAppForBrowser->ExecuteCommand (command);
-}
-
-void OpenFile (char* charBuffer, int size)
-{
-	if (gAppForBrowser == nullptr) {
-		return;
-	}
-	gAppForBrowser->OpenFile (charBuffer, size);
-}
-
-void CreateNode (int nodeIndex, int xPosition, int yPosition)
-{
-	if (gAppForBrowser == nullptr) {
-		return;
-	}
-	gAppForBrowser->CreateNode (nodeIndex, xPosition, yPosition);
-}
-
-bool NeedToSave ()
-{
-	if (gAppForBrowser == nullptr) {
-		return false;
-	}
-	return gAppForBrowser->NeedToSave ();
-}
-
-void ContextMenuResponse (int commandId)
-{
-	if (gAppForBrowser == nullptr) {
-		return;
-	}
-	gAppForBrowser->ContextMenuResponse (commandId);
-}
-
-void ParameterSettingsResponse (char* changedParametersJson)
-{
-	if (gAppForBrowser == nullptr) {
-		return;
-	}
-	gAppForBrowser->ParameterSettingsResponse (changedParametersJson);
-}
-
-};
+#include "BI_BuiltInNodes.hpp"
 
 class MyApplication : public Application
 {
@@ -98,7 +30,6 @@ public:
 int main (int, char**)
 {
 	MyApplication app;
-	gAppForBrowser = &app;
 	app.Init ();
 
 #ifndef EMSCRIPTEN

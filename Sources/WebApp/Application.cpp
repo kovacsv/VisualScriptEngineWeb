@@ -1,7 +1,5 @@
 #include "Application.hpp"
-
 #include "NE_MemoryStream.hpp"
-#include "BI_BuiltInNodes.hpp"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -53,11 +51,6 @@ static bool MainLoop (Application* app)
 
 	SDL_Event sdlEvent;
 	if (SDL_PollEvent (&sdlEvent) && enableEvents) {
-#if defined (EMSCRIPTEN) && defined (ENABLE_EVENT_LOGGING)
-		EM_ASM ({
-			console.log ($0);
-		}, sdlEvent.type);
-#endif
 		switch (sdlEvent.type) {
 			case SDL_QUIT:
 				return false;
@@ -156,7 +149,10 @@ void Application::Init ()
 
 	window = SDL_CreateWindow ("VisualScriptEngineWeb", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, InitialWindowWidth, InitialWindowHeight, 0);
 	renderer = SDL_CreateRenderer (window, -1, 0);
+	
 	uiEnvironment.Init (renderer, &nodeEditor);
+	SetAppForBrowser (this);
+	
 	browserInterface.OnWindowCreated ();
 }
 
@@ -175,7 +171,9 @@ void Application::Start ()
 
 void Application::Shut ()
 {
+	SetAppForBrowser (nullptr);
 	uiEnvironment.Shut ();
+
 	SDL_DestroyRenderer (renderer);
 	SDL_DestroyWindow (window);
 
@@ -233,10 +231,6 @@ void Application::CreateNode (int nodeIndex, int xPosition, int yPosition)
 	NUIE::Point position = nodeEditor.ViewToModel (viewPosition);
 	NUIE::UINodePtr uiNode = GetNodeByIndex (nodeIndex, position);
 	if (uiNode != nullptr) {
-		if (NE::Node::IsType<BI::BasicUINode> (uiNode)) {
-			BI::BasicUINodePtr basicUINode = NE::Node::Cast<BI::BasicUINode> (uiNode);
-			basicUINode->SetIconId (NUIE::IconId (nodeIndex));
-		}
 		nodeEditor.AddNode (uiNode);
 	}
 }

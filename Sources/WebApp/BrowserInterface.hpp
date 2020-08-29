@@ -3,6 +3,9 @@
 
 #include "NUIE_NodeEditor.hpp"
 
+class Application;
+void SetAppForBrowser (Application* application);
+
 class BrowserInterface
 {
 public:

@@ -1,4 +1,5 @@
 #include "BrowserInterface.hpp"
+#include "Application.hpp"
 #include "JSONConversion.hpp"
 
 #ifdef EMSCRIPTEN
@@ -11,6 +12,74 @@
 #define UNUSED_IN_CPP __attribute__ ((unused))
 #endif
 #endif
+
+static Application* gAppForBrowser = nullptr;
+
+void SetAppForBrowser (Application* application)
+{
+	gAppForBrowser = application;
+}
+
+extern "C"
+{
+
+void ResizeWindow (int width, int height)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->ResizeWindow (width, height);
+}
+
+void ExecuteCommand (char* command)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->ExecuteCommand (command);
+}
+
+void OpenFile (char* charBuffer, int size)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->OpenFile (charBuffer, size);
+}
+
+void CreateNode (int nodeIndex, int xPosition, int yPosition)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->CreateNode (nodeIndex, xPosition, yPosition);
+}
+
+bool NeedToSave ()
+{
+	if (gAppForBrowser == nullptr) {
+		return false;
+	}
+	return gAppForBrowser->NeedToSave ();
+}
+
+void ContextMenuResponse (int commandId)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->ContextMenuResponse (commandId);
+}
+
+void ParameterSettingsResponse (char* changedParametersJson)
+{
+	if (gAppForBrowser == nullptr) {
+		return;
+	}
+	gAppForBrowser->ParameterSettingsResponse (changedParametersJson);
+}
+
+};
 
 UNUSED_IN_CPP
 static NUIE::MenuCommandPtr GetCommandById (const std::vector<NUIE::MenuCommandPtr>& commandList, int commandId, int& currentId)

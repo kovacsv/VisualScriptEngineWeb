@@ -1,5 +1,4 @@
 #include "AppEnvironment.hpp"
-#include "BI_BuiltInNodes.hpp"
 
 static const NUIE::BasicSkinParams& GetAppSkinParams ()
 {
