@@ -2,13 +2,15 @@ var NodeEditor = function ()
 {
 	this.module = null;
 	this.canvas = null;
+	this.nodeList = null;
 	this.appInterface = null;
 };
 
-NodeEditor.prototype.Init = function (module, uiElements)
+NodeEditor.prototype.Init = function (module, nodeList, uiElements)
 {
 	this.module = module;
 	this.canvas = uiElements.canvas;
+	this.nodeList = nodeList;
 	this.appInterface = new AppInterface (this.module);
 
 	this.InitControls (uiElements.controls);
@@ -103,7 +105,7 @@ NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
 {
 	var searchInput = $('<input>').attr ('type', 'text').attr ('placeholder', 'Search Nodes...').addClass ('nodetreesearch').appendTo (searchDiv);
 	var myThis = this;
-	var nodeTree = new NodeTree (nodeTreeDiv, function (nodeIndex) {
+	var nodeTree = new NodeTree (nodeTreeDiv, this.nodeList, function (nodeIndex) {
 		var positionX = myThis.canvas.width () / 2.0;
 		var positionY = myThis.canvas.height () / 2.0;
 		myThis.appInterface.CreateNode (nodeIndex, positionX, positionY);
@@ -246,7 +248,7 @@ NodeEditor.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 	var positionY = this.canvas.offset ().top + mouseY;		
 	
 	var myThis = this;
-	var nodeTreePopUp = new NodeTreePopUp (this.canvas, function (nodeIndex) {
+	var nodeTreePopUp = new NodeTreePopUp (this.canvas, this.nodeList, function (nodeIndex) {
 		myThis.appInterface.CreateNode (nodeIndex, mouseX, mouseY);
 	});
 	nodeTreePopUp.Open (positionX, positionY);

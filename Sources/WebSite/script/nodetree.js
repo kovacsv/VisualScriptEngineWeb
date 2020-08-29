@@ -1,6 +1,7 @@
-var NodeTree = function (parentDiv, onNodeClick)
+var NodeTree = function (parentDiv, nodeList, onNodeClick)
 {
 	this.parentDiv = parentDiv;
+	this.nodeList = nodeList;
 	this.onNodeClick = onNodeClick;
 	this.isDragDropEnabled = false;
 	this.nodeGroups = null;
@@ -22,23 +23,15 @@ NodeTree.prototype.BuildAsPopUp = function ()
 NodeTree.prototype.BuildTree = function ()
 {
 	this.nodeGroups = [];
-	var inputs = this.AddNodeGroup ('Inputs');
-	this.AddNode (inputs, 'Boolean.png', 'Boolean', 0);
-	this.AddNode (inputs, 'Integer.png', 'Integer', 1);
-	this.AddNode (inputs, 'Double.png', 'Number', 2);
-	this.AddNode (inputs, 'IntegerIncremented.png', 'Integer Increment', 3);
-	this.AddNode (inputs, 'DoubleIncremented.png', 'Number Increment', 4);
-	this.AddNode (inputs, 'DoubleDistributed.png', 'Number Distribution', 5);
-	
-	var arithmetics = this.AddNodeGroup ('Arithmetics');
-	this.AddNode (arithmetics, 'Addition.png', 'Addition', 6);
-	this.AddNode (arithmetics, 'Subtraction.png', 'Subtraction', 7);
-	this.AddNode (arithmetics, 'Multiplication.png', 'Multiplication', 8);
-	this.AddNode (arithmetics, 'Division.png', 'Division', 9);
-	
-	var other = this.AddNodeGroup ('Other');
-	this.AddNode (other, 'ListBuilder.png', 'List Builder', 10);	
-	this.AddNode (other, 'Viewer.png', 'Viewer', 11);	
+	var groupId, groupObj, nodeId, nodeObj;
+	for (groupId = 0; groupId < this.nodeList.length; groupId++) {
+		groupObj = this.nodeList[groupId];
+		group = this.AddNodeGroup (groupObj.name);
+		for (nodeId = 0; nodeId < groupObj.nodes.length; nodeId++) {
+			nodeObj = groupObj.nodes[nodeId];
+			this.AddNode (group, nodeObj.icon, nodeObj.name, nodeObj.id);
+		}
+	}
 };
 
 NodeTree.prototype.InitSearchField = function (searchInput)
@@ -146,9 +139,10 @@ NodeTree.prototype.CloseGroup = function (nodeGroup)
 	nodeGroup.groupItem.imgItem.attr ('src', 'images/folder_closed.png');	
 };
 
-var NodeTreePopUp = function (parentElement, onNodeClick)
+var NodeTreePopUp = function (parentElement, nodeList, onNodeClick)
 {
 	this.parentElement = parentElement;
+	this.nodeList = nodeList;
 	this.onNodeClick = onNodeClick;
 	
 	var myThis = this;
@@ -167,7 +161,7 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 	popUpDivElem.addClass ('nodetreepopup thinscrollbar');
 	
 	var myThis = this;
-	var nodeTree = new NodeTree (popUpDivElem, function (nodeIndex) {
+	var nodeTree = new NodeTree (popUpDivElem, this.nodeList, function (nodeIndex) {
 		myThis.popUpDiv.Close ();
 		myThis.onNodeClick (nodeIndex);
 	});
