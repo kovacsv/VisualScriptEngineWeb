@@ -125,31 +125,34 @@ Application.prototype.InitControls = function (controlsDivName)
 		}
 		
 		var documentBody = $(document.body);
-		var toolTip = null;
-		buttonDiv.hover (
-			function () {
-				buttonImg.attr ('src', whiteIconName);
-				var buttonOffset = buttonDiv.offset ();
-				toolTip = $('<div>').addClass ('tooltip').appendTo (documentBody);
-				$('<div>').addClass ('tooltiptext').html (toolTipText).appendTo (toolTip);
-				if (toolTipSubText != null) {
-					$('<div>').addClass ('tooltipsubtext').html (toolTipSubText).appendTo (toolTip);
+		var hasHover = (window.matchMedia ('(hover : hover)').matches);
+		if (hasHover) {
+			var toolTip = null;
+			buttonDiv.hover (
+				function () {
+					buttonImg.attr ('src', whiteIconName);
+					var buttonOffset = buttonDiv.offset ();
+					toolTip = $('<div>').addClass ('tooltip').appendTo (documentBody);
+					$('<div>').addClass ('tooltiptext').html (toolTipText).appendTo (toolTip);
+					if (toolTipSubText != null) {
+						$('<div>').addClass ('tooltipsubtext').html (toolTipSubText).appendTo (toolTip);
+					}
+					var topOffset = buttonOffset.top + buttonDiv.outerHeight () + 10;
+					var leftOffset = buttonOffset.left + buttonDiv.outerWidth () / 2 - toolTip.outerWidth () / 2;
+					if (leftOffset < 5) {
+						leftOffset = 5;
+					}
+					toolTip.offset ({
+						top : topOffset,
+						left : leftOffset
+					});
+				},
+				function () {
+					buttonImg.attr ('src', iconName);
+					toolTip.remove ();
 				}
-				var topOffset = buttonOffset.top + buttonDiv.outerHeight () + 10;
-				var leftOffset = buttonOffset.left + buttonDiv.outerWidth () / 2 - toolTip.outerWidth () / 2;
-				if (leftOffset < 5) {
-					leftOffset = 5;
-				}
-				toolTip.offset ({
-					top : topOffset,
-					left : leftOffset
-				});
-			},
-			function () {
-				buttonImg.attr ('src', iconName);
-				toolTip.remove ();
-			}
-		);
+			);
+		}
 		
 		buttonDiv.click (function () {
 			onClick ();

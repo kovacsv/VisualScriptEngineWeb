@@ -70,12 +70,6 @@ div.controlseparator
 	float : left;
 }
 
-div.controlbutton:hover
-{
-	color : #fafafa;
-	background : #297fff;
-}
-
 div.controlbutton img
 {
 	display : block;
@@ -124,11 +118,6 @@ div.nodetreeitem
 	padding : 5px 10px;
 	cursor : pointer;
 	user-select : none;
-}
-
-div.nodetreeitem:hover
-{
-	background : #ececec;
 }
 
 div.nodetreesubitems
@@ -184,11 +173,6 @@ div.contextmenugroupitem
 {
 	padding : 6px 15px;
 	user-select : none;
-}
-
-div.contextmenuitem:hover
-{
-	background : #ececec;
 }
 
 div.contextmenusubitems div.contextmenuitem
@@ -252,12 +236,6 @@ div.parameterbutton
 	border-radius : 5px;
 	cursor : pointer;
 	float : right;
-}
-
-div.parameterbutton:hover
-{
-	color : #fafafa;
-	background : #297fff;
 }
 
 div.nodetreepopup
@@ -325,6 +303,34 @@ a:hover
 {
 	border : 1px solid #dddddd;
 	outline : none;
+}
+
+@media (hover)
+{
+
+div.controlbutton:hover
+{
+	color : #fafafa;
+	background : #297fff;
+	cursor : pointer;
+}
+
+div.nodetreeitem:hover
+{
+	background : #ececec;
+}
+
+div.contextmenuitem:hover
+{
+	background : #ececec;
+}
+
+div.parameterbutton:hover
+{
+	color : #fafafa;
+	background : #297fff;
+}
+
 }
 
 @media only screen and (max-width : 1000px)
