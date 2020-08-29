@@ -69,6 +69,12 @@
 			application.InitModule (Module);
 		}
 		
+		function OnValuesRecalculated (result)
+		{
+			var resultStr = UTF8ToString (result);
+			console.log (resultStr);
+		}		
+		
 		function OnWindowCreated ()
 		{
 			OnResize ();

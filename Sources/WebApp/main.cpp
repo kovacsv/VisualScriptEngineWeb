@@ -1,12 +1,35 @@
-#include <iostream>
-
 #include "Application.hpp"
 #include "BI_BuiltInNodes.hpp"
 
-class MyApplication : public Application
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
+class MyAppInterface : public CustomAppInterface
 {
 public:
-	virtual NUIE::UINodePtr GetNodeByIndex (int nodeIndex, const NUIE::Point& position) const override
+	MyAppInterface () :
+		evaluationEnv (nullptr)
+	{
+
+	}
+
+	virtual NE::EvaluationEnv& GetEvaluationEnv () override
+	{
+		return evaluationEnv;
+	}
+
+	virtual void OnValuesRecalculated () override
+	{
+#ifdef EMSCRIPTEN
+		std::string resultString = "Values Recalculated";
+		EM_ASM ({
+			OnValuesRecalculated ($0);
+		}, resultString.c_str ());
+#endif
+	}
+
+	virtual NUIE::UINodePtr CreateNodeByIndex (int nodeIndex, const NUIE::Point& position) const override
 	{
 		NUIE::UINodePtr uiNode = nullptr;
 		switch (nodeIndex) {
@@ -25,11 +48,15 @@ public:
 		}
 		return uiNode;
 	}
+
+private:
+	NE::EvaluationEnv evaluationEnv;
 };
 
 int main (int, char**)
 {
-	MyApplication app;
+	MyAppInterface appInterface;
+	Application app (appInterface);
 	app.Init ();
 
 #ifndef EMSCRIPTEN

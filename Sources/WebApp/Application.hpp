@@ -5,39 +5,38 @@
 #include <SDL_ttf.h>
 
 #include "AppEnvironment.hpp"
-#include "BrowserInterface.hpp"
 
 class Application
 {
 public:
-	Application ();
+	Application (CustomAppInterface& customAppInterface);
 	virtual ~Application ();
 
-	void						Init ();
-	void						Start ();
-	void						Shut ();
+	void					Init ();
+	void					Start ();
+	void					Shut ();
 
-	void						ResizeWindow (int width, int height);
-	void						ExecuteCommand (const char* command);
-	void						CreateNode (int nodeIndex, int xPosition, int yPosition);
-	void						OpenFile (const char* buffer, int size);
-	bool						NeedToSave () const;
+	void					ResizeWindow (int width, int height);
+	void					ExecuteCommand (const char* command);
+	void					CreateNode (int nodeIndex, int xPosition, int yPosition);
+	void					OpenFile (const char* buffer, int size);
+	bool					NeedToSave () const;
 
-	void						ContextMenuResponse (int commandId);
-	void						ParameterSettingsResponse (const char* changedParametersJson);
+	void					ContextMenuResponse (int commandId);
+	void					ParameterSettingsResponse (const char* changedParametersJson);
 
-	NUIE::NodeEditor&			GetNodeEditor ();
-	BrowserInterface&			GetBrowserInterface ();
-
-	virtual NUIE::UINodePtr		GetNodeByIndex (int nodeIndex, const NUIE::Point& position) const = 0;
+	NUIE::NodeEditor&		GetNodeEditor ();
+	BrowserInterface&		GetBrowserInterface ();
 
 private:
-	SDL_Window*				window;
-	SDL_Renderer*			renderer;
+	CustomAppInterface&		customAppInterface;
+	BrowserInterface		browserInterface;
 
 	AppUIEnvironment		uiEnvironment;
 	NUIE::NodeEditor		nodeEditor;
-	BrowserInterface		browserInterface;
+
+	SDL_Window*				window;
+	SDL_Renderer*			renderer;
 };
 
 #endif

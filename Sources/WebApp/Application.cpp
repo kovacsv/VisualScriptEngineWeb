@@ -115,12 +115,13 @@ static void EmscriptenMainLoop (void* arg)
 }
 #endif
 
-Application::Application () :
-	window (nullptr),
-	renderer (nullptr),
-	uiEnvironment (&browserInterface),
+Application::Application (CustomAppInterface& customAppInterface) :
+	customAppInterface (customAppInterface),
+	browserInterface (nodeEditor),
+	uiEnvironment (customAppInterface, &browserInterface),
 	nodeEditor (uiEnvironment),
-	browserInterface (nodeEditor)
+	window (nullptr),
+	renderer (nullptr)
 {
 
 }
@@ -229,7 +230,7 @@ void Application::CreateNode (int nodeIndex, int xPosition, int yPosition)
 
 	NUIE::Point viewPosition (xPosition, yPosition);
 	NUIE::Point position = nodeEditor.ViewToModel (viewPosition);
-	NUIE::UINodePtr uiNode = GetNodeByIndex (nodeIndex, position);
+	NUIE::UINodePtr uiNode = customAppInterface.CreateNodeByIndex (nodeIndex, position);
 	if (uiNode != nullptr) {
 		nodeEditor.AddNode (uiNode);
 	}

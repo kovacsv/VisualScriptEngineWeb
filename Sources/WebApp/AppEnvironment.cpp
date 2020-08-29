@@ -90,14 +90,14 @@ bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr parameter
 	return browserInterface->ParameterSettingsRequest (parameters);
 }
 
-AppUIEnvironment::AppUIEnvironment (BrowserInterface* browserInterface) :
+AppUIEnvironment::AppUIEnvironment (CustomAppInterface& customAppInterface, BrowserInterface* browserInterface) :
 	NUIE::NodeUIEnvironment (),
+	customAppInterface (customAppInterface),
 	stringConverter (NE::GetDefaultStringConverter ()),
 	skinParams (GetAppSkinParams ()),
 	eventHandler (browserInterface),
 	clipboardHandler (),
 	drawingContext (nullptr),
-	evaluationEnv (nullptr),
 	nodeEditor (nullptr)
 {
 
@@ -136,7 +136,7 @@ double AppUIEnvironment::GetWindowScale ()
 
 NE::EvaluationEnv& AppUIEnvironment::GetEvaluationEnv ()
 {
-	return evaluationEnv;
+	return customAppInterface.GetEvaluationEnv ();
 }
 
 void AppUIEnvironment::OnEvaluationBegin ()
@@ -151,7 +151,7 @@ void AppUIEnvironment::OnEvaluationEnd ()
 
 void AppUIEnvironment::OnValuesRecalculated ()
 {
-
+	customAppInterface.OnValuesRecalculated ();
 }
 
 void AppUIEnvironment::OnRedrawRequested ()

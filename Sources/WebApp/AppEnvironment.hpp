@@ -2,6 +2,7 @@
 #define APP_ENVIRONMENT_HPP
 
 #include "SDL2Context.hpp"
+#include "CustomAppInterface.hpp"
 #include "BrowserInterface.hpp"
 #include "NUIE_NodeEditor.hpp"
 
@@ -28,7 +29,7 @@ private:
 class AppUIEnvironment : public NUIE::NodeUIEnvironment
 {
 public:
-	AppUIEnvironment (BrowserInterface* browserInterface);
+	AppUIEnvironment (CustomAppInterface& customAppInterface, BrowserInterface* browserInterface);
 	
 	void								Init (SDL_Renderer* renderer, NUIE::NodeEditor* nodeEditorPtr);
 	void								Shut ();
@@ -51,12 +52,12 @@ public:
 	virtual double						GetMouseMoveMinOffset () override;
 
 private:
+	CustomAppInterface&				customAppInterface;
 	NE::BasicStringConverter		stringConverter;
 	NUIE::BasicSkinParams			skinParams;
 	AppEventHandler					eventHandler;
 	NUIE::MemoryClipboardHandler	clipboardHandler;
 	std::unique_ptr<SDL2Context>	drawingContext;
-	NE::EvaluationEnv				evaluationEnv;
 	NUIE::NodeEditor*				nodeEditor;
 };
 
