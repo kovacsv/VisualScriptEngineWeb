@@ -1,4 +1,4 @@
-var AppInterface = function (module)
+var EditorInterface = function (module)
 {
 	this.resizeWindowFunc = module.cwrap ('ResizeWindow', null, ['number', 'number']);
 	this.executeCommandFunc = module.cwrap ('ExecuteCommand', null, ['string']);
@@ -9,37 +9,37 @@ var AppInterface = function (module)
 	this.needToSaveFunc = module.cwrap ('NeedToSave', 'bool', []);
 };
 
-AppInterface.prototype.ResizeWindow = function (width, height)
+EditorInterface.prototype.ResizeWindow = function (width, height)
 {
 	this.resizeWindowFunc (width, height);
 };
 
-AppInterface.prototype.ExecuteCommand = function (command)
+EditorInterface.prototype.ExecuteCommand = function (command)
 {
 	this.executeCommandFunc (command);
 };
 
-AppInterface.prototype.OpenFile = function (buffer, size)
+EditorInterface.prototype.OpenFile = function (buffer, size)
 {
 	this.openFileFunc (buffer, size);
 };
 
-AppInterface.prototype.CreateNode = function (nodeIndex, positionX, positionY)
+EditorInterface.prototype.CreateNode = function (nodeIndex, positionX, positionY)
 {
 	this.createNodeFunc (nodeIndex, positionX, positionY);
 };
 
-AppInterface.prototype.ContextMenuResponse = function (commandId)
+EditorInterface.prototype.ContextMenuResponse = function (commandId)
 {
 	this.contextMenuResponseFunc (commandId);
 };
 
-AppInterface.prototype.ParameterSettingsResponse = function (responseStr)
+EditorInterface.prototype.ParameterSettingsResponse = function (responseStr)
 {
 	this.parameterSettingsResponseFunc (responseStr);
 };
 
-AppInterface.prototype.NeedToSave = function ()
+EditorInterface.prototype.NeedToSave = function ()
 {
 	return this.needToSaveFunc ();
 };

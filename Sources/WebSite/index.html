@@ -14,12 +14,11 @@
 	<script type="text/javascript" src="editor/contextmenu.js"></script>
 	<script type="text/javascript" src="editor/parametersettings.js"></script>
 	<script type="text/javascript" src="editor/nodetree.js"></script>
-	<script type="text/javascript" src="editor/appinterface.js"></script>
+	<script type="text/javascript" src="editor/editorinterface.js"></script>
 	<script type="text/javascript" src="editor/nodeeditor.js"></script>
+	<script type="text/javascript" src="editor/editormain.js"></script>
 	
 	<script type='text/javascript'>
-		var editor = new NodeEditor ();
-
 		function OnResize ()
 		{
 			var windowObj = $(window);
@@ -77,30 +76,6 @@
 			OnResize ();
 		}
 		
-		function OnDoubleClick (mouseX, mouseY)
-		{
-			editor.OpenNodeTreePopUp (mouseX, mouseY);
-		}
-
-		function SaveFile (data, size)
-		{
-			editor.SaveFile (data, size);
-		}		
-		
-		function ContextMenuRequest (mouseX, mouseY, commandsJsonFromCpp)
-		{
-			var commandsJsonStr = UTF8ToString (commandsJsonFromCpp);
-			var commandJson = JSON.parse (commandsJsonStr);
-			editor.OpenContextMenu (mouseX, mouseY, commandJson);
-		}
-		
-		function ParameterSettingsRequest (parametersJsonFromCpp)
-		{
-			var parametersJsonStr = UTF8ToString (parametersJsonFromCpp);
-			var parametersJson = JSON.parse (parametersJsonStr);
-			editor.OpenSettingsDialog (parametersJson);
-		}
-
 		function OnValuesRecalculated (result)
 		{
 			var resultStr = UTF8ToString (result);

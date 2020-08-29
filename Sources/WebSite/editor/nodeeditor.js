@@ -3,7 +3,7 @@ var NodeEditor = function ()
 	this.module = null;
 	this.canvas = null;
 	this.nodeList = null;
-	this.appInterface = null;
+	this.editorInterface = null;
 };
 
 NodeEditor.prototype.Init = function (module, nodeList, uiElements)
@@ -11,7 +11,7 @@ NodeEditor.prototype.Init = function (module, nodeList, uiElements)
 	this.module = module;
 	this.canvas = uiElements.canvas;
 	this.nodeList = nodeList;
-	this.appInterface = new AppInterface (this.module);
+	this.editorInterface = new EditorInterface (this.module);
 
 	this.InitControls (uiElements.controls);
 	this.InitNodeTree (uiElements.nodeTree, uiElements.searchDiv);
@@ -108,7 +108,7 @@ NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
 	var nodeTree = new NodeTree (nodeTreeDiv, this.nodeList, function (nodeIndex) {
 		var positionX = myThis.canvas.width () / 2.0;
 		var positionY = myThis.canvas.height () / 2.0;
-		myThis.appInterface.CreateNode (nodeIndex, positionX, positionY);
+		myThis.editorInterface.CreateNode (nodeIndex, positionX, positionY);
 	});
 	nodeTree.BuildAsMenu (searchInput);
 };
@@ -126,7 +126,7 @@ NodeEditor.prototype.InitDragAndDrop = function ()
 		var data = ev.originalEvent.dataTransfer.getData ('nodeindex');
 		if (data.length > 0) {
 			var nodeIndex = parseInt (data);
-			myThis.appInterface.CreateNode (nodeIndex, mouseX, mouseY);
+			myThis.editorInterface.CreateNode (nodeIndex, mouseX, mouseY);
 		}
 	});
 };
@@ -206,12 +206,12 @@ NodeEditor.prototype.InitFileInput = function ()
 
 NodeEditor.prototype.ExecuteCommand = function (command)
 {
-	this.appInterface.ExecuteCommand (command);
+	this.editorInterface.ExecuteCommand (command);
 };
 
 NodeEditor.prototype.ResizeCanvas = function (width, height)
 {
-	this.appInterface.ResizeWindow (width, height);
+	this.editorInterface.ResizeWindow (width, height);
 };
 
 NodeEditor.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
@@ -221,7 +221,7 @@ NodeEditor.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 	
 	var myThis = this;
 	var contextMenu = new ContextMenu (this.canvas, commands.commands, function (commandId) {
-		myThis.appInterface.ContextMenuResponse (commandId);			
+		myThis.editorInterface.ContextMenuResponse (commandId);			
 	});
 	contextMenu.Open (positionX, positionY);
 };
@@ -237,7 +237,7 @@ NodeEditor.prototype.OpenSettingsDialog = function (parameters)
 		if (changedParameters != null) {
 			responseString = JSON.stringify (changedParameters);
 		}
-		myThis.appInterface.ParameterSettingsResponse (responseString);
+		myThis.editorInterface.ParameterSettingsResponse (responseString);
 	});
 	parameterSettings.Open (positionX, positionY);
 };
@@ -249,7 +249,7 @@ NodeEditor.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 	
 	var myThis = this;
 	var nodeTreePopUp = new NodeTreePopUp (this.canvas, this.nodeList, function (nodeIndex) {
-		myThis.appInterface.CreateNode (nodeIndex, mouseX, mouseY);
+		myThis.editorInterface.CreateNode (nodeIndex, mouseX, mouseY);
 	});
 	nodeTreePopUp.Open (positionX, positionY);
 };
@@ -266,7 +266,7 @@ NodeEditor.prototype.OpenFile = function (fileBuffer)
 	var heapPtr = this.module._malloc (buffer.length);
 	var heapBuffer = new Int8Array (HEAP8.buffer, heapPtr, buffer.length);
 	heapBuffer.set (buffer);
-	this.appInterface.OpenFile (heapBuffer.byteOffset, buffer.length);
+	this.editorInterface.OpenFile (heapBuffer.byteOffset, buffer.length);
 	this.module._free (heapBuffer.byteOffset);
 };
 
