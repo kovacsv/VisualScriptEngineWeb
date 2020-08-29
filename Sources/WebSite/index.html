@@ -20,30 +20,6 @@
 	<script type='text/javascript'>
 		var application = new Application ();
 
-		function ContextMenuRequest (mouseX, mouseY, commandsJsonFromCpp)
-		{
-			var commandsJsonStr = UTF8ToString (commandsJsonFromCpp);
-			var commandJson = JSON.parse (commandsJsonStr);
-			application.OpenContextMenu (mouseX, mouseY, commandJson);
-		}
-		
-		function ParameterSettingsRequest (parametersJsonFromCpp)
-		{
-			var parametersJsonStr = UTF8ToString (parametersJsonFromCpp);
-			var parametersJson = JSON.parse (parametersJsonStr);
-			application.OpenSettingsDialog (parametersJson);
-		}		
-		
-		function OnDoubleClick (mouseX, mouseY)
-		{
-			application.OpenNodeTreePopUp (mouseX, mouseY);
-		}
-
-		function SaveFile (data, size)
-		{
-			application.SaveFile (data, size);
-		}
-
 		function OnResize ()
 		{
 			var windowObj = $(window);
@@ -56,36 +32,53 @@
 			application.ResizeCanvas (newWidth, newHeight);
 		}
 		
-		function OnReady ()
+		function OnRuntimeInitialized ()
 		{
-			application.InitControls ('controls');
-			application.InitNodeTree ('nodetree', 'nodetreesearch');
+			application.Init (Module, {
+				canvas : $('#canvas'),
+				controls : $('#controls'),
+				searchInput : $('nodetreesearch'),
+				nodeTree : $('#nodetree')
+			});
 		}
-
-		function OnRuntimeInitialized (module)
-		{
-			var canvasDiv = $('#canvas');
-			application.InitCanvas (canvasDiv)
-			application.InitModule (Module);
-		}
-		
-		function OnValuesRecalculated (result)
-		{
-			var resultStr = UTF8ToString (result);
-			console.log (resultStr);
-		}		
 		
 		function OnWindowCreated ()
 		{
 			OnResize ();
 		}
 		
+		function OnDoubleClick (mouseX, mouseY)
+		{
+			application.OpenNodeTreePopUp (mouseX, mouseY);
+		}
+
+		function SaveFile (data, size)
+		{
+			application.SaveFile (data, size);
+		}		
+		
+		function ContextMenuRequest (mouseX, mouseY, commandsJsonFromCpp)
+		{
+			var commandsJsonStr = UTF8ToString (commandsJsonFromCpp);
+			var commandJson = JSON.parse (commandsJsonStr);
+			application.OpenContextMenu (mouseX, mouseY, commandJson);
+		}
+		
+		function ParameterSettingsRequest (parametersJsonFromCpp)
+		{
+			var parametersJsonStr = UTF8ToString (parametersJsonFromCpp);
+			var parametersJson = JSON.parse (parametersJsonStr);
+			application.OpenSettingsDialog (parametersJson);
+		}
+
+		function OnValuesRecalculated (result)
+		{
+			var resultStr = UTF8ToString (result);
+			console.log (resultStr);
+		}		
+		
 		$(window).resize (function () {
 			OnResize ();
-		});
-		
-		$(document).ready (function () {
-			OnReady ();
 		});
 	</script>
 </head>

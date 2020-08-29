@@ -1,22 +1,113 @@
 var Application = function ()
 {
-	this.canvas = null;
 	this.module = null;
+	this.canvas = null;
 	this.appInterface = null;
 };
 
-Application.prototype.InitCanvas = function (canvas)
-{
-	this.canvas = canvas;
-};
-
-Application.prototype.InitModule = function (module)
+Application.prototype.Init = function (module, uiElements)
 {
 	this.module = module;
+	this.canvas = uiElements.canvas;
 	this.appInterface = new AppInterface (this.module);
+
+	this.InitControls (uiElements.controls);
+	this.InitNodeTree (uiElements.nodeTree, uiElements.searchInput);
 	this.InitDragAndDrop ();
 	this.InitKeyboardEvents ();	
 	this.InitFileInput ();
+};
+
+Application.prototype.InitControls = function (controlsDiv)
+{
+	function AddControl (parentDiv, icon, toolTipText, toolTipSubText, onClick)
+	{
+		var buttonDiv = $('<div>').addClass ('controlbutton').appendTo (parentDiv);
+		var iconName = 'images/command_icons/' + icon + '.png';
+		var whiteIconName = 'images/command_icons/' + icon + '_White.png';
+		var buttonImg = null;
+		if (icon != null) {
+			buttonImg = $('<img>').attr ('src', iconName).attr ('alt', toolTipText).appendTo (buttonDiv);
+		} else {
+			buttonDiv.html (toolTipText);
+		}
+		
+		var documentBody = $(document.body);
+		var hasHover = (window.matchMedia ('(hover : hover)').matches);
+		if (hasHover) {
+			var toolTip = null;
+			buttonDiv.hover (
+				function () {
+					buttonImg.attr ('src', whiteIconName);
+					var buttonOffset = buttonDiv.offset ();
+					toolTip = $('<div>').addClass ('tooltip').appendTo (documentBody);
+					$('<div>').addClass ('tooltiptext').html (toolTipText).appendTo (toolTip);
+					if (toolTipSubText != null) {
+						$('<div>').addClass ('tooltipsubtext').html (toolTipSubText).appendTo (toolTip);
+					}
+					var topOffset = buttonOffset.top + buttonDiv.outerHeight () + 10;
+					var leftOffset = buttonOffset.left + buttonDiv.outerWidth () / 2 - toolTip.outerWidth () / 2;
+					if (leftOffset < 5) {
+						leftOffset = 5;
+					}
+					toolTip.offset ({
+						top : topOffset,
+						left : leftOffset
+					});
+				},
+				function () {
+					buttonImg.attr ('src', iconName);
+					toolTip.remove ();
+				}
+			);
+		}
+		
+		buttonDiv.click (function () {
+			onClick ();
+		});
+	}	
+	
+	function AddCommandControl (app, parentDiv, icon, toolTipText, toolTipSubText, command)
+	{
+		AddControl (parentDiv, icon, toolTipText, toolTipSubText, function () {
+			app.ExecuteCommand (command);
+		});
+	}
+	
+	function AddSeparator (parentDiv)
+	{
+		$('<div>').addClass ('controlseparator').appendTo (parentDiv);
+	}	
+	
+	var myThis = this;
+	AddControl (controlsDiv, 'New', 'New', null, function () {
+		window.open ('.', '_blank');
+	});
+	AddControl (controlsDiv, 'Open', 'Open', null, function () {
+		myThis.ShowOpenFileDialog ();
+	});
+	AddCommandControl (this, controlsDiv, 'Save', 'Save', null, 'Save');
+	AddSeparator (controlsDiv);
+	AddCommandControl (this, controlsDiv, 'Undo', 'Undo', 'Ctrl+Z', 'Undo');
+	AddCommandControl (this, controlsDiv, 'Redo', 'Redo', 'Ctrl+Shift+Z', 'Redo');
+	AddSeparator (controlsDiv);
+	AddCommandControl (this, controlsDiv, 'Copy', 'Copy', 'Ctrl+C', 'Copy');
+	AddCommandControl (this, controlsDiv, 'Paste', 'Paste', 'Ctrl+V', 'Paste');
+	AddCommandControl (this, controlsDiv, 'Delete', 'Delete', 'Delete Key', 'Delete');
+	AddSeparator (controlsDiv);
+	AddCommandControl (this, controlsDiv, 'Group', 'Group', 'Ctrl+G', 'Group');
+	AddCommandControl (this, controlsDiv, 'Ungroup', 'Ungroup', 'Ctrl+Shift+G', 'Ungroup');
+};
+
+Application.prototype.InitNodeTree = function (nodeTreeDiv, searchInput)
+{
+	var myThis = this;
+	var nodeTree = new NodeTree (nodeTreeDiv, function (nodeIndex) {
+		var positionX = myThis.canvas.width () / 2.0;
+		var positionY = myThis.canvas.height () / 2.0;
+		myThis.appInterface.CreateNode (nodeIndex, positionX, positionY);
+	});
+	nodeTree.BuildAsMenu (searchInput);
 };
 
 Application.prototype.InitDragAndDrop = function ()
@@ -108,101 +199,6 @@ Application.prototype.InitFileInput = function ()
 		reader.readAsArrayBuffer (files[0]);		
 		
 	});
-};
-
-Application.prototype.InitControls = function (controlsDivName)
-{
-	function AddControl (parentDiv, icon, toolTipText, toolTipSubText, onClick)
-	{
-		var buttonDiv = $('<div>').addClass ('controlbutton').appendTo (parentDiv);
-		var iconName = 'images/command_icons/' + icon + '.png';
-		var whiteIconName = 'images/command_icons/' + icon + '_White.png';
-		var buttonImg = null;
-		if (icon != null) {
-			buttonImg = $('<img>').attr ('src', iconName).attr ('alt', toolTipText).appendTo (buttonDiv);
-		} else {
-			buttonDiv.html (toolTipText);
-		}
-		
-		var documentBody = $(document.body);
-		var hasHover = (window.matchMedia ('(hover : hover)').matches);
-		if (hasHover) {
-			var toolTip = null;
-			buttonDiv.hover (
-				function () {
-					buttonImg.attr ('src', whiteIconName);
-					var buttonOffset = buttonDiv.offset ();
-					toolTip = $('<div>').addClass ('tooltip').appendTo (documentBody);
-					$('<div>').addClass ('tooltiptext').html (toolTipText).appendTo (toolTip);
-					if (toolTipSubText != null) {
-						$('<div>').addClass ('tooltipsubtext').html (toolTipSubText).appendTo (toolTip);
-					}
-					var topOffset = buttonOffset.top + buttonDiv.outerHeight () + 10;
-					var leftOffset = buttonOffset.left + buttonDiv.outerWidth () / 2 - toolTip.outerWidth () / 2;
-					if (leftOffset < 5) {
-						leftOffset = 5;
-					}
-					toolTip.offset ({
-						top : topOffset,
-						left : leftOffset
-					});
-				},
-				function () {
-					buttonImg.attr ('src', iconName);
-					toolTip.remove ();
-				}
-			);
-		}
-		
-		buttonDiv.click (function () {
-			onClick ();
-		});
-	}	
-	
-	function AddCommandControl (app, parentDiv, icon, toolTipText, toolTipSubText, command)
-	{
-		AddControl (parentDiv, icon, toolTipText, toolTipSubText, function () {
-			app.ExecuteCommand (command);
-		});
-	}
-	
-	function AddSeparator (parentDiv)
-	{
-		$('<div>').addClass ('controlseparator').appendTo (parentDiv);
-	}	
-	
-	var myThis = this;
-	var controlsDiv = $('#' + controlsDivName);
-	AddControl (controlsDiv, 'New', 'New', null, function () {
-		window.open ('.', '_blank');
-	});
-	AddControl (controlsDiv, 'Open', 'Open', null, function () {
-		myThis.ShowOpenFileDialog ();
-	});
-	AddCommandControl (this, controlsDiv, 'Save', 'Save', null, 'Save');
-	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Undo', 'Undo', 'Ctrl+Z', 'Undo');
-	AddCommandControl (this, controlsDiv, 'Redo', 'Redo', 'Ctrl+Shift+Z', 'Redo');
-	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Copy', 'Copy', 'Ctrl+C', 'Copy');
-	AddCommandControl (this, controlsDiv, 'Paste', 'Paste', 'Ctrl+V', 'Paste');
-	AddCommandControl (this, controlsDiv, 'Delete', 'Delete', 'Delete Key', 'Delete');
-	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Group', 'Group', 'Ctrl+G', 'Group');
-	AddCommandControl (this, controlsDiv, 'Ungroup', 'Ungroup', 'Ctrl+Shift+G', 'Ungroup');
-};
-
-Application.prototype.InitNodeTree = function (nodeTreeDivName, searchInputName)
-{
-	var menuDiv = $('#' + nodeTreeDivName);
-	var searchInput = $('#' + searchInputName);
-	var myThis = this;
-	var nodeTree = new NodeTree (menuDiv, function (nodeIndex) {
-		var positionX = myThis.canvas.width () / 2.0;
-		var positionY = myThis.canvas.height () / 2.0;
-		myThis.appInterface.CreateNode (nodeIndex, positionX, positionY);
-	});
-	nodeTree.BuildAsMenu (searchInput);
 };
 
 Application.prototype.ExecuteCommand = function (command)
