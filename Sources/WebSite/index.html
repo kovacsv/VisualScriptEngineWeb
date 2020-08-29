@@ -37,7 +37,7 @@
 			editor.Init (Module, {
 				canvas : $('#canvas'),
 				controls : $('#controls'),
-				searchInput : $('#nodetreesearch'),
+				searchDiv : $('#nodetreesearchdiv'),
 				nodeTree : $('#nodetree')
 			});
 		}
@@ -94,9 +94,7 @@
 		</div>
 		<div class="left">
 			<div class="leftcontent">
-				<div class="nodetreesearchdiv">
-					<input type="text" id="nodetreesearch" class="nodetreesearch" placeholder="Search Nodes...">
-				</div>
+				<div class="nodetreesearchdiv" id="nodetreesearchdiv"></div>
 				<div class="nodetree thinscrollbar" id="nodetree"></div>
 			</div>
 		</div>

@@ -12,7 +12,7 @@ NodeEditor.prototype.Init = function (module, uiElements)
 	this.appInterface = new AppInterface (this.module);
 
 	this.InitControls (uiElements.controls);
-	this.InitNodeTree (uiElements.nodeTree, uiElements.searchInput);
+	this.InitNodeTree (uiElements.nodeTree, uiElements.searchDiv);
 	this.InitDragAndDrop ();
 	this.InitKeyboardEvents ();	
 	this.InitFileInput ();
@@ -99,8 +99,9 @@ NodeEditor.prototype.InitControls = function (controlsDiv)
 	AddCommandControl (this, controlsDiv, 'Ungroup', 'Ungroup', 'Ctrl+Shift+G', 'Ungroup');
 };
 
-NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchInput)
+NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
 {
+	var searchInput = $('<input>').attr ('type', 'text').attr ('placeholder', 'Search Nodes...').addClass ('nodetreesearch').appendTo (searchDiv);
 	var myThis = this;
 	var nodeTree = new NodeTree (nodeTreeDiv, function (nodeIndex) {
 		var positionX = myThis.canvas.width () / 2.0;
