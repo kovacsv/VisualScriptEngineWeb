@@ -1,4 +1,4 @@
-#include "BrowserAsyncInterface.hpp"
+#include "BrowserInterface.hpp"
 #include "JSONConversion.hpp"
 
 #ifdef EMSCRIPTEN
@@ -41,20 +41,20 @@ static NUIE::MenuCommandPtr GetCommandById (const NUIE::MenuCommandStructure& co
 	return GetCommandById (commandList, commandId, currentId);
 }
 
-BrowserAsyncInterface::ContextMenuData::ContextMenuData () :
+BrowserInterface::ContextMenuData::ContextMenuData () :
 	commandStructure (),
 	selectedCommandId (InvalidCommandId)
 {
 
 }
 
-BrowserAsyncInterface::ParameterSettingsData::ParameterSettingsData () :
+BrowserInterface::ParameterSettingsData::ParameterSettingsData () :
 	paramInterface (nullptr)
 {
 
 }
 
-BrowserAsyncInterface::BrowserAsyncInterface (NUIE::NodeEditor& nodeEditor) :
+BrowserInterface::BrowserInterface (NUIE::NodeEditor& nodeEditor) :
 	nodeEditor (nodeEditor),
 	state (State::Normal),
 	contextMenuData (),
@@ -63,12 +63,32 @@ BrowserAsyncInterface::BrowserAsyncInterface (NUIE::NodeEditor& nodeEditor) :
 
 }
 
-bool BrowserAsyncInterface::AreEventsSuspended () const
+bool BrowserInterface::AreEventsSuspended () const
 {
 	return state != State::Normal;
 }
 
-NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
+void BrowserInterface::OnWindowCreated () const
+{
+#ifdef EMSCRIPTEN
+	EM_ASM (
+		OnWindowCreated ();
+	);
+#endif
+}
+
+void BrowserInterface::SaveFile (const std::vector<char>& buffer) const
+{
+#ifdef EMSCRIPTEN
+	EM_ASM ({
+		SaveFile ($0, $1);
+	}, buffer.data (), buffer.size ());
+#else
+	(void) buffer;
+#endif
+}
+
+NUIE::MenuCommandPtr BrowserInterface::ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
 {
 	if (commands.IsEmpty ()) {
 		return nullptr;
@@ -90,7 +110,7 @@ NUIE::MenuCommandPtr BrowserAsyncInterface::ContextMenuRequest (const NUIE::Poin
 	return nullptr;
 }
 
-void BrowserAsyncInterface::ContextMenuResponse (int commandId)
+void BrowserInterface::ContextMenuResponse (int commandId)
 {
 #ifdef EMSCRIPTEN
 	state = State::Normal;
@@ -104,7 +124,7 @@ void BrowserAsyncInterface::ContextMenuResponse (int commandId)
 #endif
 }
 
-void BrowserAsyncInterface::DoubleClickRequest (const NUIE::Point& position)
+void BrowserInterface::DoubleClickRequest (const NUIE::Point& position)
 {
 #ifdef EMSCRIPTEN
 	EM_ASM ({
@@ -115,7 +135,7 @@ void BrowserAsyncInterface::DoubleClickRequest (const NUIE::Point& position)
 #endif
 }
 
-bool BrowserAsyncInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePtr parameters)
+bool BrowserInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePtr parameters)
 {
 #ifdef EMSCRIPTEN
 	if (state == State::Normal) {
@@ -134,7 +154,7 @@ bool BrowserAsyncInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePt
 	return false;
 }
 
-void BrowserAsyncInterface::ParameterSettingsResponse (const std::string& changedParametersJsonStr)
+void BrowserInterface::ParameterSettingsResponse (const std::string& changedParametersJsonStr)
 {
 #ifdef EMSCRIPTEN
 	state = State::Normal;

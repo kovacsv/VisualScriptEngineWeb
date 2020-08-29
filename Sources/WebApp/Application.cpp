@@ -1,183 +1,179 @@
 #include "Application.hpp"
 #include "BI_BuiltInNodes.hpp"
 
-static const NUIE::BasicSkinParams& GetAppSkinParams ()
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
+static int EventFilter (void*, SDL_Event* sdlEvent)
 {
-	static const NUIE::BasicSkinParams skinParams (
-		/*backgroundColor*/ NUIE::Color (255, 255, 255),
-		/*connectionLinePen*/ NUIE::Pen (NUIE::Color (38, 50, 56), 1.0),
-		/*nodePadding*/ 5.0,
-		/*nodeBorderPen*/ NUIE::Pen (NUIE::Color (38, 50, 56), 1.0),
-		/*nodeHeaderTextFont*/ NUIE::Font (L"Arial", 14.0),
-		/*nodeHeaderTextColor*/ NUIE::Color (250, 250, 250),
-		/*nodeHeaderErrorTextColor*/ NUIE::Color (250, 250, 250),
-		/*nodeHeaderBackgroundColor*/ NUIE::Color (41, 127, 255),
-		/*nodeHeaderErrorBackgroundColor*/ NUIE::Color (199, 80, 80),
-		/*nodeContentTextFont*/ NUIE::Font (L"Arial", 12.0),
-		/*nodeContentTextColor*/ NUIE::Color (0, 0, 0),
-		/*nodeContentBackgroundColor*/ NUIE::Color (236, 236, 236),
-		/*slotTextColor*/ NUIE::Color (0, 0, 0),
-		/*slotTextBackgroundColor*/ NUIE::Color (246, 246, 246),
-		/*needToDrawSlotCircles*/ false,
-		/*slotCircleSize*/ NUIE::Size (8.0, 8.0),
-		/*selectionBlendColor*/ NUIE::BlendColor (NUIE::Color (41, 127, 255), 0.25),
-		/*disabledBlendColor*/ NUIE::BlendColor (NUIE::Color (0, 138, 184), 0.2),
-		/*selectionRectPen*/ NUIE::Pen (NUIE::Color (41, 127, 255), 1.0),
-		/*nodeSelectionRectPen*/ NUIE::Pen (NUIE::Color (41, 127, 255), 3.0),
-		/*buttonBorderPen*/ NUIE::Pen (NUIE::Color (146, 152, 155), 1.0),
-		/*buttonBackgroundColor*/ NUIE::Color (217, 217, 217),
-		/*textPanelTextColor*/ NUIE::Color (0, 0, 0),
-		/*textPanelBackgroundColor*/ NUIE::Color (236, 236, 236),
-		/*groupNameFont*/ NUIE::Font (L"Arial", 14.0),
-		/*groupNameColor*/ NUIE::Color (0, 0, 0),
-		/*groupBackgroundColors*/ NUIE::NamedColorSet ({
-			{ NE::LocalizeString (L"Blue"), NUIE::Color (160, 200, 240) },
-			{ NE::LocalizeString (L"Green"), NUIE::Color (160, 239, 160) },
-			{ NE::LocalizeString (L"Red"), NUIE::Color (239, 189, 160) }
-			}),
-		/*groupPadding*/ 10.0
-	);
-	return skinParams;
+	// filter finger events, because on mobile both the mouse and the finger events arrive
+	// filter key down event because it arrives during mouse drag&drop as well
+	if (sdlEvent->type == SDL_FINGERDOWN ||
+		sdlEvent->type == SDL_FINGERUP ||
+		sdlEvent->type == SDL_FINGERMOTION ||
+		sdlEvent->type == SDL_KEYDOWN ||
+		sdlEvent->type == SDL_KEYUP) {
+		return 0;
+	}
+	return 1;
 }
 
-AppEventHandler::AppEventHandler (BrowserAsyncInterface* browserInterface) :
-	browserInterface (browserInterface)
+static NUIE::ModifierKeys GetModifierKeys ()
 {
-
+	NUIE::ModifierKeys keys;
+	const Uint8* keyboardState = SDL_GetKeyboardState (nullptr);
+	if (keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL]) {
+		keys.Insert (NUIE::ModifierKeyCode::Control);
+	} else if (keyboardState[SDL_SCANCODE_LSHIFT] || keyboardState[SDL_SCANCODE_RSHIFT]) {
+		keys.Insert (NUIE::ModifierKeyCode::Shift);
+	}
+	return keys;
 }
 
-AppEventHandler::~AppEventHandler ()
+static NUIE::MouseButton GetMouseButtonFromEvent (const SDL_Event& sdlEvent)
 {
-
+	if (sdlEvent.button.button == 1) {
+		return NUIE::MouseButton::Left;
+	} else if (sdlEvent.button.button == 2) {
+		return NUIE::MouseButton::Middle;
+	} else if (sdlEvent.button.button == 3) {
+		return NUIE::MouseButton::Right;
+	}
+	return NUIE::MouseButton::Left;
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
+static bool MainLoop (Application* app)
 {
-	return browserInterface->ContextMenuRequest (position, commands);
+	BrowserInterface& browserInteface = app->GetBrowserInterface ();
+	bool enableEvents = !browserInteface.AreEventsSuspended ();
+	NUIE::NodeEditor& nodeEditor = app->GetNodeEditor ();
+
+	SDL_Event sdlEvent;
+	if (SDL_PollEvent (&sdlEvent) && enableEvents) {
+#if defined (EMSCRIPTEN) && defined (ENABLE_EVENT_LOGGING)
+		EM_ASM ({
+			console.log ($0);
+		}, sdlEvent.type);
+#endif
+		switch (sdlEvent.type) {
+			case SDL_QUIT:
+				return false;
+			case SDL_MOUSEBUTTONDOWN:
+				{
+					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
+					NUIE::MouseButton button = GetMouseButtonFromEvent (sdlEvent);
+					if (sdlEvent.button.clicks == 2) {
+						nodeEditor.OnMouseDoubleClick (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+					} else {
+						Uint8 clicks = sdlEvent.button.clicks;
+						if (clicks > 2) {
+							clicks -= 2;
+						}
+						for (Uint8 clickIndex = 0; clickIndex < clicks; clickIndex++) {
+							nodeEditor.OnMouseDown (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+						}
+					}
+				}
+				break;
+			case SDL_MOUSEBUTTONUP:
+				{
+					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
+					NUIE::MouseButton button = GetMouseButtonFromEvent (sdlEvent);
+					nodeEditor.OnMouseUp (modifierKeys, button, sdlEvent.button.x, sdlEvent.button.y);
+				}
+				break;
+			case SDL_MOUSEMOTION:
+				{
+					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
+					nodeEditor.OnMouseMove (modifierKeys, sdlEvent.motion.x, sdlEvent.motion.y);
+				}
+				break;
+			case SDL_MOUSEWHEEL:
+				{
+					NUIE::MouseWheelRotation rotation = NUIE::MouseWheelRotation::Forward;
+					if (sdlEvent.wheel.x + sdlEvent.wheel.y < 0) {
+						rotation = NUIE::MouseWheelRotation::Backward;
+					}
+					int mouseX = 0;
+					int mouseY = 0;
+					SDL_GetMouseState (&mouseX, &mouseY);
+					NUIE::ModifierKeys modifierKeys = GetModifierKeys ();
+					double currentScale = nodeEditor.GetViewBox ().GetScale ();
+					bool preventZoom = (rotation == NUIE::MouseWheelRotation::Forward && currentScale > 5.0);
+					if (!preventZoom) {
+						nodeEditor.OnMouseWheel (modifierKeys, rotation, mouseX, mouseY);
+					}
+				}
+				break;
+		}
+	}
+
+	return true;
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UINodePtr&, const NUIE::MenuCommandStructure& commands)
+#ifdef EMSCRIPTEN
+static void EmscriptenMainLoop (void* arg)
 {
-	return browserInterface->ContextMenuRequest (position, commands);
+	Application* app = (Application*) arg;
+	MainLoop (app);
 }
+#endif
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UIOutputSlotConstPtr&, const NUIE::MenuCommandStructure& commands)
-{
-	return browserInterface->ContextMenuRequest (position, commands);
-}
-
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UIInputSlotConstPtr&, const NUIE::MenuCommandStructure& commands)
-{
-	return browserInterface->ContextMenuRequest (position, commands);
-}
-
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UINodeGroupPtr&, const NUIE::MenuCommandStructure& commands)
-{
-	return browserInterface->ContextMenuRequest (position, commands);
-}
-
-void AppEventHandler::OnDoubleClick (const NUIE::Point& position, NUIE::MouseButton)
-{
-	browserInterface->DoubleClickRequest (position);
-}
-
-bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodePtr&)
-{
-	return browserInterface->ParameterSettingsRequest (parameters);
-}
-
-bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodeGroupPtr&)
-{
-	return browserInterface->ParameterSettingsRequest (parameters);
-}
-
-AppUIEnvironment::AppUIEnvironment (SDL_Renderer* renderer, BrowserAsyncInterface* browserInterface) :
-	NUIE::NodeUIEnvironment (),
-	stringConverter (NE::GetDefaultStringConverter ()),
-	skinParams (GetAppSkinParams ()),
-	drawingContext (renderer, "Assets/OpenSans-Regular.ttf"),
-	eventHandler (browserInterface),
-	clipboardHandler (),
-	evaluationEnv (nullptr),
-	nodeEditor (nullptr)
-{
-
-}
-
-void AppUIEnvironment::Init (NUIE::NodeEditor* nodeEditorPtr)
-{
-	nodeEditor = nodeEditorPtr;
-}
-
-const NE::StringConverter& AppUIEnvironment::GetStringConverter ()
-{
-	return stringConverter;
-}
-
-const NUIE::SkinParams& AppUIEnvironment::GetSkinParams ()
-{
-	return skinParams;
-}
-
-NUIE::DrawingContext& AppUIEnvironment::GetDrawingContext ()
-{
-	return drawingContext;
-}
-
-double AppUIEnvironment::GetWindowScale ()
-{
-	return 1.0;
-}
-
-NE::EvaluationEnv& AppUIEnvironment::GetEvaluationEnv ()
-{
-	return evaluationEnv;
-}
-
-void AppUIEnvironment::OnEvaluationBegin ()
-{
-
-}
-
-void AppUIEnvironment::OnEvaluationEnd ()
-{
-
-}
-
-void AppUIEnvironment::OnValuesRecalculated ()
-{
-
-}
-
-void AppUIEnvironment::OnRedrawRequested ()
-{
-	nodeEditor->Draw ();
-}
-
-NUIE::EventHandler& AppUIEnvironment::GetEventHandler ()
-{
-	return eventHandler;
-}
-
-NUIE::ClipboardHandler& AppUIEnvironment::GetClipboardHandler ()
-{
-	return clipboardHandler;
-}
-
-double AppUIEnvironment::GetMouseMoveMinOffset ()
-{
-	return 2.0;
-}
-
-Application::Application (SDL_Window* window, SDL_Renderer* renderer) :
-	window (window),
-	renderer (renderer),
-	uiEnvironment (renderer, &browserInterface),
+Application::Application () :
+	window (nullptr),
+	renderer (nullptr),
+	uiEnvironment (&browserInterface),
 	nodeEditor (uiEnvironment),
 	browserInterface (nodeEditor)
 {
-	uiEnvironment.Init (&nodeEditor);
-	nodeEditor.Update ();
+
+}
+
+void Application::Init ()
+{
+	SDL_Init (SDL_INIT_VIDEO);
+	SDL_SetEventFilter (EventFilter, nullptr);
+	SDL_EventState (SDL_TEXTINPUT, SDL_DISABLE);
+	SDL_EventState (SDL_KEYDOWN, SDL_DISABLE);
+	SDL_EventState (SDL_KEYUP, SDL_DISABLE);
+	TTF_Init ();
+
+	static short InitialWindowWidth = 700;
+	static short InitialWindowHeight = 500;
+#ifdef EMSCRIPTEN
+	// let the browser do the resize logic
+	InitialWindowWidth = 10;
+	InitialWindowHeight = 10;
+#endif
+
+	window = SDL_CreateWindow ("VisualScriptEngineWeb", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, InitialWindowWidth, InitialWindowHeight, 0);
+	renderer = SDL_CreateRenderer (window, -1, 0);
+	uiEnvironment.Init (renderer, &nodeEditor);
+	browserInterface.OnWindowCreated ();
+}
+
+void Application::Start ()
+{
+#ifdef EMSCRIPTEN
+	emscripten_set_main_loop_arg (EmscriptenMainLoop, this, 0, true);
+#else
+	while (true) {
+		if (!MainLoop (this)) {
+			break;
+		}
+	}
+#endif
+}
+
+void Application::Shut ()
+{
+	uiEnvironment.Shut ();
+	SDL_DestroyRenderer (renderer);
+	SDL_DestroyWindow (window);
+
+	TTF_Quit ();
+	SDL_Quit ();
 }
 
 SDL_Rect Application::GetWindowRect () const
@@ -198,7 +194,7 @@ NUIE::NodeEditor& Application::GetNodeEditor ()
 	return nodeEditor;
 }
 
-BrowserAsyncInterface& Application::GetBrowserInterface ()
+BrowserInterface& Application::GetBrowserInterface ()
 {
 	return browserInterface;
 }

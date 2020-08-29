@@ -1,9 +1,9 @@
-#ifndef BROWSER_ASYNC_INTERFACE_HPP
-#define BROWSER_ASYNC_INTERFACE_HPP
+#ifndef BROWSER_INTERFACE_HPP
+#define BROWSER_INTERFACE_HPP
 
 #include "NUIE_NodeEditor.hpp"
 
-class BrowserAsyncInterface
+class BrowserInterface
 {
 public:
 	enum class State
@@ -30,9 +30,12 @@ public:
 		NUIE::ParameterInterfacePtr		paramInterface;
 	};
 
-	BrowserAsyncInterface (NUIE::NodeEditor& nodeEditor);
+	BrowserInterface (NUIE::NodeEditor& nodeEditor);
 
 	bool					AreEventsSuspended () const;
+
+	void					OnWindowCreated ()  const;
+	void					SaveFile (const std::vector<char>& buffer) const;
 
 	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
 	void					ContextMenuResponse (int commandId);
