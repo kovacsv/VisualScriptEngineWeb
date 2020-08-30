@@ -2,22 +2,22 @@ var NodeEditor = function ()
 {
 	this.module = null;
 	this.canvas = null;
-	this.nodeTree = null;
+	this.settings = null;
 	this.editorInterface = null;
 };
 
-NodeEditor.prototype.Init = function (module, nodeTree, uiElements)
+NodeEditor.prototype.Init = function (module, settings, uiElements)
 {
 	this.module = module;
 	this.canvas = uiElements.canvas;
-	this.nodeTree = nodeTree;
+	this.settings = settings;
 	this.editorInterface = new EditorInterface (this.module);
 
 	this.InitControls (uiElements.controls);
 	this.InitNodeTree (uiElements.nodeTree, uiElements.searchDiv);
 	this.InitDragAndDrop ();
 	this.InitKeyboardEvents ();	
-	this.InitFileInput ();
+	this.InitFileInput (uiElements.fileInput);
 };
 
 NodeEditor.prototype.InitControls = function (controlsDiv)
@@ -100,7 +100,7 @@ NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
 {
 	var searchInput = $('<input>').attr ('type', 'text').attr ('placeholder', 'Search Nodes...').addClass ('nodetreesearch').appendTo (searchDiv);
 	var myThis = this;
-	var nodeTree = new NodeTree (nodeTreeDiv, this.nodeTree, function (groupId, nodeId) {
+	var nodeTree = new NodeTree (nodeTreeDiv, this.settings.nodeTree, function (groupId, nodeId) {
 		var positionX = myThis.canvas.width () / 2.0;
 		var positionY = myThis.canvas.height () / 2.0;
 		myThis.editorInterface.CreateNode (groupId, nodeId, positionX, positionY);
@@ -181,12 +181,12 @@ NodeEditor.prototype.InitKeyboardEvents = function ()
 	});
 };
 
-NodeEditor.prototype.InitFileInput = function ()
+NodeEditor.prototype.InitFileInput = function (fileInput)
 {
 	var myThis = this;
-	var file = $('#file');
-	file.on ('change', function () {
-		var files = file.prop('files');
+	fileInput.attr ('accept', this.settings.fileExtension);
+	fileInput.on ('change', function () {
+		var files = fileInput.prop('files');
 		if (files.length == 0) {
 			return;
 		}
@@ -245,7 +245,7 @@ NodeEditor.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 	var positionY = this.canvas.offset ().top + mouseY;		
 	
 	var myThis = this;
-	var nodeTreePopUp = new NodeTreePopUp (this.canvas, this.nodeTree, function (groupId, nodeId) {
+	var nodeTreePopUp = new NodeTreePopUp (this.canvas, this.settings.nodeTree, function (groupId, nodeId) {
 		myThis.editorInterface.CreateNode (groupId, nodeId, mouseX, mouseY);
 	});
 	nodeTreePopUp.Open (positionX, positionY);
@@ -281,7 +281,7 @@ NodeEditor.prototype.SaveFile = function (data, size)
 	var link = document.createElement ('a');
 	document.body.appendChild (link);
 	link.href = url;
-	link.download = 'Untitled.ne';
+	link.download = 'Untitled' + this.settings.fileExtension;
 	link.click ();
 	window.URL.revokeObjectURL (url);
 	document.body.removeChild (link);	
