@@ -27,13 +27,7 @@ NodeEditor.prototype.InitControls = function (controlsDiv)
 		var buttonDiv = $('<div>').addClass ('controlbutton').appendTo (parentDiv);
 		var iconName = 'images/command_icons/' + icon + '.png';
 		var whiteIconName = 'images/command_icons/' + icon + '_White.png';
-		var buttonImg = null;
-		if (icon != null) {
-			buttonImg = $('<img>').attr ('src', iconName).attr ('alt', toolTipText).appendTo (buttonDiv);
-		} else {
-			buttonDiv.html (toolTipText);
-		}
-		
+		var buttonImg = $('<img>').attr ('src', iconName).attr ('alt', toolTipText).appendTo (buttonDiv);
 		var documentBody = $(document.body);
 		var hasHover = (window.matchMedia ('(hover : hover)').matches);
 		if (hasHover) {
@@ -93,6 +87,7 @@ NodeEditor.prototype.InitControls = function (controlsDiv)
 	AddCommandControl (this, controlsDiv, 'Undo', 'Undo', 'Ctrl+Z', 'Undo');
 	AddCommandControl (this, controlsDiv, 'Redo', 'Redo', 'Ctrl+Shift+Z', 'Redo');
 	AddSeparator (controlsDiv);
+	AddCommandControl (this, controlsDiv, 'NodeSettings', 'Node Settings', 'Ctrl+G', 'SetParameters');
 	AddCommandControl (this, controlsDiv, 'Copy', 'Copy', 'Ctrl+C', 'Copy');
 	AddCommandControl (this, controlsDiv, 'Paste', 'Paste', 'Ctrl+V', 'Paste');
 	AddCommandControl (this, controlsDiv, 'Delete', 'Delete', 'Delete Key', 'Delete');

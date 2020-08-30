@@ -218,6 +218,8 @@ void Application::ExecuteCommand (const char* command)
 		nodeEditor.ExecuteCommand (NUIE::CommandCode::Escape);
 	} else if (commandStr == "Delete") {
 		nodeEditor.ExecuteCommand (NUIE::CommandCode::Delete);
+	} else if (commandStr == "SetParameters") {
+		nodeEditor.ExecuteCommand (NUIE::CommandCode::SetParameters);
 	}
 }
 
