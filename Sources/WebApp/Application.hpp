@@ -18,7 +18,7 @@ public:
 
 	void					ResizeWindow (int width, int height);
 	void					ExecuteCommand (const char* command);
-	void					CreateNode (int nodeIndex, int xPosition, int yPosition);
+	void					CreateNode (int groupId, int nodeId, int xPosition, int yPosition);
 
 	bool					SaveFile ();
 	bool					OpenFile (const std::vector<char>& buffer);
@@ -34,6 +34,7 @@ private:
 	CustomAppInterface&		customAppInterface;
 	BrowserInterface		browserInterface;
 
+	AppNodeTree				appNodeTree;
 	AppUIEnvironment		uiEnvironment;
 	NUIE::NodeEditor		nodeEditor;
 

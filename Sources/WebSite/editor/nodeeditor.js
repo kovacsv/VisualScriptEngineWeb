@@ -2,15 +2,15 @@ var NodeEditor = function ()
 {
 	this.module = null;
 	this.canvas = null;
-	this.nodeList = null;
+	this.nodeTree = null;
 	this.editorInterface = null;
 };
 
-NodeEditor.prototype.Init = function (module, nodeList, uiElements)
+NodeEditor.prototype.Init = function (module, nodeTree, uiElements)
 {
 	this.module = module;
 	this.canvas = uiElements.canvas;
-	this.nodeList = nodeList;
+	this.nodeTree = nodeTree;
 	this.editorInterface = new EditorInterface (this.module);
 
 	this.InitControls (uiElements.controls);
@@ -105,10 +105,10 @@ NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
 {
 	var searchInput = $('<input>').attr ('type', 'text').attr ('placeholder', 'Search Nodes...').addClass ('nodetreesearch').appendTo (searchDiv);
 	var myThis = this;
-	var nodeTree = new NodeTree (nodeTreeDiv, this.nodeList, function (nodeIndex) {
+	var nodeTree = new NodeTree (nodeTreeDiv, this.nodeTree, function (groupId, nodeId) {
 		var positionX = myThis.canvas.width () / 2.0;
 		var positionY = myThis.canvas.height () / 2.0;
-		myThis.editorInterface.CreateNode (nodeIndex, positionX, positionY);
+		myThis.editorInterface.CreateNode (groupId, nodeId, positionX, positionY);
 	});
 	nodeTree.BuildAsMenu (searchInput);
 };
@@ -123,10 +123,12 @@ NodeEditor.prototype.InitDragAndDrop = function ()
 		ev.preventDefault ();
 		var mouseX = ev.clientX - myThis.canvas.offset ().left;
 		var mouseY = ev.clientY - myThis.canvas.offset ().top;
-		var data = ev.originalEvent.dataTransfer.getData ('nodeindex');
-		if (data.length > 0) {
-			var nodeIndex = parseInt (data);
-			myThis.editorInterface.CreateNode (nodeIndex, mouseX, mouseY);
+		var groupIdData = ev.originalEvent.dataTransfer.getData ('groupid');
+		var nodeIdData = ev.originalEvent.dataTransfer.getData ('nodeid');
+		if (groupIdData.length > 0 && nodeIdData.length > 0) {
+			var groupId = parseInt (groupIdData);
+			var nodeId = parseInt (nodeIdData);
+			myThis.editorInterface.CreateNode (groupId, nodeId, mouseX, mouseY);
 		}
 	});
 };
@@ -248,8 +250,8 @@ NodeEditor.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 	var positionY = this.canvas.offset ().top + mouseY;		
 	
 	var myThis = this;
-	var nodeTreePopUp = new NodeTreePopUp (this.canvas, this.nodeList, function (nodeIndex) {
-		myThis.editorInterface.CreateNode (nodeIndex, mouseX, mouseY);
+	var nodeTreePopUp = new NodeTreePopUp (this.canvas, this.nodeTree, function (groupId, nodeId) {
+		myThis.editorInterface.CreateNode (groupId, nodeId, mouseX, mouseY);
 	});
 	nodeTreePopUp.Open (positionX, positionY);
 };

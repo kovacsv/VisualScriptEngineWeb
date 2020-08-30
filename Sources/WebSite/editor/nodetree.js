@@ -29,7 +29,7 @@ NodeTree.prototype.BuildTree = function ()
 		group = this.AddNodeGroup (groupObj.name);
 		for (nodeId = 0; nodeId < groupObj.nodes.length; nodeId++) {
 			nodeObj = groupObj.nodes[nodeId];
-			this.AddNode (group, nodeObj.icon, nodeObj.name, nodeObj.id);
+			this.AddNode (group, nodeObj.icon, nodeObj.name, nodeObj.groupId, nodeObj.nodeId);
 		}
 	}
 };
@@ -63,7 +63,7 @@ NodeTree.prototype.InitSearchField = function (searchInput)
 	});
 };
 
-NodeTree.prototype.AddNode = function (nodeGroup, nodeIcon, nodeName, nodeIndex)
+NodeTree.prototype.AddNode = function (nodeGroup, nodeIcon, nodeName, groupId, nodeId)
 {
 	var item = this.CreateItem ('images/node_icons/' + nodeIcon, nodeName);
 	item.mainItem.appendTo (nodeGroup.subItemsDiv);
@@ -75,12 +75,13 @@ NodeTree.prototype.AddNode = function (nodeGroup, nodeIcon, nodeName, nodeIndex)
 	
 	var myThis = this;
 	item.mainItem.click (function () {
-		myThis.onNodeClick (nodeIndex);
+		myThis.onNodeClick (groupId, nodeId);
 	});
 	if (this.isDragDropEnabled) {
 		item.mainItem.attr ('draggable', 'true');
 		item.mainItem.on ('dragstart', function (ev) {
-			ev.originalEvent.dataTransfer.setData ('nodeindex', nodeIndex.toString ());
+			ev.originalEvent.dataTransfer.setData ('groupid', groupId.toString ());
+			ev.originalEvent.dataTransfer.setData ('nodeid', nodeId.toString ());
 		});
 	}
 	
@@ -161,9 +162,9 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 	popUpDivElem.addClass ('nodetreepopup thinscrollbar');
 	
 	var myThis = this;
-	var nodeTree = new NodeTree (popUpDivElem, this.nodeList, function (nodeIndex) {
+	var nodeTree = new NodeTree (popUpDivElem, this.nodeList, function (groupId, nodeId) {
 		myThis.popUpDiv.Close ();
-		myThis.onNodeClick (nodeIndex);
+		myThis.onNodeClick (groupId, nodeId);
 	});
 	nodeTree.BuildAsPopUp ();
 	this.popUpDiv.FitToElement (this.parentElement);

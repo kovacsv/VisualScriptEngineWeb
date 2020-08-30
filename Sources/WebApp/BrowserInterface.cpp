@@ -49,12 +49,12 @@ void OpenFile (char* charBuffer, int size)
 	gAppForBrowser->OpenFile (buffer);
 }
 
-void CreateNode (int nodeIndex, int xPosition, int yPosition)
+void CreateNode (int groupId, int nodeId, int xPosition, int yPosition)
 {
 	if (gAppForBrowser == nullptr) {
 		return;
 	}
-	gAppForBrowser->CreateNode (nodeIndex, xPosition, yPosition);
+	gAppForBrowser->CreateNode (groupId, nodeId, xPosition, yPosition);
 }
 
 bool NeedToSave ()
@@ -139,12 +139,13 @@ bool BrowserInterface::AreEventsSuspended () const
 	return state != State::Normal;
 }
 
-void BrowserInterface::OnWindowCreated () const
+void BrowserInterface::OnAppInitialized (const AppNodeTree& appNodeTree) const
 {
+	std::string aaa = ConvertNodeTreeToJson (appNodeTree);
 #ifdef EMSCRIPTEN
-	EM_ASM (
-		OnWindowCreated ();
-	);
+	EM_ASM ({
+		OnAppInitialized ($0);
+	}, aaa.c_str ());
 #endif
 }
 

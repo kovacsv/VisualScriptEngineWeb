@@ -33,46 +33,20 @@
 		
 		function OnRuntimeInitialized ()
 		{
-			var nodeList = [
-				{
-					name : 'Inputs',
-					nodes : [
-						{ name : 'Boolean', icon : 'Boolean.png', id : 0 },
-						{ name : 'Integer', icon : 'Integer.png', id : 1 },
-						{ name : 'Number', icon : 'Double.png', id : 2 },
-						{ name : 'Integer Increment', icon : 'IntegerIncremented.png', id : 3 },
-						{ name : 'Number Increment', icon : 'DoubleIncremented.png', id : 4 },
-						{ name : 'Number Distribution', icon : 'DoubleDistributed.png', id : 5 }
-					]
-				},
-				{
-					name : 'Arithmetics',
-					nodes : [
-						{ name : 'Addition', icon : 'Addition.png', id : 6 },
-						{ name : 'Subtraction', icon : 'Subtraction.png', id : 7 },
-						{ name : 'Multiplication', icon : 'Multiplication.png', id : 8 },
-						{ name : 'Division', icon : 'Division.png', id : 9 }
-					]
-				},
-				{
-					name : 'Other',
-					nodes : [
-						{ name : 'List Builder', icon : 'ListBuilder.png', id : 10 },
-						{ name : 'Viewer', icon : 'Viewer.png', id : 11 }
-					]
-				}
-			];		
+
+		}
 		
-			editor.Init (Module, nodeList, {
+		function OnAppInitialized (nodeTreeJsonFromCpp)
+		{
+			var nodeTreeJsonStr = UTF8ToString (nodeTreeJsonFromCpp);
+			var nodeTree = JSON.parse (nodeTreeJsonStr);
+			editor.Init (Module, nodeTree, {
 				canvas : $('#canvas'),
 				controls : $('#controls'),
 				searchDiv : $('#nodetreesearchdiv'),
 				nodeTree : $('#nodetree')
 			});
-		}
-		
-		function OnWindowCreated ()
-		{
+			
 			OnResize ();
 		}
 		

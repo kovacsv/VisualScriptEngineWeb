@@ -159,6 +159,42 @@ std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& paramete
 	return DocumentToString (doc);
 }
 
+std::string ConvertNodeTreeToJson (const AppNodeTree& appNodeTree)
+{
+	Document doc;
+	Document::AllocatorType& allocator = doc.GetAllocator ();
+	doc.SetArray ();
+
+	const NUIE::NodeTree& nodeTree = appNodeTree.GetNodeTree ();
+	const std::vector<NUIE::NodeTree::Group>& groups = nodeTree.GetGroups ();
+
+	for (size_t groupIndex = 0; groupIndex < groups.size (); groupIndex++) {
+		const NUIE::NodeTree::Group& group = groups[groupIndex];
+
+		Value groupObj;
+		groupObj.SetObject ();
+		AddString (groupObj, allocator, "name", group.GetName ());
+
+		Value itemArr;
+		itemArr.SetArray ();
+		const std::vector<NUIE::NodeTree::Item>& items = group.GetItems ();
+		for (size_t nodeIndex = 0; nodeIndex < items.size (); nodeIndex++) {
+			const NUIE::NodeTree::Item& item = items[nodeIndex];
+			Value itemObj;
+			itemObj.SetObject ();
+			AddString (itemObj, allocator, "name", item.GetName ());
+			AddString (itemObj, allocator, "icon", appNodeTree.GetIcon (groupIndex, nodeIndex));
+			AddInteger (itemObj, allocator, "groupId", (int) groupIndex);
+			AddInteger (itemObj, allocator, "nodeId", (int) nodeIndex);
+			itemArr.PushBack (itemObj, allocator);
+		}
+		groupObj.AddMember ("nodes", itemArr, allocator);
+		doc.PushBack (groupObj, allocator);
+	}
+
+	return DocumentToString (doc);
+}
+
 bool ProcessChangedParametersJson (const std::string& changeParametersJsonStr, NUIE::ParameterInterfacePtr& parameters)
 {
 	if (changeParametersJsonStr.empty ()) {

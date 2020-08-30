@@ -2,6 +2,7 @@
 #define BROWSER_INTERFACE_HPP
 
 #include "NUIE_NodeEditor.hpp"
+#include "AppNodeTree.hpp"
 
 class Application;
 void SetAppForBrowser (Application* application);
@@ -37,7 +38,7 @@ public:
 
 	bool					AreEventsSuspended () const;
 
-	void					OnWindowCreated ()  const;
+	void					OnAppInitialized (const AppNodeTree& appNodeTree) const;
 	void					SaveFile (const std::vector<char>& buffer) const;
 
 	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);

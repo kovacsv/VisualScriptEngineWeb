@@ -118,6 +118,7 @@ static void EmscriptenMainLoop (void* arg)
 Application::Application (CustomAppInterface& customAppInterface) :
 	customAppInterface (customAppInterface),
 	browserInterface (nodeEditor),
+	appNodeTree (),
 	uiEnvironment (customAppInterface, &browserInterface),
 	nodeEditor (uiEnvironment),
 	window (nullptr),
@@ -154,7 +155,8 @@ void Application::Init ()
 	uiEnvironment.Init (renderer, &nodeEditor);
 	SetAppForBrowser (this);
 	
-	browserInterface.OnWindowCreated ();
+	customAppInterface.BuildNodeTree (appNodeTree);
+	browserInterface.OnAppInitialized (appNodeTree);
 }
 
 void Application::Start ()
@@ -219,7 +221,7 @@ void Application::ExecuteCommand (const char* command)
 	}
 }
 
-void Application::CreateNode (int nodeIndex, int xPosition, int yPosition)
+void Application::CreateNode (int groupId, int nodeId, int xPosition, int yPosition)
 {
 	if (browserInterface.AreEventsSuspended ()) {
 		return;
@@ -227,7 +229,7 @@ void Application::CreateNode (int nodeIndex, int xPosition, int yPosition)
 
 	NUIE::Point viewPosition (xPosition, yPosition);
 	NUIE::Point position = nodeEditor.ViewToModel (viewPosition);
-	NUIE::UINodePtr uiNode = customAppInterface.CreateNodeByIndex (nodeIndex, position);
+	NUIE::UINodePtr uiNode = appNodeTree.CreateNode (groupId, nodeId, position);
 	if (uiNode != nullptr) {
 		nodeEditor.AddNode (uiNode);
 	}
