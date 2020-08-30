@@ -44,7 +44,9 @@ void OpenFile (char* charBuffer, int size)
 	if (gAppForBrowser == nullptr) {
 		return;
 	}
-	gAppForBrowser->OpenFile (charBuffer, size);
+	std::vector<char> buffer;
+	buffer.assign (charBuffer, charBuffer + size);
+	gAppForBrowser->OpenFile (buffer);
 }
 
 void CreateNode (int nodeIndex, int xPosition, int yPosition)

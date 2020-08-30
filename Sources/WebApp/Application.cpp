@@ -197,10 +197,7 @@ void Application::ExecuteCommand (const char* command)
 	if (commandStr == "New") {
 		nodeEditor.New ();
 	} else if (commandStr == "Save") {
-		NE::MemoryOutputStream outputStream;
-		nodeEditor.Save (outputStream);
-		const std::vector<char>& buffer = outputStream.GetBuffer ();
-		browserInterface.SaveFile (buffer);
+		SaveFile ();
 	} else if (commandStr == "SelectAll") {
 		nodeEditor.ExecuteCommand (NUIE::CommandCode::SelectAll);
 	} else if (commandStr == "Copy") {
@@ -236,13 +233,23 @@ void Application::CreateNode (int nodeIndex, int xPosition, int yPosition)
 	}
 }
 
-void Application::OpenFile (const char* buffer, int size)
+bool Application::SaveFile ()
 {
-	std::vector<char> bufferVec;
-	bufferVec.assign (buffer, buffer + size);
-	NE::MemoryInputStream inputStream (bufferVec);
-	nodeEditor.Open (inputStream);
+	std::vector<char> buffer;
+	if (!customAppInterface.SaveFile (nodeEditor, buffer)) {
+		return false;
+	}
+	browserInterface.SaveFile (buffer);
+	return true;
+}
+
+bool Application::OpenFile (const std::vector<char>& buffer)
+{
+	if (!customAppInterface.OpenFile (buffer, nodeEditor)) {
+		return false;
+	}
 	nodeEditor.CenterToWindow ();
+	return true;
 }
 
 bool Application::NeedToSave () const

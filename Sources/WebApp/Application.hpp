@@ -19,7 +19,9 @@ public:
 	void					ResizeWindow (int width, int height);
 	void					ExecuteCommand (const char* command);
 	void					CreateNode (int nodeIndex, int xPosition, int yPosition);
-	void					OpenFile (const char* buffer, int size);
+
+	bool					SaveFile ();
+	bool					OpenFile (const std::vector<char>& buffer);
 	bool					NeedToSave () const;
 
 	void					ContextMenuResponse (int commandId);

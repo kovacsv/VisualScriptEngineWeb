@@ -1,4 +1,5 @@
 #include "Application.hpp"
+#include "NE_MemoryStream.hpp"
 #include "BI_BuiltInNodes.hpp"
 
 #ifdef EMSCRIPTEN
@@ -47,6 +48,22 @@ public:
 			case 11: uiNode = NUIE::UINodePtr (new BI::MultiLineViewerNode (NE::LocString (L"Viewer"), position, 5)); break;
 		}
 		return uiNode;
+	}
+
+	virtual bool SaveFile (NUIE::NodeEditor& nodeEditor, std::vector<char>& buffer) const override
+	{
+		NE::MemoryOutputStream outputStream;
+		if (!nodeEditor.Save (outputStream)) {
+			return false;
+		}
+		buffer = outputStream.GetBuffer ();
+		return true;
+	}
+
+	virtual bool OpenFile (const std::vector<char>& buffer, NUIE::NodeEditor& nodeEditor) const override
+	{
+		NE::MemoryInputStream inputStream (buffer);
+		return nodeEditor.Open (inputStream);
 	}
 
 private:
