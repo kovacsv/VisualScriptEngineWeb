@@ -24,7 +24,13 @@ link_directories (${SDLImageLibFolder}/lib/x64)
 # WebApp
 
 set (WebAppSourcesFolder Sources/WebApp)
+set (WebAppFrameworkSourcesFolder Sources/WebApp/AppFramework)
 set (WebSiteSourcesFolder Sources/WebSite)
+file (GLOB
+	WebAppFrameworkFiles
+	${WebAppFrameworkSourcesFolder}/*.hpp
+	${WebAppFrameworkSourcesFolder}/*.cpp
+)
 file (GLOB
 	WebAppClientFiles
 	${WebAppSourcesFolder}/*.hpp
@@ -42,6 +48,7 @@ file (GLOB
 )
 set (
 	WebAppFiles
+	${WebAppFrameworkFiles}
 	${WebAppClientFiles}
 	${SDLGfxFiles}
 	${VisualScriptEngineFiles}
@@ -51,14 +58,15 @@ source_group ("SDLGfx" FILES ${SDLGfxFiles})
 source_group ("VisualScriptEngine" FILES ${VisualScriptEngineFiles})
 add_executable (WebApp ${WebAppFiles})
 set_target_properties (WebApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+target_include_directories (WebApp PUBLIC ${WebAppFrameworkSourcesFolder})
 target_include_directories (WebApp PUBLIC ${SDLGfxLibFolder})
 target_include_directories (WebApp PUBLIC ${VSELibFolder})
 target_include_directories (WebApp PUBLIC ${RapidJsonLibFolder}/include)
 
-get_filename_component (WebAppSourcesFolderAbsolute "${WebAppSourcesFolder}" ABSOLUTE)
+get_filename_component (WebAppFrameworkSourcesFolderAbsolute "${WebAppFrameworkSourcesFolder}" ABSOLUTE)
 if (${EMSCRIPTEN})
 	add_custom_command (TARGET WebApp PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppSourcesFolderAbsolute}/Assets" ${CMAKE_BINARY_DIR}/Assets
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppFrameworkSourcesFolderAbsolute}/Assets" ${CMAKE_BINARY_DIR}/Assets
 	)
 	set (SDLUsedLibraries -sUSE_SDL=2 -sUSE_SDL_TTF=2 -sUSE_SDL_IMAGE=2)
 	target_compile_options (WebApp PUBLIC ${SDLUsedLibraries})
@@ -69,8 +77,8 @@ if (${EMSCRIPTEN})
 	add_definitions (-DSIZEOFSIZET=4)
 else ()
 	add_custom_command (TARGET WebApp PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppSourcesFolderAbsolute}/Assets" $<TARGET_FILE_DIR:WebApp>/Assets
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppSourcesFolderAbsolute}/Assets" ${CMAKE_BINARY_DIR}/Assets
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppFrameworkSourcesFolderAbsolute}/Assets" $<TARGET_FILE_DIR:WebApp>/Assets
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${WebAppFrameworkSourcesFolderAbsolute}/Assets" ${CMAKE_BINARY_DIR}/Assets
 	)
 	set_target_properties (WebApp PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
 	target_include_directories (
