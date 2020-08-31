@@ -197,7 +197,7 @@ NodeEditor.prototype.InitFileInput = function (fileInput)
 			}
 		};
 		reader.readAsArrayBuffer (files[0]);		
-		
+		fileInput.val ('');
 	});
 };
 
