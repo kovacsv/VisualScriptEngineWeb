@@ -1,6 +1,6 @@
 html, body
 {
-	color : #4B4B4B;
+	color : #4b4b4b;
 	background : #ffffff;
 	font-size : 14px;
 	font-family : Arial, cursive;
@@ -28,12 +28,25 @@ div.header img
 	display : block;
 }
 
+div.header a
+{
+	color : #333333;
+	text-decoration : none;
+}
+
 div.headerleft
 {
 	color : #333333;
 	font-size : 18px;
 	padding : 14px 10px;
 	float : left;
+}
+
+div.headerleft img.logo
+{
+	float : left;
+	margin-top : -2px;
+	margin-right : 8px;
 }
 
 div.headerright
@@ -152,7 +165,6 @@ div.popup
 
 div.contextmenu
 {
-	color : #4B4B4B;
 	background : #ffffff;
 	border : 1px solid #cccccc;
 }
@@ -185,7 +197,6 @@ div.contextmenusubitems div.contextmenuitem
 
 div.parametersettings
 {
-	color : #4B4B4B;
 	background : #ffffff;
 	border : 1px solid #cccccc;
 }
@@ -243,7 +254,6 @@ div.parameterbutton
 
 div.nodetreepopup
 {
-	color : #4B4B4B;
 	background : #ffffff;
 	width : 220px;
 	max-height : 300px;
