@@ -27,7 +27,7 @@
 			var canvasOffset = canvasObj.offset ();
 			var newWidth = windowObj.width () - canvasOffset.left - 12;
 			var newHeight = windowObj.height () - canvasOffset.top - 12;
-			nodeTreeObj.height (windowObj.height () - nodeTreeObj.offset ().top - 10);
+			nodeTreeObj.outerHeight (windowObj.height () - nodeTreeObj.offset ().top - 10);
 			editor.ResizeCanvas (newWidth, newHeight);
 		}
 		
@@ -84,7 +84,7 @@
 			</div>
 		</div>
 		<div class="right">
-			<canvas id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
+			<canvas class="editor" id="canvas" oncontextmenu="event.preventDefault ()"></canvas>
 		</div>
 	</div>
 	<script type='text/javascript'>

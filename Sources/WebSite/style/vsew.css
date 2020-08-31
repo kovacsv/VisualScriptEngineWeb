@@ -1,6 +1,6 @@
 html, body
 {
-	color : #4b4b4b;
+	color : #4B4B4B;
 	background : #ffffff;
 	font-size : 14px;
 	font-family : Arial, cursive;
@@ -28,10 +28,11 @@ div.header img
 	display : block;
 }
 
-div.header a
+div.header img.logo
 {
-	color : #333333;
-	text-decoration : none;
+	float : left;
+	margin-top : -2px;
+	margin-right : 8px;
 }
 
 div.headerleft
@@ -42,11 +43,10 @@ div.headerleft
 	float : left;
 }
 
-div.headerleft img.logo
+div.headerleft a
 {
-	float : left;
-	margin-top : -2px;
-	margin-right : 8px;
+	color : #333333;
+	text-decoration : none;
 }
 
 div.headerright
@@ -165,6 +165,7 @@ div.popup
 
 div.contextmenu
 {
+	color : #4B4B4B;
 	background : #ffffff;
 	border : 1px solid #cccccc;
 }
@@ -197,6 +198,7 @@ div.contextmenusubitems div.contextmenuitem
 
 div.parametersettings
 {
+	color : #4B4B4B;
 	background : #ffffff;
 	border : 1px solid #cccccc;
 }
@@ -254,6 +256,7 @@ div.parameterbutton
 
 div.nodetreepopup
 {
+	color : #4B4B4B;
 	background : #ffffff;
 	width : 220px;
 	max-height : 300px;
@@ -312,7 +315,7 @@ a:hover
 	text-decoration : underline;
 }
 
-#canvas
+canvas.editor
 {
 	border : 1px solid #dddddd;
 	outline : none;
