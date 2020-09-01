@@ -8,7 +8,7 @@ var NodeTree = function (parentDiv, nodeList, onNodeClick)
 	this.nodeGroups = null;
 };
 
-NodeTree.prototype.Build = function (searchDiv, isDragDropEnabled)
+NodeTree.prototype.Build = function (isDragDropEnabled)
 {
 	this.isDragDropEnabled = isDragDropEnabled;
 	this.BuildTree ();
@@ -160,13 +160,12 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 	this.popUpDiv.Open (positionX, positionY);
 	var popUpDivElem = this.popUpDiv.GetDiv ();
 	popUpDivElem.addClass ('nodetreepopup thinscrollbar');
-	var searchDiv = $('<div>').addClass ('nodetreepopupsearchdiv').appendTo (popUpDivElem).focus ();
 	
 	var myThis = this;
 	var nodeTree = new NodeTree (popUpDivElem, this.nodeList, function (groupId, nodeId) {
 		myThis.popUpDiv.Close ();
 		myThis.onNodeClick (groupId, nodeId);
 	});
-	nodeTree.Build (searchDiv);
+	nodeTree.Build (false);
 	this.popUpDiv.FitToElement (this.parentElement);
 };

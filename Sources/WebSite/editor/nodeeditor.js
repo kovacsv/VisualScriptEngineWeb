@@ -104,7 +104,7 @@ NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
 		var positionY = myThis.canvas.height () / 2.0;
 		myThis.editorInterface.CreateNode (groupId, nodeId, positionX, positionY);
 	});
-	nodeTree.Build (false);
+	nodeTree.Build (true);
 	nodeTree.InitSearchField (searchDiv);
 };
 
