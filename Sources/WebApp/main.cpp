@@ -99,7 +99,7 @@ int main (int, char**)
 {
 	MyAppInterface appInterface;
 	Application app (appInterface);
-	app.Init ();
+	app.Init ("VisualScriptEngineWeb");
 
 #ifndef EMSCRIPTEN
 	app.CreateNode (0, 4, 100, 100);

@@ -132,7 +132,7 @@ Application::~Application ()
 
 }
 
-void Application::Init ()
+void Application::Init (const std::string& windowName)
 {
 	SDL_Init (SDL_INIT_VIDEO);
 	SDL_SetEventFilter (EventFilter, nullptr);
@@ -149,7 +149,7 @@ void Application::Init ()
 	InitialWindowHeight = 10;
 #endif
 
-	window = SDL_CreateWindow ("VisualScriptEngineWeb", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, InitialWindowWidth, InitialWindowHeight, 0);
+	window = SDL_CreateWindow (windowName.c_str (), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, InitialWindowWidth, InitialWindowHeight, 0);
 	renderer = SDL_CreateRenderer (window, -1, 0);
 	
 	uiEnvironment.Init (renderer, &nodeEditor);

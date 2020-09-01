@@ -12,7 +12,7 @@ public:
 	Application (CustomAppInterface& customAppInterface);
 	virtual ~Application ();
 
-	void					Init ();
+	void					Init (const std::string& windowName);
 	void					Start ();
 	void					Shut ();
 
