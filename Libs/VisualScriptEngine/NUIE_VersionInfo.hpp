@@ -3,8 +3,8 @@
 
 #define VSE_VERSION_1 0
 #define VSE_VERSION_2 4
-#define VSE_VERSION_3 1
+#define VSE_VERSION_3 3
 #define VSE_LIB_NAME L"VisualScriptEngine"
-#define VSE_VERSION_STRING L"v0.4.1"
+#define VSE_VERSION_STRING L"v0.4.3"
 
 #endif
