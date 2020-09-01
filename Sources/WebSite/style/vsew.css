@@ -263,6 +263,11 @@ div.nodetreepopup
 	border : 1px solid #cccccc;
 }
 
+div.nodetreepopupsearchdiv
+{
+	margin : 5px;
+}
+
 img.nodetreeicon
 {
 	width : 18px;

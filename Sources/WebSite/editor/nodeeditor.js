@@ -98,14 +98,14 @@ NodeEditor.prototype.InitControls = function (controlsDiv)
 
 NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
 {
-	var searchInput = $('<input>').attr ('type', 'text').attr ('placeholder', 'Search Nodes...').addClass ('nodetreesearch').appendTo (searchDiv);
 	var myThis = this;
 	var nodeTree = new NodeTree (nodeTreeDiv, this.settings.nodeTree, function (groupId, nodeId) {
 		var positionX = myThis.canvas.width () / 2.0;
 		var positionY = myThis.canvas.height () / 2.0;
 		myThis.editorInterface.CreateNode (groupId, nodeId, positionX, positionY);
 	});
-	nodeTree.BuildAsMenu (searchInput);
+	nodeTree.Build (false);
+	nodeTree.InitSearchField (searchDiv);
 };
 
 NodeEditor.prototype.InitDragAndDrop = function ()

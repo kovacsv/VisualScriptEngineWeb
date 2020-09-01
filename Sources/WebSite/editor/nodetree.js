@@ -1,23 +1,22 @@
 var NodeTree = function (parentDiv, nodeList, onNodeClick)
 {
 	this.parentDiv = parentDiv;
+	this.searchInput = null;
 	this.nodeList = nodeList;
 	this.onNodeClick = onNodeClick;
 	this.isDragDropEnabled = false;
 	this.nodeGroups = null;
 };
 
-NodeTree.prototype.BuildAsMenu = function (searchInput)
+NodeTree.prototype.Build = function (searchDiv, isDragDropEnabled)
 {
-	this.isDragDropEnabled = true;
-	this.InitSearchField (searchInput);
+	this.isDragDropEnabled = isDragDropEnabled;
 	this.BuildTree ();
 };
 
-NodeTree.prototype.BuildAsPopUp = function ()
+NodeTree.prototype.FocusSearchInput = function ()
 {
-	this.isDragDropEnabled = false;
-	this.BuildTree ();
+	this.searchInput.focus ();
 };
 
 NodeTree.prototype.BuildTree = function ()
@@ -34,11 +33,12 @@ NodeTree.prototype.BuildTree = function ()
 	}
 };
 
-NodeTree.prototype.InitSearchField = function (searchInput)
+NodeTree.prototype.InitSearchField = function (searchDiv)
 {
 	var myThis = this;
-	searchInput.on ('input', function () {
-		var searchText = searchInput.val ().toLowerCase ();
+	this.searchInput = $('<input>').attr ('type', 'text').attr ('placeholder', 'Search Nodes...').addClass ('nodetreesearch').appendTo (searchDiv);
+	this.searchInput.on ('input', function () {
+		var searchText = myThis.searchInput.val ().toLowerCase ();
 		var i, j, group, node, found, foundInGroup;
 		for (i = 0; i < myThis.nodeGroups.length; i++) {
 			group = myThis.nodeGroups[i];
@@ -160,12 +160,13 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 	this.popUpDiv.Open (positionX, positionY);
 	var popUpDivElem = this.popUpDiv.GetDiv ();
 	popUpDivElem.addClass ('nodetreepopup thinscrollbar');
+	var searchDiv = $('<div>').addClass ('nodetreepopupsearchdiv').appendTo (popUpDivElem).focus ();
 	
 	var myThis = this;
 	var nodeTree = new NodeTree (popUpDivElem, this.nodeList, function (groupId, nodeId) {
 		myThis.popUpDiv.Close ();
 		myThis.onNodeClick (groupId, nodeId);
 	});
-	nodeTree.BuildAsPopUp ();
+	nodeTree.Build (searchDiv);
 	this.popUpDiv.FitToElement (this.parentElement);
 };
