@@ -16,7 +16,7 @@ public:
 	virtual void				OnValuesRecalculated () = 0;
 
 	virtual bool				SaveFile (NUIE::NodeEditor& nodeEditor, std::vector<char>& buffer) const = 0;
-	virtual bool				OpenFile (const std::vector<char>& buffer, NUIE::NodeEditor& nodeEditor) const = 0;
+	virtual bool				OpenFile (const std::vector<char>& buffer, NUIE::NodeEditor& nodeEditor) = 0;
 };
 
 #endif

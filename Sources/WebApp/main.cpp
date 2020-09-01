@@ -85,7 +85,7 @@ public:
 		return true;
 	}
 
-	virtual bool OpenFile (const std::vector<char>& buffer, NUIE::NodeEditor& nodeEditor) const override
+	virtual bool OpenFile (const std::vector<char>& buffer, NUIE::NodeEditor& nodeEditor) override
 	{
 		NE::MemoryInputStream inputStream (buffer);
 		return nodeEditor.Open (inputStream);
