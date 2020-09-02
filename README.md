@@ -45,17 +45,12 @@ cd ..
 
 ### 4. Generate the Web Application
 
-The easiest way is to run the `EmscriptenBuild.bat` file from the root directory. It needs one command line parameter: the Emscripten SDK folder. It generates the final result in the `BuildEm\Result` folder.
+The easiest way is to run the `EmscriptenBuild.bat` file from the root directory. It needs two command line parameters:
+- The Emscripten SDK folder (e.g. "C:\Emscripten\emsdk").
+- The result folder of the web application (e.g. "C:\xampp\htdocs\WebApp").
 
 ```
-EmscriptenBuild.bat C:\Emscripten\emsdk
+EmscriptenBuild.bat C:\Emscripten\emsdk C:\xampp\htdocs\WebApp
 ```
 
-### 5. Start the node.js Web Server for Testing
-
-There is a built-in node.js based web server for testing. You can start it with the `EmscriptenStartServer.bat` file from the root directory. 
-After starting the server you can open a web browser and check `http://localhost:8080/`.
-
-```
-EmscriptenStartServer.bat
-```
+To try out offline you have to start a web server and set it's folder as the result folder.
