@@ -1,0 +1,11 @@
+{
+	"name": "webserver",
+	"version": "0.0.1",
+	"description": "",
+	"main": "server.js",
+	"author": "",
+	"license": "",
+	"dependencies": {
+		"express": "*"
+	}
+}
