@@ -54,7 +54,6 @@ public:
 private:
 	CustomAppInterface&				customAppInterface;
 	NE::BasicStringConverter		stringConverter;
-	NUIE::BasicSkinParams			skinParams;
 	AppEventHandler					eventHandler;
 	NUIE::MemoryClipboardHandler	clipboardHandler;
 	std::unique_ptr<SDL2Context>	drawingContext;
