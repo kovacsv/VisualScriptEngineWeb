@@ -73,7 +73,7 @@ if (${EMSCRIPTEN})
 	target_link_options (WebApp PUBLIC ${SDLUsedLibraries})
 	target_link_options (WebApp PUBLIC "-sEXPORTED_FUNCTIONS=[\"_main\", \"_ResizeWindow\", \"_ExecuteCommand\", \"_OpenFile\", \"_CreateNode\", \"_ContextMenuResponse\", \"_ParameterSettingsResponse\", \"_NeedToSave\"]")
 	target_link_options (WebApp PUBLIC "-sEXTRA_EXPORTED_RUNTIME_METHODS=[\"ccall\", \"cwrap\"]")
-	target_link_options (WebApp PUBLIC --use-preload-plugins --preload-file Assets)
+	target_link_options (WebApp PUBLIC -sALLOW_MEMORY_GROWTH=1 --no-heap-copy --use-preload-plugins --preload-file Assets)
 	add_definitions (-DSIZEOFSIZET=4)
 else ()
 	add_custom_command (TARGET WebApp PRE_BUILD
