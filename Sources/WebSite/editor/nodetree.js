@@ -1,17 +1,21 @@
-var NodeTree = function (parentDiv, nodeList, onNodeClick)
+var NodeTree = function (parentDiv, nodeList, settings, onNodeClick)
 {
 	this.parentDiv = parentDiv;
-	this.searchInput = null;
 	this.nodeList = nodeList;
+	this.settings = settings;
 	this.onNodeClick = onNodeClick;
-	this.isDragDropEnabled = false;
+	
+	this.visibleNodeCount = null;
 	this.nodeGroups = null;
+	this.searchInput = null;
 };
 
-NodeTree.prototype.Build = function (isDragDropEnabled)
+NodeTree.prototype.Build = function ()
 {
-	this.isDragDropEnabled = isDragDropEnabled;
 	this.BuildTree ();
+	if (this.settings.searchDiv) {
+		this.InitSearchField ();
+	}
 };
 
 NodeTree.prototype.FocusSearchInput = function ()
@@ -21,6 +25,7 @@ NodeTree.prototype.FocusSearchInput = function ()
 
 NodeTree.prototype.BuildTree = function ()
 {
+	this.visibleNodeCount = 0;
 	this.nodeGroups = [];
 	var groupId, groupObj, nodeId, nodeObj;
 	for (groupId = 0; groupId < this.nodeList.length; groupId++) {
@@ -29,25 +34,28 @@ NodeTree.prototype.BuildTree = function ()
 		for (nodeId = 0; nodeId < groupObj.nodes.length; nodeId++) {
 			nodeObj = groupObj.nodes[nodeId];
 			this.AddNode (group, nodeObj.icon, nodeObj.name, nodeObj.groupId, nodeObj.nodeId);
+			this.visibleNodeCount += 1;
 		}
 	}
 };
 
-NodeTree.prototype.InitSearchField = function (searchDiv)
+NodeTree.prototype.InitSearchField = function ()
 {
 	var myThis = this;
-	this.searchInput = $('<input>').attr ('type', 'text').attr ('placeholder', 'Search Nodes...').addClass ('nodetreesearch').appendTo (searchDiv);
+	this.searchInput = $('<input>').attr ('type', 'text').attr ('placeholder', 'Search Nodes...').addClass ('nodetreesearch').appendTo (this.settings.searchDiv);
 	this.searchInput.on ('input', function () {
+		myThis.visibleNodeCount = 0;
 		var searchText = myThis.searchInput.val ().toLowerCase ();
 		var i, j, group, node, found, foundInGroup;
 		for (i = 0; i < myThis.nodeGroups.length; i++) {
 			group = myThis.nodeGroups[i];
 			foundInGroup = false;
-			for (j = 0; j < group.nodes.length; j++) {
-				node = group.nodes[j];
+			for (j = 0; j < group.items.length; j++) {
+				node = group.items[j];
 				found = (node.name.toLowerCase ().indexOf (searchText) != -1);
 				if (found) {
 					node.nodeItem.mainItem.show ();
+					myThis.visibleNodeCount += 1;
 					foundInGroup = true;
 				} else {
 					node.nodeItem.mainItem.hide ();
@@ -77,7 +85,7 @@ NodeTree.prototype.AddNode = function (nodeGroup, nodeIcon, nodeName, groupId, n
 	item.mainItem.click (function () {
 		myThis.onNodeClick (groupId, nodeId);
 	});
-	if (this.isDragDropEnabled) {
+	if (this.settings.dragDrop) {
 		item.mainItem.attr ('draggable', 'true');
 		item.mainItem.on ('dragstart', function (ev) {
 			ev.originalEvent.dataTransfer.setData ('groupid', groupId.toString ());
@@ -85,7 +93,7 @@ NodeTree.prototype.AddNode = function (nodeGroup, nodeIcon, nodeName, groupId, n
 		});
 	}
 	
-	nodeGroup.nodes.push (node);
+	nodeGroup.items.push (node);
 	return node;
 };
 
@@ -99,7 +107,7 @@ NodeTree.prototype.AddNodeGroup = function (groupName)
 		name : groupName,
 		groupItem : item,
 		subItemsDiv : subItemsDiv,
-		nodes : []
+		items : []
 	};
 
 	var myThis = this;
@@ -161,11 +169,18 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 	var popUpDivElem = this.popUpDiv.GetDiv ();
 	popUpDivElem.addClass ('nodetreepopup thinscrollbar');
 	
+	var searchDiv = $('<div>').addClass ('nodetreepopupsearchdiv').appendTo (popUpDivElem);
+	
 	var myThis = this;
-	var nodeTree = new NodeTree (popUpDivElem, this.nodeList, function (groupId, nodeId) {
+	var nodeTreeSettings = {
+		dragDrop : false,
+		searchDiv : searchDiv
+	};
+	var nodeTree = new NodeTree (popUpDivElem, this.nodeList, nodeTreeSettings, function (groupId, nodeId) {
 		myThis.popUpDiv.Close ();
 		myThis.onNodeClick (groupId, nodeId);
 	});
 	nodeTree.Build (false);
+	nodeTree.FocusSearchInput ();
 	this.popUpDiv.FitToElement (this.parentElement);
 };

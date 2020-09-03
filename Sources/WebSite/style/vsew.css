@@ -1,6 +1,6 @@
 html, body
 {
-	color : #4B4B4B;
+	color : #4b4b4b;
 	background : #ffffff;
 	font-size : 14px;
 	font-family : Arial, cursive;
@@ -146,6 +146,28 @@ div.nodetreesubitems div.nodetreeitem
 	padding-left : 20px;
 }
 
+div.nodetreepopup
+{
+	background : #ffffff;
+	width : 220px;
+	max-height : 300px;
+	border : 1px solid #cccccc;
+	user-select : none;
+}
+
+div.nodetreepopupsearchdiv
+{
+	margin : 5px;
+}
+
+img.nodetreeicon
+{
+	width : 18px;
+	height : 18px;
+	margin-right : 8px;
+	margin-bottom : -4px;
+}
+
 div.links
 {
 	position : absolute;
@@ -165,7 +187,6 @@ div.popup
 
 div.contextmenu
 {
-	color : #4B4B4B;
 	background : #ffffff;
 	border : 1px solid #cccccc;
 }
@@ -198,7 +219,6 @@ div.contextmenusubitems div.contextmenuitem
 
 div.parametersettings
 {
-	color : #4B4B4B;
 	background : #ffffff;
 	border : 1px solid #cccccc;
 }
@@ -252,28 +272,6 @@ div.parameterbutton
 	border-radius : 5px;
 	cursor : pointer;
 	float : right;
-}
-
-div.nodetreepopup
-{
-	color : #4B4B4B;
-	background : #ffffff;
-	width : 220px;
-	max-height : 300px;
-	border : 1px solid #cccccc;
-}
-
-div.nodetreepopupsearchdiv
-{
-	margin : 5px;
-}
-
-img.nodetreeicon
-{
-	width : 18px;
-	height : 18px;
-	margin-right : 8px;
-	margin-bottom : -4px;
 }
 
 div.thinscrollbar::-webkit-scrollbar
