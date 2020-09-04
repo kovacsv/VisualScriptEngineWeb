@@ -53,6 +53,8 @@ set (
 	${SDLGfxFiles}
 	${VisualScriptEngineFiles}
 )
+
+source_group ("AppFramework" FILES ${WebAppFrameworkFiles})
 source_group ("Sources" FILES ${WebAppFiles})
 source_group ("SDLGfx" FILES ${SDLGfxFiles})
 source_group ("VisualScriptEngine" FILES ${VisualScriptEngineFiles})
