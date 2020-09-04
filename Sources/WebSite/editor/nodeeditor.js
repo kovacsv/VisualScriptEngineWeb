@@ -232,7 +232,7 @@ NodeEditor.prototype.OpenSettingsDialog = function (parameters)
 	var positionY = this.canvas.offset ().top + this.canvas.height () / 2;
 	
 	var myThis = this;
-	var parameterSettings = new ParameterSettings (this.canvas, parameters.parameters, function (changedParameters) {
+	var parameterSettings = new ParameterSettings (this.canvas, parameters.parameters, this.settings.customControlCreator, function (changedParameters) {
 		var responseString = '';
 		if (changedParameters != null) {
 			responseString = JSON.stringify (changedParameters);

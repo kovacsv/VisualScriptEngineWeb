@@ -1,7 +1,81 @@
-var ParameterSettings = function (parentElement, parameters, onClose)
+function CreateControl (parentDiv, parameter, onChange)
+{
+	function CreateBoolControl (parentDiv, paramValue, onChange)
+	{
+		var control = $('<select>').appendTo (parentDiv);
+		$('<option>').val (0).html ('true').appendTo (control);
+		$('<option>').val (1).html ('false').appendTo (control);
+		control.val (paramValue.boolVal ? 0 : 1);
+		control.on ('input', function () {
+			onChange ({ boolVal : (control.val () == 0 ? true : false) });
+		});
+	}
+
+	function CreateIntegerControl (parentDiv, paramValue, onChange)
+	{
+		var control = $('<input>').attr ('type', 'text').appendTo (parentDiv);
+		control.val (paramValue.intVal);
+		control.on ('input', function () {
+			onChange ({ intVal : parseInt (control.val ()) });
+		});
+	}
+
+	function CreateNumberControl (parentDiv, paramValue, onChange)
+	{
+		var control = $('<input>').attr ('type', 'text').appendTo (parentDiv);
+		control.val (paramValue.numVal);
+		control.on ('input', function () {
+			onChange ({ numVal : parseFloat (control.val ()) });
+		});
+	}
+
+	function CreateStringControl (parentDiv, paramValue, onChange)
+	{
+		var control = $('<input>').attr ('type', 'text').appendTo (parentDiv);
+		control.val (paramValue.strVal);
+		control.on ('input', function () {
+			onChange ({ strVal : control.val () });
+		});
+	}
+
+	function CreateEnumerationControl (parentDiv, paramValue, onChange)
+	{
+		var control = $('<select>').appendTo (parentDiv);
+		var i, choice;
+		for (i = 0; i < paramValue.choices.length; i++) {
+			choice = paramValue.choices[i];
+			$('<option>').val (i).html (choice).appendTo (control);
+		}
+		control.val (paramValue.intVal);
+		control.on ('input', function () {
+			onChange ({ intVal : parseInt (control.val ()) });
+		});
+	}
+	
+	if (parameter.type == 'boolean') {
+		CreateBoolControl (parentDiv, parameter.value, onChange);
+		return true;
+	} else if (parameter.type == 'integer') {
+		CreateIntegerControl (parentDiv, parameter.value, onChange);
+		return true;
+	} else if (parameter.type == 'float' || parameter.type == 'double') {
+		CreateNumberControl (parentDiv, parameter.value, onChange);
+		return true;
+	} else if (parameter.type == 'string') {
+		CreateStringControl (parentDiv, parameter.value, onChange);
+		return true;
+	} else if (parameter.type == 'enumeration') {
+		CreateEnumerationControl (parentDiv, parameter.value, onChange);
+		return true;
+	}
+	return false;
+}
+
+var ParameterSettings = function (parentElement, parameters, customControlCreator, onClose)
 {
 	this.parentElement = parentElement;
 	this.parameters = parameters;
+	this.customControlCreator = customControlCreator;
 	this.onClose = onClose;
 	this.changedParams = {
 		params : []		
@@ -44,53 +118,22 @@ ParameterSettings.prototype.Open = function (positionX, positionY)
 
 ParameterSettings.prototype.GenerateTable = function ()
 {
-	function AddControl (controlColumn, paramIndex, parameter, changedParams)
+	function AddControl (controlColumn, paramIndex, parameter, customControlCreator, changedParams)
 	{
-		var control = null;
-		if (parameter.type == 'boolean') {
-			control = $('<select>').appendTo (controlColumn);
-			$('<option>').val (0).html ('true').appendTo (control);
-			$('<option>').val (1).html ('false').appendTo (control);
-			control.val (parameter.value.boolVal ? 0 : 1);
-		} else if (parameter.type == 'integer') {
-			control = $('<input>').attr ('type', 'text').appendTo (controlColumn);
-			control.val (parameter.value.intVal);
-		} else if (parameter.type == 'float' || parameter.type == 'double') {
-			control = $('<input>').attr ('type', 'text').appendTo (controlColumn);
-			control.val (parameter.value.numVal);
-		} else if (parameter.type == 'string') {
-			control = $('<input>').attr ('type', 'text').appendTo (controlColumn);
-			control.val (parameter.value.strVal);
-		} else if (parameter.type == 'enumeration') {
-			control = $('<select>').appendTo (controlColumn);
-			var i, choice;
-			for (i = 0; i < parameter.value.choices.length; i++) {
-				choice = parameter.value.choices[i];
-				$('<option>').val (i).html (choice).appendTo (control);
-			}
-			control.val (parameter.value.intVal);
+		function ChangeParameter (value)
+		{
+			changedParams.params[paramIndex] = {};
+			changedParams.params[paramIndex].value = value;
+		}
+		
+		var hasControl = CreateControl (controlColumn, parameter, ChangeParameter);
+		if (!hasControl && customControlCreator) {
+			hasControl = customControlCreator (controlColumn, parameter, ChangeParameter);
+		}
+		if (!hasControl) {
+			$('<span>').html ('N/A').appendTo (controlColumn);
 		}
 		changedParams.params.push (null);
-		if (control == null) {
-			$('<span>').html ('N/A').appendTo (controlColumn);
-		} else {
-			control.on ('input', function () {
-				var value = {};
-				if (parameter.type == 'boolean') {
-					value.boolVal = (control.val () == 0 ? true : false);
-				} else if (parameter.type == 'integer') {
-					value.intVal = parseInt (control.val ());
-				} else if (parameter.type == 'float' || parameter.type == 'double') {
-					value.numVal = parseFloat (control.val ());
-				} else if (parameter.type == 'string') {
-					value.strVal = control.val ();
-				} else if (parameter.type == 'enumeration') {
-					value.intVal = parseInt (control.val ());
-				}
-				changedParams.params[paramIndex] = {};
-				changedParams.params[paramIndex].value = value;
-			});
-		}
 	}
 	
 	var popUpDivElem = this.popUpDiv.GetDiv ();
@@ -101,7 +144,7 @@ ParameterSettings.prototype.GenerateTable = function ()
 		row = $('<tr>').appendTo (table);
 		nameColumn = $('<td>').html (parameter.name).appendTo (row);
 		controlColumn = $('<td>').appendTo (row);
-		AddControl (controlColumn, i, parameter, this.changedParams);
+		AddControl (controlColumn, i, parameter, this.customControlCreator, this.changedParams);
 	}
 };
 

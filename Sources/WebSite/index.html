@@ -50,7 +50,10 @@
 			};
 			var settings = {
 				nodeTree : nodeTree,
-				fileExtension : '.ne'
+				fileExtension : '.ne',
+				customControlCreator : function (parentDiv, parameter, onChange) {
+					return false;
+				}
 			};
 			editor.Init (Module, settings, uiElements);
 			
