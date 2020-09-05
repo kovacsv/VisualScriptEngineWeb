@@ -2,9 +2,10 @@
 #define CUSTOM_APP_INTERFACE_HPP
 
 #include "NUIE_NodeEditor.hpp"
+#include "JSONConversion.hpp"
 #include "AppNodeTree.hpp"
 
-class CustomAppInterface
+class CustomAppInterface : public ParameterJsonInterface
 {
 public:
 	CustomAppInterface ();

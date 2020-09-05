@@ -117,7 +117,7 @@ static void EmscriptenMainLoop (void* arg)
 
 Application::Application (CustomAppInterface& customAppInterface) :
 	customAppInterface (customAppInterface),
-	browserInterface (nodeEditor),
+	browserInterface (nodeEditor, customAppInterface),
 	appNodeTree (),
 	uiEnvironment (customAppInterface, &browserInterface),
 	nodeEditor (uiEnvironment),

@@ -135,6 +135,16 @@ public:
 		return nodeEditor.Open (inputStream);
 	}
 
+	virtual bool ConvertParameterValueToJson (const NUIE::ParameterInterfacePtr&, size_t, rapidjson::Value&, rapidjson::Document::AllocatorType&) const override
+	{
+		return false;
+	}
+
+	virtual NE::ValuePtr ConvertParameterJsonToValue (const rapidjson::Value&, NUIE::ParameterInterfacePtr&, size_t) const override
+	{
+		return nullptr;
+	}
+
 private:
 	NE::EvaluationEnv evaluationEnv;
 };

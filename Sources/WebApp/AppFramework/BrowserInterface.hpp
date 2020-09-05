@@ -2,6 +2,7 @@
 #define BROWSER_INTERFACE_HPP
 
 #include "NUIE_NodeEditor.hpp"
+#include "JSONConversion.hpp"
 #include "AppNodeTree.hpp"
 
 class Application;
@@ -34,27 +35,28 @@ public:
 		NUIE::ParameterInterfacePtr		paramInterface;
 	};
 
-	BrowserInterface (NUIE::NodeEditor& nodeEditor);
+	BrowserInterface (NUIE::NodeEditor& nodeEditor, ParameterJsonInterface& paramJsonInterface);
 
-	bool					AreEventsSuspended () const;
+	bool						AreEventsSuspended () const;
 
-	void					OnAppInitialized (const AppNodeTree& appNodeTree) const;
-	void					SaveFile (const std::vector<char>& buffer) const;
+	void						OnAppInitialized (const AppNodeTree& appNodeTree) const;
+	void						SaveFile (const std::vector<char>& buffer) const;
 
-	NUIE::MenuCommandPtr	ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
-	void					ContextMenuResponse (int commandId);
+	NUIE::MenuCommandPtr		ContextMenuRequest (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands);
+	void						ContextMenuResponse (int commandId);
 
-	void					DoubleClickRequest (const NUIE::Point& position);
+	void						DoubleClickRequest (const NUIE::Point& position);
 
-	bool					ParameterSettingsRequest (NUIE::ParameterInterfacePtr parameters);
-	void					ParameterSettingsResponse (const std::string& changedParametersJsonStr);
+	bool						ParameterSettingsRequest (NUIE::ParameterInterfacePtr parameters);
+	void						ParameterSettingsResponse (const std::string& changedParametersJsonStr);
 
 private:
-	NUIE::NodeEditor&		nodeEditor;
+	NUIE::NodeEditor&			nodeEditor;
+	ParameterJsonInterface&		paramJsonInterface;
 
-	State					state;
-	ContextMenuData			contextMenuData;
-	ParameterSettingsData	paramSettingsData;
+	State						state;
+	ContextMenuData				contextMenuData;
+	ParameterSettingsData		paramSettingsData;
 };
 
 #endif

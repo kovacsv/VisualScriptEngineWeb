@@ -125,8 +125,9 @@ BrowserInterface::ParameterSettingsData::ParameterSettingsData () :
 
 }
 
-BrowserInterface::BrowserInterface (NUIE::NodeEditor& nodeEditor) :
+BrowserInterface::BrowserInterface (NUIE::NodeEditor& nodeEditor, ParameterJsonInterface& paramJsonInterface) :
 	nodeEditor (nodeEditor),
+	paramJsonInterface (paramJsonInterface),
 	state (State::Normal),
 	contextMenuData (),
 	paramSettingsData ()
@@ -213,7 +214,7 @@ bool BrowserInterface::ParameterSettingsRequest (NUIE::ParameterInterfacePtr par
 	if (state == State::Normal) {
 		state = State::WaitingForParametersResponse;
 		paramSettingsData.paramInterface = parameters;
-		std::string parametersJson = ConvertParametersToJson (parameters);
+		std::string parametersJson = ConvertParametersToJson (parameters, paramJsonInterface);
 		EM_ASM ({
 			ParameterSettingsRequest ($0);
 		}, parametersJson.c_str ());
@@ -230,7 +231,7 @@ void BrowserInterface::ParameterSettingsResponse (const std::string& changedPara
 {
 #ifdef EMSCRIPTEN
 	state = State::Normal;
-	if (ProcessChangedParametersJson (changedParametersJsonStr, paramSettingsData.paramInterface)) {
+	if (ProcessChangedParametersJson (changedParametersJsonStr, paramJsonInterface, paramSettingsData.paramInterface)) {
 		nodeEditor.ApplyParameterChanges (paramSettingsData.paramInterface);
 	}
 	paramSettingsData.paramInterface = nullptr;

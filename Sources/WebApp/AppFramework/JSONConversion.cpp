@@ -2,7 +2,6 @@
 #include "NE_SingleValues.hpp"
 #include "NE_StringUtils.hpp"
 
-#include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
@@ -11,34 +10,44 @@ using namespace rapidjson;
 const int InvalidCommandId = -1;
 const int FirstCommandId = 1; 
 
-static void AddString (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, const std::string& value)
+ParameterJsonInterface::ParameterJsonInterface ()
+{
+
+}
+
+ParameterJsonInterface::~ParameterJsonInterface ()
+{
+
+}
+
+void AddString (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, const std::string& value)
 {
 	Value jsonValue;
 	jsonValue.SetString (value.c_str (), allocator);
 	obj.AddMember (key, jsonValue, allocator);
 }
 
-static void AddString (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, const std::wstring& value)
+void AddString (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, const std::wstring& value)
 {
 	std::string str = NE::WStringToString (value);
 	AddString (obj, allocator, key, str);
 }
 
-static void AddBoolean (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, bool value)
+void AddBoolean (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, bool value)
 {
 	Value jsonValue;
 	jsonValue.SetBool (value);
 	obj.AddMember (key, jsonValue, allocator);
 }
 
-static void AddInteger (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, int value)
+void AddInteger (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, int value)
 {
 	Value jsonValue;
 	jsonValue.SetInt (value);
 	obj.AddMember (key, jsonValue, allocator);
 }
 
-static void AddDouble (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, double value)
+void AddDouble (Value& obj, Document::AllocatorType& allocator, const GenericStringRef<char>& key, double value)
 {
 	Value jsonValue;
 	jsonValue.SetDouble (value);
@@ -53,6 +62,42 @@ static std::string DocumentToString (const Document& doc)
 
 	std::string docString (buffer.GetString ());
 	return docString;
+}
+
+std::string ConvertNodeTreeToJson (const AppNodeTree& appNodeTree)
+{
+	Document doc;
+	Document::AllocatorType& allocator = doc.GetAllocator ();
+	doc.SetArray ();
+
+	const NUIE::NodeTree& nodeTree = appNodeTree.GetNodeTree ();
+	const std::vector<NUIE::NodeTree::Group>& groups = nodeTree.GetGroups ();
+
+	for (size_t groupIndex = 0; groupIndex < groups.size (); groupIndex++) {
+		const NUIE::NodeTree::Group& group = groups[groupIndex];
+
+		Value groupObj;
+		groupObj.SetObject ();
+		AddString (groupObj, allocator, "name", group.GetName ());
+
+		Value itemArr;
+		itemArr.SetArray ();
+		const std::vector<NUIE::NodeTree::Item>& items = group.GetItems ();
+		for (size_t nodeIndex = 0; nodeIndex < items.size (); nodeIndex++) {
+			const NUIE::NodeTree::Item& item = items[nodeIndex];
+			Value itemObj;
+			itemObj.SetObject ();
+			AddString (itemObj, allocator, "name", item.GetName ());
+			AddString (itemObj, allocator, "icon", appNodeTree.GetIcon (groupIndex, nodeIndex));
+			AddInteger (itemObj, allocator, "groupId", (int) groupIndex);
+			AddInteger (itemObj, allocator, "nodeId", (int) nodeIndex);
+			itemArr.PushBack (itemObj, allocator);
+		}
+		groupObj.AddMember ("nodes", itemArr, allocator);
+		doc.PushBack (groupObj, allocator);
+	}
+
+	return DocumentToString (doc);
 }
 
 static void AddCommandsToJson (std::vector<NUIE::MenuCommandPtr> commandList, int& currentId, Value& commands, Document::AllocatorType& allocator)
@@ -96,7 +141,52 @@ std::string ConvertMenuCommandsToJson (const NUIE::MenuCommandStructure& command
 	return DocumentToString (doc);
 }
 
-std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& parameters)
+bool ConvertParameterValueToJson (const NUIE::ParameterInterfacePtr& parameters, size_t paramIndex, Value& valueObj, Document::AllocatorType& allocator)
+{
+	NUIE::ParameterType type = parameters->GetParameterType (paramIndex);
+	NE::ValueConstPtr value = parameters->GetParameterValue (paramIndex);
+	if (type == NUIE::ParameterType::Boolean) {
+		if (NE::Value::IsType<NE::BooleanValue> (value)) {
+			AddBoolean (valueObj, allocator, "boolVal", NE::BooleanValue::Get (value));
+		}
+	} else if (type == NUIE::ParameterType::Integer) {
+		if (NE::Value::IsType<NE::IntValue> (value)) {
+			AddInteger (valueObj, allocator, "intVal", NE::IntValue::Get (value));
+		}
+	} else if (type == NUIE::ParameterType::Float) {
+		if (NE::Value::IsType<NE::FloatValue> (value)) {
+			AddDouble (valueObj, allocator, "numVal", NE::FloatValue::Get (value));
+		}
+	} else if (type == NUIE::ParameterType::Double) {
+		if (NE::Value::IsType<NE::DoubleValue> (value)) {
+			AddDouble (valueObj, allocator, "numVal", NE::DoubleValue::Get (value));
+		}
+	} else if (type == NUIE::ParameterType::String) {
+		if (NE::Value::IsType<NE::StringValue> (value)) {
+			AddString (valueObj, allocator, "strVal", NE::StringValue::Get (value));
+		}
+	} else if (type == NUIE::ParameterType::Enumeration) {
+		if (NE::Value::IsType<NE::IntValue> (value)) {
+			AddInteger (valueObj, allocator, "intVal", NE::IntValue::Get (value));
+			std::vector<std::wstring> choices = parameters->GetParameterValueChoices (paramIndex);
+			Value choicesArr;
+			choicesArr.SetArray ();
+			for (const std::wstring& choice : choices) {
+				Value choiceStrVal;
+				std::string choiceStr = NE::WStringToString (choice);
+				choiceStrVal.SetString (choiceStr.c_str (), (SizeType) choiceStr.length (), allocator);
+				choicesArr.PushBack (choiceStrVal, allocator);
+			}
+			valueObj.AddMember ("choices", choicesArr, allocator);
+		}
+	} else {
+		return false;
+	}
+	return true;
+
+}
+
+std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& parameters, const ParameterJsonInterface& paramJsonInterface)
 {
 	Document doc;
 	Document::AllocatorType& allocator = doc.GetAllocator ();
@@ -108,47 +198,13 @@ std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& paramete
 	for (size_t i = 0; i < parameters->GetParameterCount (); i++) {
 		Value paramObj;
 		paramObj.SetObject ();
-		AddString (paramObj, allocator, "name", parameters->GetParameterName (i));
 		AddString (paramObj, allocator, "type", parameters->GetParameterType (i).GetId ());
+		AddString (paramObj, allocator, "name", parameters->GetParameterName (i));
 
 		Value valueObj;
 		valueObj.SetObject ();
-		NE::ValueConstPtr value = parameters->GetParameterValue (i);
-		NUIE::ParameterType type = parameters->GetParameterType (i);
-		if (type == NUIE::ParameterType::Boolean) {
-			if (NE::Value::IsType<NE::BooleanValue> (value)) {
-				AddBoolean (valueObj, allocator, "boolVal", NE::BooleanValue::Get (value));
-			}
-		} else if (type == NUIE::ParameterType::Integer) {
-			if (NE::Value::IsType<NE::IntValue> (value)) {
-				AddInteger (valueObj, allocator, "intVal", NE::IntValue::Get (value));
-			}
-		} else if (type == NUIE::ParameterType::Float) {
-			if (NE::Value::IsType<NE::FloatValue> (value)) {
-				AddDouble (valueObj, allocator, "numVal", NE::FloatValue::Get (value));
-			}
-		} else if (type == NUIE::ParameterType::Double) {
-			if (NE::Value::IsType<NE::DoubleValue> (value)) {
-				AddDouble (valueObj, allocator, "numVal", NE::DoubleValue::Get (value));
-			}
-		} else if (type == NUIE::ParameterType::String) {
-			if (NE::Value::IsType<NE::StringValue> (value)) {
-				AddString (valueObj, allocator, "strVal", NE::StringValue::Get (value));
-			}
-		} else if (type == NUIE::ParameterType::Enumeration) {
-			if (NE::Value::IsType<NE::IntValue> (value)) {
-				AddInteger (valueObj, allocator, "intVal", NE::IntValue::Get (value));
-				std::vector<std::wstring> choices = parameters->GetParameterValueChoices (i);
-				Value choicesArr;
-				choicesArr.SetArray ();
-				for (const std::wstring& choice : choices) {
-					Value choiceStrVal;
-					std::string choiceStr = NE::WStringToString (choice);
-					choiceStrVal.SetString (choiceStr.c_str (), (SizeType) choiceStr.length (), allocator);
-					choicesArr.PushBack (choiceStrVal, allocator);
-				}
-				valueObj.AddMember ("choices", choicesArr, allocator);
-			}
+		if (!ConvertParameterValueToJson (parameters, i, valueObj, allocator)) {
+			paramJsonInterface.ConvertParameterValueToJson (parameters, i, valueObj, allocator);
 		}
 
 		paramObj.AddMember ("value", valueObj, allocator);
@@ -159,43 +215,33 @@ std::string ConvertParametersToJson (const NUIE::ParameterInterfacePtr& paramete
 	return DocumentToString (doc);
 }
 
-std::string ConvertNodeTreeToJson (const AppNodeTree& appNodeTree)
+NE::ValuePtr ConvertParameterJsonToValue (const Value& valueObj, NUIE::ParameterInterfacePtr& parameters, size_t paramIndex)
 {
-	Document doc;
-	Document::AllocatorType& allocator = doc.GetAllocator ();
-	doc.SetArray ();
-
-	const NUIE::NodeTree& nodeTree = appNodeTree.GetNodeTree ();
-	const std::vector<NUIE::NodeTree::Group>& groups = nodeTree.GetGroups ();
-
-	for (size_t groupIndex = 0; groupIndex < groups.size (); groupIndex++) {
-		const NUIE::NodeTree::Group& group = groups[groupIndex];
-
-		Value groupObj;
-		groupObj.SetObject ();
-		AddString (groupObj, allocator, "name", group.GetName ());
-
-		Value itemArr;
-		itemArr.SetArray ();
-		const std::vector<NUIE::NodeTree::Item>& items = group.GetItems ();
-		for (size_t nodeIndex = 0; nodeIndex < items.size (); nodeIndex++) {
-			const NUIE::NodeTree::Item& item = items[nodeIndex];
-			Value itemObj;
-			itemObj.SetObject ();
-			AddString (itemObj, allocator, "name", item.GetName ());
-			AddString (itemObj, allocator, "icon", appNodeTree.GetIcon (groupIndex, nodeIndex));
-			AddInteger (itemObj, allocator, "groupId", (int) groupIndex);
-			AddInteger (itemObj, allocator, "nodeId", (int) nodeIndex);
-			itemArr.PushBack (itemObj, allocator);
-		}
-		groupObj.AddMember ("nodes", itemArr, allocator);
-		doc.PushBack (groupObj, allocator);
+	NUIE::ParameterType type = parameters->GetParameterType (paramIndex);
+	NE::ValuePtr resultVal = nullptr;
+	if (type == NUIE::ParameterType::Boolean) {
+		bool boolVal = valueObj["boolVal"].GetBool ();
+		resultVal = NE::ValuePtr (new NE::BooleanValue (boolVal));
+	} else if (type == NUIE::ParameterType::Integer) {
+		int intVal = valueObj["intVal"].GetInt ();
+		resultVal = NE::ValuePtr (new NE::IntValue (intVal));
+	} else if (type == NUIE::ParameterType::Float) {
+		float numVal = valueObj["numVal"].GetFloat ();
+		resultVal = NE::ValuePtr (new NE::FloatValue (numVal));
+	} else if (type == NUIE::ParameterType::Double) {
+		double numVal = valueObj["numVal"].GetDouble ();
+		resultVal = NE::ValuePtr (new NE::DoubleValue (numVal));
+	} else if (type == NUIE::ParameterType::String) {
+		std::string strVal = valueObj["strVal"].GetString ();
+		resultVal = NE::ValuePtr (new NE::StringValue (NE::StringToWString (strVal)));
+	} else if (type == NUIE::ParameterType::Enumeration) {
+		int intVal = valueObj["intVal"].GetInt ();
+		resultVal = NE::ValuePtr (new NE::IntValue (intVal));
 	}
-
-	return DocumentToString (doc);
+	return resultVal;
 }
 
-bool ProcessChangedParametersJson (const std::string& changeParametersJsonStr, NUIE::ParameterInterfacePtr& parameters)
+bool ProcessChangedParametersJson (const std::string& changeParametersJsonStr, const ParameterJsonInterface& paramJsonInterface, NUIE::ParameterInterfacePtr& parameters)
 {
 	if (changeParametersJsonStr.empty ()) {
 		return false;
@@ -218,26 +264,9 @@ bool ProcessChangedParametersJson (const std::string& changeParametersJsonStr, N
 			continue;
 		}
 		const Value& valueObj = paramVal["value"];
-		NUIE::ParameterType type = parameters->GetParameterType (i);
-		NE::ValuePtr resultVal = nullptr;
-		if (type == NUIE::ParameterType::Boolean) {
-			bool boolVal = valueObj["boolVal"].GetBool ();
-			resultVal = NE::ValuePtr (new NE::BooleanValue (boolVal));
-		} else if (type == NUIE::ParameterType::Integer) {
-			int intVal = valueObj["intVal"].GetInt ();
-			resultVal = NE::ValuePtr (new NE::IntValue (intVal));
-		} else if (type == NUIE::ParameterType::Float) {
-			float numVal = valueObj["numVal"].GetFloat ();
-			resultVal = NE::ValuePtr (new NE::FloatValue (numVal));
-		} else if (type == NUIE::ParameterType::Double) {
-			double numVal = valueObj["numVal"].GetDouble ();
-			resultVal = NE::ValuePtr (new NE::DoubleValue (numVal));
-		} else if (type == NUIE::ParameterType::String) {
-			std::string strVal = valueObj["strVal"].GetString ();
-			resultVal = NE::ValuePtr (new NE::StringValue (NE::StringToWString (strVal)));
-		} else if (type == NUIE::ParameterType::Enumeration) {
-			int intVal = valueObj["intVal"].GetInt ();
-			resultVal = NE::ValuePtr (new NE::IntValue (intVal));
+		NE::ValuePtr resultVal = ConvertParameterJsonToValue (valueObj, parameters, i);
+		if (resultVal == nullptr) {
+			resultVal = paramJsonInterface.ConvertParameterJsonToValue (valueObj, parameters, i);
 		}
 		if (resultVal != nullptr) {
 			if (parameters->IsValidParameterValue (i, resultVal)) {
