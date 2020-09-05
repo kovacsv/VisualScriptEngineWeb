@@ -307,6 +307,11 @@ div.tooltip div.tooltipsubtext
 	margin-top : 3px;
 }
 
+table
+{
+	border-collapse : collapse;
+}
+
 a
 {
 	color : #0366d6;
