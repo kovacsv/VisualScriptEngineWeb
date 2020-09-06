@@ -241,6 +241,7 @@ table.parametertable td
 
 table.parametertable input
 {
+	width : 200px;
 	padding : 5px;
 	border : 1px solid #dddddd;
 	box-sizing : border-box;
