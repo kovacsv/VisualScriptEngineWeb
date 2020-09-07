@@ -109,7 +109,9 @@ ParameterSettings.prototype.Open = function (positionX, positionY)
 	this.popUpDiv.Open (positionX, positionY);
 	var popUpDivElem = this.popUpDiv.GetDiv ();
 	popUpDivElem.addClass ('parametersettings');
-	$('<div>').html ('Settings').addClass ('parametersettingstitle').appendTo (popUpDivElem);
+	var titleDiv = $('<div>').addClass ('parametersettingstitle').appendTo (popUpDivElem);
+	$('<img>').attr ('src', 'images/settings.png').appendTo (titleDiv);
+	$('<span>').html ('Settings').appendTo (titleDiv);
 	this.GenerateTable ();
 	this.GenerateButtons ();
 	this.popUpDiv.CenterToElement (this.parentElement);

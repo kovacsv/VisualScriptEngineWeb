@@ -151,7 +151,7 @@ div.nodetreepopup
 	background : #ffffff;
 	width : 220px;
 	max-height : 300px;
-	border : 1px solid #cccccc;
+	border : 1px solid #dddddd;
 	user-select : none;
 }
 
@@ -188,7 +188,7 @@ div.popup
 div.contextmenu
 {
 	background : #ffffff;
-	border : 1px solid #cccccc;
+	border : 1px solid #dddddd;
 }
 
 img.contextmenuicon
@@ -220,18 +220,29 @@ div.contextmenusubitems div.contextmenuitem
 div.parametersettings
 {
 	background : #ffffff;
-	border : 1px solid #cccccc;
+	border : 1px solid #dddddd;
+	border-radius : 5px;
+	box-shadow : 0px 0px 10px #dddddd;
 }
 
 div.parametersettingstitle
 {
 	font-size : 1.2em;
-	padding : 10px;
+	font-weight : bold;
+	padding : 15px 10px;
+}
+
+div.parametersettingstitle img
+{
+	width : 18px;
+	height : 18px;
+	margin-right : 8px;
+	margin-bottom : -3px;
 }
 
 table.parametertable
 {
-	margin-bottom : 5px;
+	margin-bottom : 10px;
 }
 
 table.parametertable td
@@ -261,7 +272,7 @@ div.parameterbuttons
 {
 	margin : 0px 10px;
 	padding : 10px 0px;
-	border-top : 1px solid #cccccc;
+	border-top : 1px solid #dddddd;
 	overflow : auto;
 }
 
