@@ -278,12 +278,25 @@ div.parameterbuttons
 
 div.parameterbutton
 {
-	background : #ececec;
-	padding : 5px 10px;
+	width : 80px;
 	margin-left : 10px;
-	border-radius : 5px;
+	border-radius : 3px;
 	cursor : pointer;
+	text-align : center;
 	float : right;
+}
+
+div.parameterbutton.ok
+{
+	color : #ffffff;
+	background : #297fff;
+	padding : 6px 10px;
+}
+
+div.parameterbutton.cancel
+{
+	border : 1px solid #dddddd;
+	padding : 5px 9px;
 }
 
 div.thinscrollbar::-webkit-scrollbar
@@ -359,12 +372,6 @@ div.nodetreeitem:hover
 div.contextmenuitem:hover
 {
 	background : #ececec;
-}
-
-div.parameterbutton:hover
-{
-	color : #fafafa;
-	background : #297fff;
 }
 
 }
