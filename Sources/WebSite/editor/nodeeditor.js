@@ -87,7 +87,7 @@ NodeEditor.prototype.InitControls = function (controlsDiv)
 	AddCommandControl (this, controlsDiv, 'Undo', 'Undo', 'Ctrl+Z', 'Undo');
 	AddCommandControl (this, controlsDiv, 'Redo', 'Redo', 'Ctrl+Shift+Z', 'Redo');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'NodeSettings', 'Node Settings', 'Ctrl+G', 'SetParameters');
+	AddCommandControl (this, controlsDiv, 'NodeSettings', 'Node Settings', null, 'SetParameters');
 	AddCommandControl (this, controlsDiv, 'Copy', 'Copy', 'Ctrl+C', 'Copy');
 	AddCommandControl (this, controlsDiv, 'Paste', 'Paste', 'Ctrl+V', 'Paste');
 	AddCommandControl (this, controlsDiv, 'Delete', 'Delete', 'Delete Key', 'Delete');
