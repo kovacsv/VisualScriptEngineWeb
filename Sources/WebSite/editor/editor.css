@@ -146,6 +146,11 @@ div.nodetreesubitems div.nodetreeitem
 	padding-left : 20px;
 }
 
+div.nodetreesubitems div.nodetreeitem.selected
+{
+	background : #dce6f1;
+}
+
 div.nodetreepopup
 {
 	background : #ffffff;
