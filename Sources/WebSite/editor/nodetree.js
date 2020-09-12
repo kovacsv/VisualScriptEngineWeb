@@ -64,11 +64,13 @@ NodeTree.prototype.InitSearchField = function ()
 					node.nodeItem.mainItem.hide ();
 				}
 			}
-			if (foundInGroup) {
-				myThis.OpenGroup (group);
-				group.groupItem.mainItem.show ();
-			} else {
-				group.groupItem.mainItem.hide ();
+			if (myThis.settings.groups) {
+				if (foundInGroup) {
+					myThis.OpenGroup (group);
+					group.groupItem.mainItem.show ();
+				} else {
+					group.groupItem.mainItem.hide ();
+				}
 			}
 		}
 		myThis.UpdateSelection ();
@@ -179,26 +181,34 @@ NodeTree.prototype.AddNode = function (nodeGroup, nodeIcon, nodeName, groupId, n
 
 NodeTree.prototype.AddNodeGroup = function (groupName)
 {
-	var item = this.CreateItem ('images/folder_opened.png', groupName);
-	item.mainItem.appendTo (this.parentDiv);
-
-	var subItemsDiv = $('<div>').addClass ('nodetreesubitems').appendTo (this.parentDiv);
 	var nodeGroup = {
-		name : groupName,
-		groupItem : item,
-		subItemsDiv : subItemsDiv,
+		name : null,
+		groupItem : null,
+		subItemsDiv : null,
 		items : []
 	};
 
 	var myThis = this;
-	item.mainItem.click (function () {
-		if (subItemsDiv.is (':visible')) {
-			myThis.CloseGroup (nodeGroup);
-		} else {
-			myThis.OpenGroup (nodeGroup);
-		}
-	});
-	
+	var subItemsDiv = null;
+	if (this.settings.groups) {
+		var item = this.CreateItem ('images/folder_opened.png', groupName);
+		item.mainItem.appendTo (this.parentDiv);
+		subItemsDiv = $('<div>').addClass ('nodetreesubitems').appendTo (this.parentDiv);
+		item.mainItem.click (function () {
+			if (subItemsDiv.is (':visible')) {
+				myThis.CloseGroup (nodeGroup);
+			} else {
+				myThis.OpenGroup (nodeGroup);
+			}
+		});
+		nodeGroup.groupItem = item;
+	} else {
+		subItemsDiv = $('<div>').appendTo (this.parentDiv);
+	}
+
+	nodeGroup.name = groupName;
+	nodeGroup.subItemsDiv = subItemsDiv;
+		
 	this.nodeGroups.push (nodeGroup);
 	return nodeGroup;
 };
@@ -219,12 +229,18 @@ NodeTree.prototype.CreateItem = function (imgSrc, name)
 
 NodeTree.prototype.OpenGroup = function (nodeGroup)
 {
+	if (!this.settings.groups) {
+		return;
+	}
 	nodeGroup.subItemsDiv.show ();
 	nodeGroup.groupItem.imgItem.attr ('src', 'images/folder_opened.png');	
 };
 
 NodeTree.prototype.CloseGroup = function (nodeGroup)
 {
+	if (!this.settings.groups) {
+		return;
+	}
 	nodeGroup.subItemsDiv.hide ();
 	nodeGroup.groupItem.imgItem.attr ('src', 'images/folder_closed.png');	
 };
@@ -248,17 +264,19 @@ NodeTreePopUp.prototype.Open = function (positionX, positionY)
 {
 	this.popUpDiv.Open (positionX, positionY);
 	var popUpDivElem = this.popUpDiv.GetDiv ();
-	popUpDivElem.addClass ('nodetreepopup thinscrollbar');
+	popUpDivElem.addClass ('nodetreepopup');
 	
 	var searchDiv = $('<div>').addClass ('nodetreepopupsearchdiv').appendTo (popUpDivElem);
+	var nodeTreeMainDiv = $('<div>').addClass ('nodetreepopupmaindiv thinscrollbar').appendTo (popUpDivElem);
 	
 	var myThis = this;
 	var nodeTreeSettings = {
+		groups : false,
 		dragDrop : false,
 		selection : true,
 		searchDiv : searchDiv
 	};
-	var nodeTree = new NodeTree (popUpDivElem, this.nodeList, nodeTreeSettings, function (groupId, nodeId) {
+	var nodeTree = new NodeTree (nodeTreeMainDiv, this.nodeList, nodeTreeSettings, function (groupId, nodeId) {
 		myThis.popUpDiv.Close ();
 		myThis.onNodeClick (groupId, nodeId);
 	});

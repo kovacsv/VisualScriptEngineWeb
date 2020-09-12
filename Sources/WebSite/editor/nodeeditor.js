@@ -100,6 +100,7 @@ NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
 {
 	var myThis = this;
 	var nodeTreeSettings = {
+		groups : true,
 		dragDrop : true,
 		selection : false,
 		searchDiv : searchDiv

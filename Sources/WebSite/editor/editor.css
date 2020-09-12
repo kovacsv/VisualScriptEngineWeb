@@ -146,7 +146,7 @@ div.nodetreesubitems div.nodetreeitem
 	padding-left : 20px;
 }
 
-div.nodetreesubitems div.nodetreeitem.selected
+div.nodetreeitem.selected
 {
 	background : #dce6f1;
 }
@@ -155,7 +155,6 @@ div.nodetreepopup
 {
 	background : #ffffff;
 	width : 220px;
-	max-height : 300px;
 	border : 1px solid #dddddd;
 	user-select : none;
 }
@@ -163,6 +162,12 @@ div.nodetreepopup
 div.nodetreepopupsearchdiv
 {
 	margin : 5px;
+}
+
+div.nodetreepopupmaindiv
+{
+	max-height : 260px;
+	overflow : auto;
 }
 
 img.nodetreeicon

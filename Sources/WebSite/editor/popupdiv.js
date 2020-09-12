@@ -22,10 +22,6 @@ PopUpDiv.prototype.Open = function (positionX, positionY)
 		}
 	};
 	documentBody.bind ('mousedown', this.mouseDownHandler);
-
-	this.popUpDiv.contextmenu (function (ev) {
-		ev.preventDefault ();
-	});
 	
 	if (this.eventHandlers.onOpen) {
 		this.eventHandlers.onOpen ();
