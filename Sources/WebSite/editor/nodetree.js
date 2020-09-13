@@ -116,6 +116,10 @@ NodeTree.prototype.InitSelection = function ()
 	
 	var myThis = this;
 	this.searchInput.keydown (function (ev) {
+		if (ev.which == 38 || ev.which == 40) {
+			event.preventDefault ();
+		}
+		
 		if (myThis.selectedItem == null) {
 			return;
 		}
@@ -135,6 +139,23 @@ NodeTree.prototype.InitSelection = function ()
 
 NodeTree.prototype.UpdateSelection = function ()
 {
+	function ScrollToItem (item, parentDiv)
+	{
+		var itemTop = item.offset ().top;
+		var itemBottom = itemTop + item.outerHeight ();
+		var parentTop = parentDiv.offset ().top;
+		var parentBottom = parentTop + parentDiv.outerHeight ();
+		var scrollDiff = null;
+		if (itemTop < parentTop) {
+			scrollDiff = itemTop - parentTop;
+		} else if (itemBottom > parentBottom) {
+			scrollDiff = itemBottom - parentBottom;
+		}
+		if (scrollDiff != null) {
+			parentDiv.scrollTop (parentDiv.scrollTop () + scrollDiff);
+		}
+	}
+	
 	if (!this.settings.selection || this.selectedItem == null) {
 		return;
 	}
@@ -146,6 +167,7 @@ NodeTree.prototype.UpdateSelection = function ()
 			node = group.items[j];
 			if (i == this.selectedItem.group && j == this.selectedItem.item) {
 				node.nodeItem.mainItem.addClass ('selected');
+				ScrollToItem (node.nodeItem.mainItem, this.parentDiv);
 			} else {
 				node.nodeItem.mainItem.removeClass ('selected');
 			}
