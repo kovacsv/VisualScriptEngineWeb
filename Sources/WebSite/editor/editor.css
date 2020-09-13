@@ -271,7 +271,7 @@ table.parametertable input
 
 table.parametertable select
 {
-	width : 100%;
+	width : 200px;
 	padding : 5px;
 	border : 1px solid #dddddd;
 	box-sizing : border-box;
