@@ -16,6 +16,12 @@ div.editor
 	
 }
 
+div.splashscreen
+{
+	margin-top : 100px;
+	text-align : center;
+}
+
 div.header
 {
 	color : #000000;

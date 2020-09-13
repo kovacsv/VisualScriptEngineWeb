@@ -19,8 +19,11 @@
 	<script type="text/javascript" src="editor/editorinterface.js"></script>
 	<script type="text/javascript" src="editor/nodeeditor.js"></script>
 	<script type="text/javascript" src="editor/editormain.js"></script>
+	<script type="text/javascript" src="editor/splashscreen.js"></script>
 	
 	<script type='text/javascript'>
+		var splashScreen = new SplashScreen ('editor', 'images/vse.png');
+	
 		function OnResize ()
 		{
 			var windowObj = $(window);
@@ -58,6 +61,7 @@
 			};
 			editor.Init (Module, settings, uiElements);
 			
+			splashScreen.Hide ();
 			OnResize ();
 		}
 		
@@ -74,7 +78,7 @@
 </head>
 
 <body>
-	<div class="editor">
+	<div class="editor" id="editor">
 		<div class="header">
 			<div class="headerleft"><a href="."><img class="logo" src="images/vse.png"></a></div>
 			<div class="headerright"><a href="https://github.com/kovacsv/VisualScriptEngineWeb"><img src="images/github.png" alt="GitHub"></a></div>
@@ -93,6 +97,7 @@
 		</div>
 	</div>
 	<script type='text/javascript'>
+		splashScreen.Show ();
 		var Module = {
 			onRuntimeInitialized : function () {
 				OnRuntimeInitialized ();
