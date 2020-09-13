@@ -14,9 +14,14 @@ SplashScreen.prototype.Show = function (mainDiv)
 
 	var myThis = this;
 	this.timeout = window.setTimeout (function () {
-		var documentBody = $(document.body);
-		myThis.splashDiv = $('<div>').addClass ('splashscreen').appendTo (documentBody);
+		var windowObj = $(window);
+		var bodyObj = $(document.body);
+		myThis.splashDiv = $('<div>').addClass ('splashscreen').appendTo (bodyObj);
 		$('<img>').attr ('src', myThis.imagePath).appendTo (myThis.splashDiv);
+		myThis.splashDiv.offset ({
+			left : windowObj.width () / 2 - myThis.splashDiv.outerWidth () / 2,
+			top : windowObj.height () / 4 - myThis.splashDiv.outerHeight () / 2
+		});
 	}, 500);
 	
 };

@@ -18,8 +18,9 @@ div.editor
 
 div.splashscreen
 {
-	margin-top : 100px;
-	text-align : center;
+	position : absolute;
+	left : 0px;
+	top : 0px;
 }
 
 div.header
