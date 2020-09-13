@@ -55,7 +55,6 @@ set (
 )
 
 source_group ("AppFramework" FILES ${WebAppFrameworkFiles})
-source_group ("Sources" FILES ${WebAppClientFiles})
 source_group ("SDLGfx" FILES ${SDLGfxFiles})
 source_group ("VisualScriptEngine" FILES ${VisualScriptEngineFiles})
 add_executable (WebApp ${WebAppFiles})
