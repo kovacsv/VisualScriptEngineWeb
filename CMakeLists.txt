@@ -90,25 +90,19 @@ else ()
 		${SDLImageLibFolder}/include
 	)
 	target_link_libraries (WebApp SDL2 SDL2main SDL2_ttf SDL2_image)
-	get_filename_component (SDLDllFullPath "${SDLLibFolder}/lib/x64/SDL2.dll" ABSOLUTE)
-	get_filename_component (SDLTTFDllFullPath1 "${SDLTTFLibFolder}/lib/x64/SDL2_ttf.dll" ABSOLUTE)
-	get_filename_component (SDLTTFDllFullPath2 "${SDLTTFLibFolder}/lib/x64/libfreetype-6.dll" ABSOLUTE)
-	get_filename_component (SDLImageDllFullPath1 "${SDLImageLibFolder}/lib/x64/SDL2_image.dll" ABSOLUTE)
-	get_filename_component (SDLImageDllFullPath2 "${SDLImageLibFolder}/lib/x64/libjpeg-9.dll" ABSOLUTE)
-	get_filename_component (SDLImageDllFullPath3 "${SDLImageLibFolder}/lib/x64/libpng16-16.dll" ABSOLUTE)
-	get_filename_component (SDLImageDllFullPath4 "${SDLImageLibFolder}/lib/x64/libtiff-5.dll" ABSOLUTE)
-	get_filename_component (SDLImageDllFullPath5 "${SDLImageLibFolder}/lib/x64/libwebp-7.dll" ABSOLUTE)
-	get_filename_component (SDLImageDllFullPath6 "${SDLImageLibFolder}/lib/x64/zlib1.dll" ABSOLUTE)
+	get_filename_component (SDLLibFolderFullPath "${SDLLibFolder}" ABSOLUTE)
+	get_filename_component (SDLTTFLibFolderFullPath "${SDLTTFLibFolder}" ABSOLUTE)
+	get_filename_component (SDLImageLibFolderFullPath "${SDLImageLibFolder}" ABSOLUTE)
 	add_custom_command (TARGET WebApp POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLDllFullPath}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLTTFDllFullPath1}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLTTFDllFullPath2}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath1}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath2}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath3}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath4}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath5}" $<TARGET_FILE_DIR:WebApp>
-		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageDllFullPath6}" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLLibFolderFullPath}/lib/x64/SDL2.dll" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLTTFLibFolderFullPath}/lib/x64/SDL2_ttf.dll" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLTTFLibFolderFullPath}/lib/x64/libfreetype-6.dll" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageLibFolderFullPath}/lib/x64/SDL2_image.dll" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageLibFolderFullPath}/lib/x64/libjpeg-9.dll" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageLibFolderFullPath}/lib/x64/libpng16-16.dll" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageLibFolderFullPath}/lib/x64/libtiff-5.dll" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageLibFolderFullPath}/lib/x64/libwebp-7.dll" $<TARGET_FILE_DIR:WebApp>
+		COMMAND ${CMAKE_COMMAND} -E copy "${SDLImageLibFolderFullPath}/lib/x64/zlib1.dll" $<TARGET_FILE_DIR:WebApp>
 	)
 endif ()
 target_compile_options (WebApp PUBLIC "$<$<CONFIG:Debug>:-DDEBUG>")
