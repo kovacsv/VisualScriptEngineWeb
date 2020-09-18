@@ -1,4 +1,4 @@
-# VisualScriptEngineWeb
+# Visual Script Engine Web
 
 [![Build status](https://ci.appveyor.com/api/projects/status/pyttwg31mi37b4hy?svg=true)](https://ci.appveyor.com/project/kovacsv/visualscriptengineweb)
 
@@ -53,4 +53,7 @@ The easiest way is to run the `EmscriptenBuild.bat` file from the root directory
 EmscriptenBuild.bat C:\Emscripten\emsdk C:\xampp\htdocs\WebApp
 ```
 
-To try out offline you have to start a web server and set it's folder as the result folder.
+### 5. Open it in a Web Browser
+
+- Set up a web server for the result folder.
+- Open it in a web browser.
