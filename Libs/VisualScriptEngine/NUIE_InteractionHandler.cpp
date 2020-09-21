@@ -91,7 +91,7 @@ public:
 		std::unordered_set<UINodePtr> nodesToSelect;
 		uiManager.EnumerateUINodes ([&] (const UINodePtr& uiNode) {
 			const NE::NodeId& uiNodeId = uiNode->GetId ();
-			Rect nodeRect = uiNode->GetNodeRect (uiEnvironment);
+			Rect nodeRect = uiNode->GetRect (uiEnvironment);
 			if (modelSelectionRect.Contains (nodeRect)) {
 				if (selectedNodes.Contains (uiNodeId)) {
 					selectedNodes.Erase (uiNodeId);
@@ -624,13 +624,6 @@ void InteractionHandler::ExecuteCommand (NodeUIEnvironment& uiEnvironment, NUIE:
 	MenuCommandPtr menuCommand = nullptr;
 
 	switch (command) {
-		case CommandCode::Delete:
-			{
-				if (!selectedNodes.IsEmpty ()) {
-					menuCommand.reset (new DeleteNodesMenuCommand (uiManager, uiEnvironment, selectedNodes));
-				}
-			}
-			break;
 		case CommandCode::SelectAll:
 			{
 				NE::NodeCollection allSelectedNodes;
@@ -650,33 +643,30 @@ void InteractionHandler::ExecuteCommand (NodeUIEnvironment& uiEnvironment, NUIE:
 				}
 			}
 			break;
+		case CommandCode::Delete:
+			{
+				menuCommand.reset (new DeleteNodesMenuCommand (uiManager, uiEnvironment, selectedNodes));
+			}
+			break;
 		case CommandCode::Copy:
 			{
-				if (!selectedNodes.IsEmpty ()) {
-					menuCommand.reset (new CopyNodesMenuCommand (uiManager, uiEnvironment, selectedNodes));
-				}
+				menuCommand.reset (new CopyNodesMenuCommand (uiManager, uiEnvironment, selectedNodes));
 			}
 			break;
 		case CommandCode::Paste:
 			{
-				if (uiEnvironment.GetClipboardHandler ().HasClipboardContent ()) {
-					Point modelPastePosition = pastePositionCalculator.CalculatePastePosition (uiManager, uiEnvironment);
-					menuCommand.reset (new PasteNodesMenuCommand (uiManager, uiEnvironment, modelPastePosition));
-				}
+				Point modelPastePosition = pastePositionCalculator.CalculatePastePosition (uiManager, uiEnvironment);
+				menuCommand.reset (new PasteNodesMenuCommand (uiManager, uiEnvironment, modelPastePosition));
 			}
 			break;
 		case CommandCode::Group:
 			{
-				if (!selectedNodes.IsEmpty ()) {
-					menuCommand.reset (new CreateGroupMenuCommand (uiManager, selectedNodes));
-				}
+				menuCommand.reset (new CreateGroupMenuCommand (uiManager, selectedNodes));
 			}
 			break;
 		case CommandCode::Ungroup:
 			{
-				if (!selectedNodes.IsEmpty ()) {
-					menuCommand.reset (new RemoveNodesFromGroupMenuCommand (uiManager, selectedNodes));
-				}
+				menuCommand.reset (new RemoveNodesFromGroupMenuCommand (uiManager, selectedNodes));
 			}
 			break;
 		case CommandCode::Undo:

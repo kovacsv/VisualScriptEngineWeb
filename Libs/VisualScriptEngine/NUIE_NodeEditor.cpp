@@ -268,4 +268,74 @@ void NodeEditor::Redo ()
 	Update ();
 }
 
+NodeEditorInfo NodeEditor::GetInfo () const
+{
+	NodeEditorInfo info;
+
+	DrawingContext& context = uiEnvironment.GetDrawingContext ();
+	info.view.width = context.GetWidth ();
+	info.view.height = context.GetHeight ();
+
+	const ViewBox& viewBox = uiManager.GetViewBox ();
+	uiManager.EnumerateUINodes ([&] (const UINodeConstPtr& uiNode) {
+		NodeInfo nodeInfo;
+		nodeInfo.id = uiNode->GetId ();
+		nodeInfo.name = uiNode->GetName ().GetLocalized ();
+		nodeInfo.modelRect = uiNode->GetRect (uiEnvironment);
+		nodeInfo.viewRect = viewBox.ModelToView (nodeInfo.modelRect);
+
+		uiNode->EnumerateUIInputSlots ([&] (const UIInputSlotConstPtr& inputSlot) {
+			SlotInfo slotInfo;
+			slotInfo.id = inputSlot->GetId ();
+			slotInfo.name = inputSlot->GetName ().GetLocalized ();
+			slotInfo.modelRect = uiNode->GetInputSlotRect (uiEnvironment, slotInfo.id);
+			slotInfo.viewRect = viewBox.ModelToView (slotInfo.modelRect);
+			nodeInfo.inputSlots.push_back (slotInfo);
+			return true;
+		});
+
+		uiNode->EnumerateUIOutputSlots ([&] (const UIOutputSlotConstPtr& outputSlot) {
+			SlotInfo slotInfo;
+			slotInfo.id = outputSlot->GetId ();
+			slotInfo.name = outputSlot->GetName ().GetLocalized ();
+			slotInfo.modelRect = uiNode->GetOutputSlotRect (uiEnvironment, slotInfo.id);
+			slotInfo.viewRect = viewBox.ModelToView (slotInfo.modelRect);
+			nodeInfo.outputSlots.push_back (slotInfo);
+			return true;
+		});
+
+		uiNode->EnumerateUIOutputSlots ([&] (const UIOutputSlotConstPtr& outputSlot) {
+			uiManager.EnumerateConnectedUIInputSlots (outputSlot, [&] (const UIInputSlotConstPtr& inputSlot) {
+				ConnectionInfo connectionInfo;
+				connectionInfo.fromNodeId = uiNode->GetId ();
+				connectionInfo.fromSlotId = outputSlot->GetId ();
+				connectionInfo.toNodeId = inputSlot->GetOwnerNodeId ();
+				connectionInfo.toSlotId = inputSlot->GetId ();
+				info.connections.push_back (connectionInfo);
+			});
+			return true;
+		});
+
+		info.nodes.push_back (nodeInfo);
+		return true;
+	});
+
+	NodeUIManagerNodeRectGetter rectGetter (uiManager, uiEnvironment);
+	uiManager.EnumerateUINodeGroups ([&] (const UINodeGroupConstPtr& uiGroup) {
+		GroupInfo groupInfo;
+		NE::NodeCollection nodesInGroup = uiManager.GetUIGroupNodes (uiGroup);
+		groupInfo.name = uiGroup->GetName ().GetLocalized ();
+		groupInfo.modelRect = uiGroup->GetRect (uiEnvironment, rectGetter, nodesInGroup);
+		groupInfo.viewRect = viewBox.ModelToView (groupInfo.modelRect);
+		nodesInGroup.Enumerate ([&] (const NE::NodeId& nodeId) {
+			groupInfo.nodesInGroup.push_back (nodeId);
+			return true;
+		});
+		info.groups.push_back (groupInfo);
+		return true;
+	});
+
+	return info;
+}
+
 }

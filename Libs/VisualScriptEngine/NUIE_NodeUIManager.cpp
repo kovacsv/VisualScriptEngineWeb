@@ -81,7 +81,7 @@ void NodeUIManager::Status::RequestRedraw ()
 
 void NodeUIManager::Status::ResetRedraw ()
 {
-	needToRedraw = true;
+	needToRedraw = false;
 }
 
 bool NodeUIManager::Status::NeedToRedraw () const
@@ -144,6 +144,18 @@ void NodeUIManagerNodeInvalidator::RequestRecalculate ()
 void NodeUIManagerNodeInvalidator::RequestRedraw ()
 {
 	uiManager.RequestRedraw ();
+}
+
+NodeUIManagerNodeRectGetter::NodeUIManagerNodeRectGetter (const NodeUIManager& uiManager, NodeUIDrawingEnvironment& env) :
+	uiManager (uiManager),
+	env (env)
+{
+}
+
+Rect NodeUIManagerNodeRectGetter::GetNodeRect (const NE::NodeId& nodeId) const
+{
+	UINodeConstPtr uiNode = uiManager.GetUINode (nodeId);
+	return uiNode->GetRect (env);
 }
 
 NodeUIManager::NodeUIManager (NodeUIEnvironment& env) :
@@ -441,26 +453,6 @@ void NodeUIManager::ResizeContext (NodeUIDrawingEnvironment& env, int newWidth, 
 
 bool NodeUIManager::GetBoundingRect (NodeUIDrawingEnvironment& env, Rect& boundingRect) const
 {
-	class StaticNodeRectGetter : public NodeRectGetter
-	{
-	public:
-		StaticNodeRectGetter (const NodeUIManager& uiManager, NodeUIDrawingEnvironment& uiEnvironment) :
-			uiManager (uiManager),
-			uiEnvironment (uiEnvironment)
-		{
-		}
-
-		virtual Rect GetNodeRect (const NE::NodeId& nodeId) const override
-		{
-			UINodeConstPtr uiNode = uiManager.GetUINode (nodeId);
-			return uiNode->GetNodeRect (uiEnvironment);
-		}
-
-	private:
-		const NodeUIManager& uiManager;
-		NodeUIDrawingEnvironment& uiEnvironment;
-	};
-
 	BoundingRectCalculator boundingRectCalculator;
 	EnumerateUINodes ([&] (const UINodeConstPtr& uiNode) {
 		Rect nodeRect = GetNodeExtendedRect (env, uiNode.get ());
@@ -468,7 +460,7 @@ bool NodeUIManager::GetBoundingRect (NodeUIDrawingEnvironment& env, Rect& boundi
 		return true;
 	});
 
-	StaticNodeRectGetter nodeRectGetter (*this, env);
+	NodeUIManagerNodeRectGetter nodeRectGetter (*this, env);
 	EnumerateUINodeGroups ([&] (const UINodeGroupConstPtr& uiGroup) {
 		Rect groupRect = uiGroup->GetRect (env, nodeRectGetter, GetUIGroupNodes (uiGroup));
 		boundingRectCalculator.AddRect (groupRect);
@@ -631,6 +623,16 @@ NE::NodeCollection NodeUIManager::Duplicate (const NE::NodeCollection& nodeColle
 void NodeUIManager::SaveUndoState ()
 {
 	undoHandler.SaveUndoState (nodeManager);
+}
+
+bool NodeUIManager::CanUndo () const
+{
+	return undoHandler.CanUndo ();
+}
+
+bool NodeUIManager::CanRedo () const
+{
+	return undoHandler.CanRedo ();
 }
 
 bool NodeUIManager::Undo (NE::EvaluationEnv& env)
