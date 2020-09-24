@@ -13,14 +13,14 @@ NodeEditor.prototype.Init = function (module, settings, uiElements)
 	this.settings = settings;
 	this.editorInterface = new EditorInterface (this.module);
 
-	this.InitControls (uiElements.controls);
+	this.InitCommands (uiElements.controls);
 	this.InitNodeTree (uiElements.nodeTree, uiElements.searchDiv);
 	this.InitDragAndDrop ();
 	this.InitKeyboardEvents ();	
 	this.InitFileInput (uiElements.fileInput);
 };
 
-NodeEditor.prototype.InitControls = function (controlsDiv)
+NodeEditor.prototype.InitCommands = function (controlsDiv)
 {
 	function AddControl (parentDiv, icon, toolTipText, toolTipSubText, onClick)
 	{
@@ -94,6 +94,17 @@ NodeEditor.prototype.InitControls = function (controlsDiv)
 	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'Group', 'Group', 'Ctrl+G', 'Group');
 	AddCommandControl (this, controlsDiv, 'Ungroup', 'Ungroup', 'Ctrl+Shift+G', 'Ungroup');
+	
+	if (this.settings.customCommandCreator) {
+		this.settings.customCommandCreator (
+			function () {
+				AddSeparator (controlsDiv);
+			},
+			function (icon, toolTipText, onClick) {
+				AddControl (controlsDiv, icon, toolTipText, null, onClick);
+			}
+		);
+	}
 };
 
 NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)

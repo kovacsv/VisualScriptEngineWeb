@@ -58,6 +58,8 @@
 				fileExtension : '.ne',
 				customControlCreator : function (parentDiv, parameter, onChange) {
 					return false;
+				},
+				customCommandCreator : function (addSeparatorFunc, addCommandFunc) {
 				}
 			};
 			editor.Init (Module, settings, uiElements);
