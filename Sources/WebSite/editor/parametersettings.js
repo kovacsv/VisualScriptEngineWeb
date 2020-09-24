@@ -104,18 +104,17 @@ var ParameterSettings = function (parentElement, parameters, customControlCreato
 	});
 };
 
-ParameterSettings.prototype.Open = function (positionX, positionY)
+ParameterSettings.prototype.Open = function ()
 {
-	this.popUpDiv.Open (positionX, positionY);
+	this.popUpDiv.Open (0, 0);
 	var popUpDivElem = this.popUpDiv.GetDiv ();
-	popUpDivElem.addClass ('parametersettings');
-	var titleDiv = $('<div>').addClass ('parametersettingstitle').appendTo (popUpDivElem);
+	popUpDivElem.addClass ('dialog');
+	var titleDiv = $('<div>').addClass ('dialogtitle').appendTo (popUpDivElem);
 	$('<img>').attr ('src', 'images/settings.png').appendTo (titleDiv);
 	$('<span>').html ('Settings').appendTo (titleDiv);
 	this.GenerateTable ();
 	this.GenerateButtons ();
 	this.popUpDiv.CenterToElement (this.parentElement);
-
 };
 
 ParameterSettings.prototype.GenerateTable = function ()
@@ -153,9 +152,9 @@ ParameterSettings.prototype.GenerateTable = function ()
 ParameterSettings.prototype.GenerateButtons = function ()
 {
 	var popUpDivElem = this.popUpDiv.GetDiv ();
-	var buttonsDiv = $('<div>').addClass ('parameterbuttons').appendTo (popUpDivElem);
-	var okButton = $('<div>').addClass ('parameterbutton').addClass ('ok').html ('OK').appendTo (buttonsDiv);
-	var cancelButton = $('<div>').addClass ('parameterbutton').addClass ('cancel').html ('Cancel').appendTo (buttonsDiv);
+	var buttonsDiv = $('<div>').addClass ('dialogbuttons').appendTo (popUpDivElem);
+	var okButton = $('<div>').addClass ('dialogbutton').addClass ('ok').html ('OK').appendTo (buttonsDiv);
+	var cancelButton = $('<div>').addClass ('dialogbutton').addClass ('cancel').html ('Cancel').appendTo (buttonsDiv);
 	
 	var myThis = this;
 	cancelButton.click (function () {

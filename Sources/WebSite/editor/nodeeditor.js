@@ -241,9 +241,6 @@ NodeEditor.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
 
 NodeEditor.prototype.OpenSettingsDialog = function (parameters)
 {
-	var positionX = this.canvas.offset ().left + this.canvas.width () / 2;
-	var positionY = this.canvas.offset ().top + this.canvas.height () / 2;
-	
 	var myThis = this;
 	var parameterSettings = new ParameterSettings (this.canvas, parameters.parameters, this.settings.customControlCreator, function (changedParameters) {
 		var responseString = '';
@@ -252,7 +249,7 @@ NodeEditor.prototype.OpenSettingsDialog = function (parameters)
 		}
 		myThis.editorInterface.ParameterSettingsResponse (responseString);
 	});
-	parameterSettings.Open (positionX, positionY);
+	parameterSettings.Open ();
 };
 
 NodeEditor.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
@@ -269,8 +266,17 @@ NodeEditor.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 
 NodeEditor.prototype.ShowOpenFileDialog = function ()
 {
-	var file = document.getElementById ('file');
-	file.click ();
+	var confirmation = new ConfirmationDialog (this.canvas, {
+		title : 'Open New File?',
+		text : 'Changes you\'ve made may not be saved',
+		okButtonText : 'OK',
+		cancelButtonText : 'Cancel',
+		onOk : function () {
+			var file = document.getElementById ('file');
+			file.click ();			
+		}
+	});
+	confirmation.Open ();	
 };
 
 NodeEditor.prototype.OpenFile = function (fileBuffer)

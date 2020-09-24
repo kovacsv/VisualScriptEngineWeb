@@ -234,7 +234,7 @@ div.contextmenusubitems div.contextmenuitem
 	padding-left : 30px;
 }
 
-div.parametersettings
+div.dialog
 {
 	background : #ffffff;
 	border : 1px solid #dddddd;
@@ -242,19 +242,55 @@ div.parametersettings
 	box-shadow : 0px 0px 10px #dddddd;
 }
 
-div.parametersettingstitle
+div.dialogtitle
 {
 	font-size : 1.2em;
 	font-weight : bold;
 	padding : 15px 10px;
 }
 
-div.parametersettingstitle img
+div.dialogtitle img
 {
 	width : 18px;
 	height : 18px;
 	margin-right : 8px;
 	margin-bottom : -3px;
+}
+
+div.dialogbody
+{
+	padding : 0px 10px 15px 10px;
+}
+
+div.dialogbuttons
+{
+	margin : 0px 10px;
+	padding : 10px 0px;
+	border-top : 1px solid #dddddd;
+	overflow : auto;
+}
+
+div.dialogbutton
+{
+	width : 80px;
+	margin-left : 10px;
+	border-radius : 3px;
+	cursor : pointer;
+	text-align : center;
+	float : right;
+}
+
+div.dialogbutton.ok
+{
+	color : #ffffff;
+	background : #297fff;
+	padding : 6px 10px;
+}
+
+div.dialogbutton.cancel
+{
+	border : 1px solid #dddddd;
+	padding : 5px 9px;
 }
 
 table.parametertable
@@ -294,37 +330,6 @@ table.parametertable textarea
 	box-sizing : border-box;
 	tab-size : 4;
 	outline : none;
-}
-
-div.parameterbuttons
-{
-	margin : 0px 10px;
-	padding : 10px 0px;
-	border-top : 1px solid #dddddd;
-	overflow : auto;
-}
-
-div.parameterbutton
-{
-	width : 80px;
-	margin-left : 10px;
-	border-radius : 3px;
-	cursor : pointer;
-	text-align : center;
-	float : right;
-}
-
-div.parameterbutton.ok
-{
-	color : #ffffff;
-	background : #297fff;
-	padding : 6px 10px;
-}
-
-div.parameterbutton.cancel
-{
-	border : 1px solid #dddddd;
-	padding : 5px 9px;
 }
 
 div.thinscrollbar::-webkit-scrollbar
