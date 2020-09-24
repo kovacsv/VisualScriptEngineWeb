@@ -32,6 +32,8 @@ img.splashscreenimg
 div.splashscreentext
 {
 	color : #777777;
+	padding : 10px;
+	border-top : 1px solid #dddddd;
 }
 
 div.header
