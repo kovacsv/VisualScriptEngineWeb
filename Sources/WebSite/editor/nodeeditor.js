@@ -293,12 +293,6 @@ NodeEditor.prototype.SaveFile = function (data, size)
 	
 	var blob = new Blob ([dataArr], {type: "octet/stream"});
 	var url = window.URL.createObjectURL (blob);
-
-	var link = document.createElement ('a');
-	document.body.appendChild (link);
-	link.href = url;
-	link.download = 'Untitled' + this.settings.fileExtension;
-	link.click ();
+	DownloadFile (url, 'Untitled' + this.settings.fileExtension);
 	window.URL.revokeObjectURL (url);
-	document.body.removeChild (link);	
 };
