@@ -1,7 +1,8 @@
-var SplashScreen = function (mainDivName, imagePath)
+var SplashScreen = function (mainDivName, imagePath, imageText)
 {
 	this.mainDivName = mainDivName;
 	this.imagePath = imagePath;
+	this.imageText = imageText;
 	this.executor = new DelayedExecutor ();
 	this.mainDiv = null;
 	this.splashDiv = null;
@@ -17,7 +18,8 @@ SplashScreen.prototype.Show = function (mainDiv)
 		var windowObj = $(window);
 		var bodyObj = $(document.body);
 		myThis.splashDiv = $('<div>').addClass ('splashscreen').appendTo (bodyObj);
-		$('<img>').attr ('src', myThis.imagePath).appendTo (myThis.splashDiv);
+		$('<img>').attr ('src', myThis.imagePath).addClass ('splashscreenimg').appendTo (myThis.splashDiv);
+		$('<div>').html (myThis.imageText).addClass ('splashscreentext').appendTo (myThis.splashDiv);
 		myThis.splashDiv.offset ({
 			left : windowObj.width () / 2 - myThis.splashDiv.outerWidth () / 2,
 			top : windowObj.height () / 3 - myThis.splashDiv.outerHeight () / 2

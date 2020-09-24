@@ -19,8 +19,19 @@ div.main
 div.splashscreen
 {
 	position : absolute;
+	text-align : center;
 	left : 0px;
 	top : 0px;
+}
+
+img.splashscreenimg
+{
+	padding : 10px;
+}
+
+div.splashscreentext
+{
+	color : #777777;
 }
 
 div.header
