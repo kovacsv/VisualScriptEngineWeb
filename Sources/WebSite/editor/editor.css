@@ -285,6 +285,17 @@ table.parametertable select
 	outline : none;
 }
 
+table.parametertable textarea
+{
+	width : 200px;
+	height : 120px;
+	padding : 5px;
+	border : 1px solid #dddddd;
+	box-sizing : border-box;
+	tab-size : 4;
+	outline : none;
+}
+
 div.parameterbuttons
 {
 	margin : 0px 10px;
