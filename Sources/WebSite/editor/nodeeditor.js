@@ -105,6 +105,13 @@ NodeEditor.prototype.InitCommands = function (controlsDiv)
 			}
 		);
 	}
+	
+	window.onbeforeunload = function (ev) {
+		if (myThis.editorInterface.NeedToSave ()) {
+			event.preventDefault ();
+			event.returnValue = '';
+		}
+	};
 };
 
 NodeEditor.prototype.InitNodeTree = function (nodeTreeDiv, searchDiv)
@@ -266,17 +273,26 @@ NodeEditor.prototype.OpenNodeTreePopUp = function (mouseX, mouseY)
 
 NodeEditor.prototype.ShowOpenFileDialog = function ()
 {
-	var confirmation = new ConfirmationDialog (this.canvas, {
-		title : 'Open New File?',
-		text : 'Changes you\'ve made may not be saved',
-		okButtonText : 'OK',
-		cancelButtonText : 'Cancel',
-		onOk : function () {
-			var file = document.getElementById ('file');
-			file.click ();			
-		}
-	});
-	confirmation.Open ();	
+	function ShowOpenFileDialog ()
+	{
+		var file = document.getElementById ('file');
+		file.click ();			
+	}
+	
+	if (this.editorInterface.NeedToSave ()) {
+		var confirmation = new ConfirmationDialog (this.canvas, {
+			title : 'Open New File?',
+			text : 'Changes you\'ve made may not be saved.',
+			okButtonText : 'OK',
+			cancelButtonText : 'Cancel',
+			onOk : function () {
+				ShowOpenFileDialog ();
+			}
+		});
+		confirmation.Open ();
+	} else {
+		ShowOpenFileDialog ();
+	}
 };
 
 NodeEditor.prototype.OpenFile = function (fileBuffer)
