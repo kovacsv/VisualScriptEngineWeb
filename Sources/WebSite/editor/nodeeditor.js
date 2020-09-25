@@ -73,8 +73,18 @@ NodeEditor.prototype.InitCommands = function (controlsDiv)
 	function AddSeparator (parentDiv)
 	{
 		$('<div>').addClass ('controlseparator').appendTo (parentDiv);
-	}	
+	}
+
+	function IsOnMac ()
+	{
+		return (window.navigator.platform.indexOf ('Mac') != -1);
+	}
 	
+	var controlKeyText = 'Ctrl';
+	if (IsOnMac ()) {
+		controlKeyText = 'Cmd';
+	}
+
 	var myThis = this;
 	AddControl (controlsDiv, 'New', 'New', null, function () {
 		window.open ('.', '_blank');
@@ -84,16 +94,16 @@ NodeEditor.prototype.InitCommands = function (controlsDiv)
 	});
 	AddCommandControl (this, controlsDiv, 'Save', 'Save', null, 'Save');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Undo', 'Undo', 'Ctrl+Z', 'Undo');
-	AddCommandControl (this, controlsDiv, 'Redo', 'Redo', 'Ctrl+Shift+Z', 'Redo');
+	AddCommandControl (this, controlsDiv, 'Undo', 'Undo', controlKeyText + '+Z', 'Undo');
+	AddCommandControl (this, controlsDiv, 'Redo', 'Redo', controlKeyText + '+Shift+Z', 'Redo');
 	AddSeparator (controlsDiv);
 	AddCommandControl (this, controlsDiv, 'NodeSettings', 'Node Settings', null, 'SetParameters');
-	AddCommandControl (this, controlsDiv, 'Copy', 'Copy', 'Ctrl+C', 'Copy');
-	AddCommandControl (this, controlsDiv, 'Paste', 'Paste', 'Ctrl+V', 'Paste');
+	AddCommandControl (this, controlsDiv, 'Copy', 'Copy', controlKeyText + '+C', 'Copy');
+	AddCommandControl (this, controlsDiv, 'Paste', 'Paste', controlKeyText + '+V', 'Paste');
 	AddCommandControl (this, controlsDiv, 'Delete', 'Delete', 'Delete Key', 'Delete');
 	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Group', 'Group', 'Ctrl+G', 'Group');
-	AddCommandControl (this, controlsDiv, 'Ungroup', 'Ungroup', 'Ctrl+Shift+G', 'Ungroup');
+	AddCommandControl (this, controlsDiv, 'Group', 'Group', controlKeyText + '+G', 'Group');
+	AddCommandControl (this, controlsDiv, 'Ungroup', 'Ungroup', controlKeyText + '+Shift+G', 'Ungroup');
 	
 	if (this.settings.customCommandCreator) {
 		this.settings.customCommandCreator (
@@ -169,8 +179,9 @@ NodeEditor.prototype.InitKeyboardEvents = function ()
 		}
 		var command = null;
 		var isControlPressed = ev.ctrlKey;
+		var isCommandPressed = ev.metaKey;
 		var isShiftPressed = ev.shiftKey;
-		if (isControlPressed) {
+		if (isControlPressed || isCommandPressed) {
 			if (ev.which == 65) {
 				command = 'SelectAll';
 			} else if (ev.which == 67) {
