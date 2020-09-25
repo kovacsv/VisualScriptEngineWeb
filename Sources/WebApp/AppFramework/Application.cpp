@@ -8,7 +8,7 @@
 static bool IsOnMac ()
 {
 #ifdef EMSCRIPTEN
-	int isMac = 0;
+	static int isMac = 0;
 	static bool isMacDecided = false;
 	if (!isMacDecided) {
 		isMac = EM_ASM_INT (return (window.navigator.platform.indexOf ('Mac') != -1));
