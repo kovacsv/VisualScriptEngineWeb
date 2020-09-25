@@ -1,3 +1,8 @@
+function IsOnMac ()
+{
+	return (window.navigator.platform.indexOf ('Mac') != -1);
+}
+
 var NodeEditor = function ()
 {
 	this.module = null;
@@ -75,11 +80,6 @@ NodeEditor.prototype.InitCommands = function (controlsDiv)
 		$('<div>').addClass ('controlseparator').appendTo (parentDiv);
 	}
 
-	function IsOnMac ()
-	{
-		return (window.navigator.platform.indexOf ('Mac') != -1);
-	}
-	
 	var controlKeyText = 'Ctrl';
 	if (IsOnMac ()) {
 		controlKeyText = 'Cmd';
@@ -173,15 +173,18 @@ NodeEditor.prototype.InitKeyboardEvents = function ()
 		overCanvas = false;
 	});
 	
+	var isMac = IsOnMac ();
 	$(window).keydown (function (ev) {
 		if (!overCanvas) {
 			return;
 		}
 		var command = null;
 		var isControlPressed = ev.ctrlKey;
-		var isCommandPressed = ev.metaKey;
+		if (isMac) {
+			isControlPressed = ev.metaKey;
+		}
 		var isShiftPressed = ev.shiftKey;
-		if (isControlPressed || isCommandPressed) {
+		if (isControlPressed) {
 			if (ev.which == 65) {
 				command = 'SelectAll';
 			} else if (ev.which == 67) {

@@ -5,6 +5,20 @@
 #include <emscripten.h>
 #endif
 
+static bool IsOnMac ()
+{
+#ifdef EMSCRIPTEN
+	int isMac = 0;
+	static bool isMacDecided = false;
+	if (!isMacDecided) {
+		isMac = EM_ASM_INT (return (window.navigator.platform.indexOf ('Mac') != -1));
+		isMacDecided = true;
+	}
+	return isMac != 0;
+#endif
+	return false;
+}
+
 static int EventFilter (void*, SDL_Event* sdlEvent)
 {
 	// filter finger events, because on mobile both the mouse and the finger events arrive
@@ -23,7 +37,14 @@ static NUIE::ModifierKeys GetModifierKeys ()
 {
 	NUIE::ModifierKeys keys;
 	const Uint8* keyboardState = SDL_GetKeyboardState (nullptr);
-	if (keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL]) {
+
+	bool isControlPressed = false;
+	if (IsOnMac ()) {
+		isControlPressed = keyboardState[SDL_SCANCODE_LGUI] || keyboardState[SDL_SCANCODE_RGUI];
+	} else {
+		isControlPressed = keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL];
+	}
+	if (isControlPressed) {
 		keys.Insert (NUIE::ModifierKeyCode::Control);
 	} else if (keyboardState[SDL_SCANCODE_LSHIFT] || keyboardState[SDL_SCANCODE_RSHIFT]) {
 		keys.Insert (NUIE::ModifierKeyCode::Shift);
