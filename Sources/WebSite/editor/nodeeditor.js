@@ -297,7 +297,7 @@ NodeEditor.prototype.ShowOpenFileDialog = function ()
 		var confirmation = new ConfirmationDialog (this.canvas, {
 			title : 'Open New File?',
 			text : 'Changes you\'ve made may not be saved.',
-			okButtonText : 'OK',
+			okButtonText : 'Open',
 			cancelButtonText : 'Cancel',
 			onOk : function () {
 				ShowOpenFileDialog ();

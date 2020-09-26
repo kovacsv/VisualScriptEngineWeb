@@ -72,7 +72,7 @@ PopUpDiv.prototype.FitToElement = function (elem)
 	}	
 };
 
-PopUpDiv.prototype.CenterToElement = function (elem)
+PopUpDiv.prototype.CenterToElement = function (elem, hRatio, vRatio)
 {
 	var offset = this.popUpDiv.offset ();
 	var width = this.popUpDiv.outerWidth ();
@@ -80,8 +80,8 @@ PopUpDiv.prototype.CenterToElement = function (elem)
 	
 	var elemOffset = elem.offset ();
 	this.popUpDiv.offset ({
-		left : elemOffset.left + (elem.outerWidth () - width) / 2,
-		top : elemOffset.top + (elem.outerHeight () - height) / 2,
+		left : elemOffset.left + (elem.outerWidth () - width) / hRatio,
+		top : elemOffset.top + (elem.outerHeight () - height) / vRatio,
 	});
 };
 

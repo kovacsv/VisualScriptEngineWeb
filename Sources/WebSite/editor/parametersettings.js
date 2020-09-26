@@ -114,7 +114,7 @@ ParameterSettings.prototype.Open = function ()
 	$('<span>').html ('Settings').appendTo (titleDiv);
 	this.GenerateTable ();
 	this.GenerateButtons ();
-	this.popUpDiv.CenterToElement (this.parentElement);
+	this.popUpDiv.CenterToElement (this.parentElement, 2, 4);
 };
 
 ParameterSettings.prototype.GenerateTable = function ()

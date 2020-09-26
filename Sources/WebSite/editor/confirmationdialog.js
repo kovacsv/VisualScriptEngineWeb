@@ -33,7 +33,7 @@ ConfirmationDialog.prototype.Open = function ()
 	$('<span>').html (this.settings.title).appendTo (titleDiv);
 	$('<div>').addClass ('dialogbody').html (this.settings.text).appendTo (popUpDivElem);
 	this.GenerateButtons ();
-	this.popUpDiv.CenterToElement (this.parentElement);
+	this.popUpDiv.CenterToElement (this.parentElement, 2, 4);
 };
 
 ConfirmationDialog.prototype.GenerateButtons = function ()
