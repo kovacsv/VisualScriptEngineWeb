@@ -16,6 +16,8 @@ public:
 
 	virtual NE::EvaluationEnv&			GetEvaluationEnv () = 0;
 	virtual void						OnValuesRecalculated () = 0;
+	virtual void						OnSelectionChanged (bool hasSelection) = 0;
+	virtual void						OnUndoStateChanged (bool canUndo, bool canRedo) = 0;
 
 	virtual bool						SaveFile (NUIE::NodeEditor& nodeEditor, std::vector<char>& buffer) const = 0;
 	virtual bool						OpenFile (const std::vector<char>& buffer, NUIE::NodeEditor& nodeEditor) = 0;

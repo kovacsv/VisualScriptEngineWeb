@@ -18,6 +18,7 @@
 	<script type="text/javascript" src="editor/contextmenu.js"></script>
 	<script type="text/javascript" src="editor/parametersettings.js"></script>
 	<script type="text/javascript" src="editor/nodetree.js"></script>
+	<script type="text/javascript" src="editor/toolbar.js"></script>
 	<script type="text/javascript" src="editor/editorinterface.js"></script>
 	<script type="text/javascript" src="editor/nodeeditor.js"></script>
 	<script type="text/javascript" src="editor/nodeeditormain.js"></script>
@@ -75,6 +76,16 @@
 			var resultStr = UTF8ToString (result);
 			console.log (resultStr);
 		}
+		
+		function OnSelectionChanged (hasSelection)
+		{
+			editor.OnSelectionChanged (hasSelection);
+		}
+		
+		function OnUndoStateChanged (canUndo, canRedo)
+		{
+			editor.OnUndoStateChanged (canUndo, canRedo);
+		}		
 		
 		$(window).resize (function () {
 			OnResize ();

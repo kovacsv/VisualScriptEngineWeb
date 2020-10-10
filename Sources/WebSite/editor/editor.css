@@ -111,6 +111,11 @@ div.controlbutton img
 	display : block;
 }
 
+div.controlbutton img.disabled
+{
+	opacity : 0.2;
+}
+
 div.left
 {
 	width : 230px;
@@ -410,6 +415,12 @@ div.controlbutton:hover
 	cursor : pointer;
 }
 
+div.controlbutton.disabled:hover
+{
+	background : #ececec;
+	cursor : auto;
+}
+
 div.nodetreeitem:hover
 {
 	background : #ececec;
@@ -424,8 +435,10 @@ div.contextmenuitem:hover
 
 @media only screen and (max-width : 1000px)
 {
-	div.nomobile
-	{
-		display : none;
-	}
+	
+div.nomobile
+{
+	display : none;
+}
+
 }

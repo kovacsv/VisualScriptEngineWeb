@@ -8,6 +8,7 @@ var NodeEditor = function ()
 	this.module = null;
 	this.canvas = null;
 	this.settings = null;
+	this.toolbar = null;
 	this.editorInterface = null;
 };
 
@@ -18,100 +19,51 @@ NodeEditor.prototype.Init = function (module, settings, uiElements)
 	this.settings = settings;
 	this.editorInterface = new EditorInterface (this.module);
 
-	this.InitCommands (uiElements.controls);
+	this.InitToolbar (uiElements.controls);
 	this.InitNodeTree (uiElements.nodeTree, uiElements.searchDiv);
 	this.InitDragAndDrop ();
 	this.InitKeyboardEvents ();	
 	this.InitFileInput (uiElements.fileInput);
 };
 
-NodeEditor.prototype.InitCommands = function (controlsDiv)
+NodeEditor.prototype.InitToolbar = function (controlsDiv)
 {
-	function AddControl (parentDiv, icon, toolTipText, toolTipSubText, onClick)
-	{
-		var buttonDiv = $('<div>').addClass ('controlbutton').appendTo (parentDiv);
-		var iconName = 'images/command_icons/' + icon + '.png';
-		var whiteIconName = 'images/command_icons/' + icon + '_White.png';
-		var buttonImg = $('<img>').attr ('src', iconName).attr ('alt', toolTipText).appendTo (buttonDiv);
-		var documentBody = $(document.body);
-		var hasHover = (window.matchMedia ('(hover : hover)').matches);
-		if (hasHover) {
-			var toolTip = null;
-			buttonDiv.hover (
-				function () {
-					buttonImg.attr ('src', whiteIconName);
-					var buttonOffset = buttonDiv.offset ();
-					toolTip = $('<div>').addClass ('tooltip').appendTo (documentBody);
-					$('<div>').addClass ('tooltiptext').html (toolTipText).appendTo (toolTip);
-					if (toolTipSubText != null) {
-						$('<div>').addClass ('tooltipsubtext').html (toolTipSubText).appendTo (toolTip);
-					}
-					var topOffset = buttonOffset.top + buttonDiv.outerHeight () + 10;
-					var leftOffset = buttonOffset.left + buttonDiv.outerWidth () / 2 - toolTip.outerWidth () / 2;
-					if (leftOffset < 5) {
-						leftOffset = 5;
-					}
-					toolTip.offset ({
-						top : topOffset,
-						left : leftOffset
-					});
-				},
-				function () {
-					buttonImg.attr ('src', iconName);
-					toolTip.remove ();
-				}
-			);
-		}
-		
-		buttonDiv.click (function () {
-			onClick ();
-		});
-	}	
-	
-	function AddCommandControl (app, parentDiv, icon, toolTipText, toolTipSubText, command)
-	{
-		AddControl (parentDiv, icon, toolTipText, toolTipSubText, function () {
-			app.ExecuteCommand (command);
-		});
-	}
-	
-	function AddSeparator (parentDiv)
-	{
-		$('<div>').addClass ('controlseparator').appendTo (parentDiv);
-	}
-
 	var controlKeyText = 'Ctrl';
 	if (IsOnMac ()) {
 		controlKeyText = 'Cmd';
 	}
 
-	var myThis = this;
-	AddControl (controlsDiv, 'New', 'New', null, function () {
+	this.toolbar = new Toolbar (controlsDiv);
+	this.toolbar.AddButton ('New', 'New', null, function () {
 		window.open ('.', '_blank');
 	});
-	AddControl (controlsDiv, 'Open', 'Open', null, function () {
+	this.toolbar.AddButton ('Open', 'Open', null, function () {
 		myThis.ShowOpenFileDialog ();
 	});
-	AddCommandControl (this, controlsDiv, 'Save', 'Save', null, 'Save');
-	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Undo', 'Undo', controlKeyText + '+Z', 'Undo');
-	AddCommandControl (this, controlsDiv, 'Redo', 'Redo', controlKeyText + '+Shift+Z', 'Redo');
-	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'NodeSettings', 'Node Settings', null, 'SetParameters');
-	AddCommandControl (this, controlsDiv, 'Copy', 'Copy', controlKeyText + '+C', 'Copy');
-	AddCommandControl (this, controlsDiv, 'Paste', 'Paste', controlKeyText + '+V', 'Paste');
-	AddCommandControl (this, controlsDiv, 'Delete', 'Delete', 'Delete Key', 'Delete');
-	AddSeparator (controlsDiv);
-	AddCommandControl (this, controlsDiv, 'Group', 'Group', controlKeyText + '+G', 'Group');
-	AddCommandControl (this, controlsDiv, 'Ungroup', 'Ungroup', controlKeyText + '+Shift+G', 'Ungroup');
+	this.toolbar.AddCommandButton (this, 'Save', 'Save', null, 'Save');
+	this.toolbar.AddSeparator ();
+	this.toolbar.AddCommandButton (this, 'Undo', 'Undo', controlKeyText + '+Z', 'Undo');
+	this.toolbar.AddCommandButton (this, 'Redo', 'Redo', controlKeyText + '+Shift+Z', 'Redo');
+	this.toolbar.AddSeparator ();
+	this.toolbar.AddCommandButton (this, 'NodeSettings', 'Node Settings', null, 'SetParameters');
+	this.toolbar.AddCommandButton (this, 'Copy', 'Copy', controlKeyText + '+C', 'Copy');
+	this.toolbar.AddCommandButton (this, 'Paste', 'Paste', controlKeyText + '+V', 'Paste');
+	this.toolbar.AddCommandButton (this, 'Delete', 'Delete', 'Delete Key', 'Delete');
+	this.toolbar.AddSeparator ();
+	this.toolbar.AddCommandButton (this, 'Group', 'Group', controlKeyText + '+G', 'Group');
+	this.toolbar.AddCommandButton (this, 'Ungroup', 'Ungroup', controlKeyText + '+Shift+G', 'Ungroup');
 	
+	this.OnSelectionChanged (false);
+	this.OnUndoStateChanged (false, false);
+
+	var myThis = this;
 	if (this.settings.customCommandCreator) {
 		this.settings.customCommandCreator (
 			function () {
-				AddSeparator (controlsDiv);
+				myThis.toolbar.AddSeparator ();
 			},
 			function (icon, toolTipText, onClick) {
-				AddControl (controlsDiv, icon, toolTipText, null, onClick);
+				myThis.toolbas.addButton (icon, toolTipText, null, onClick);
 			}
 		);
 	}
@@ -246,6 +198,21 @@ NodeEditor.prototype.ExecuteCommand = function (command)
 NodeEditor.prototype.ResizeCanvas = function (width, height)
 {
 	this.editorInterface.ResizeWindow (width, height);
+};
+
+NodeEditor.prototype.OnSelectionChanged = function (hasSelection)
+{
+	this.toolbar.SetButtonEnabled ('NodeSettings', hasSelection);
+	this.toolbar.SetButtonEnabled ('Copy', hasSelection);
+	this.toolbar.SetButtonEnabled ('Delete', hasSelection);
+	this.toolbar.SetButtonEnabled ('Group', hasSelection);
+	this.toolbar.SetButtonEnabled ('Ungroup', hasSelection);
+};
+
+NodeEditor.prototype.OnUndoStateChanged = function (canUndo, canRedo)
+{
+	this.toolbar.SetButtonEnabled ('Undo', canUndo);
+	this.toolbar.SetButtonEnabled ('Redo', canRedo);
 };
 
 NodeEditor.prototype.OpenContextMenu = function (mouseX, mouseY, commands)

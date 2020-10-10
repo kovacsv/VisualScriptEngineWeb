@@ -104,12 +104,13 @@ NUIE::ClipboardHandler& AppUIEnvironment::GetClipboardHandler ()
 	return clipboardHandler;
 }
 
-void AppUIEnvironment::OnSelectionChanged (const NUIE::Selection&)
+void AppUIEnvironment::OnSelectionChanged (const NUIE::Selection& selection)
 {
-
+	bool hasSelection = !selection.GetNodes ().IsEmpty ();
+	customAppInterface.OnSelectionChanged (hasSelection);
 }
 
-void AppUIEnvironment::OnUndoStateChanged (const NUIE::UndoState&)
+void AppUIEnvironment::OnUndoStateChanged (const NUIE::UndoState& undoState)
 {
-
+	customAppInterface.OnUndoStateChanged (undoState.CanUndo (), undoState.CanRedo ());
 }

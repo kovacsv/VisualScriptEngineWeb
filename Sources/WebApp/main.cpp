@@ -119,6 +119,29 @@ public:
 #endif
 	}
 
+	virtual void OnSelectionChanged (bool hasSelection) override
+	{
+#ifdef EMSCRIPTEN
+		EM_ASM ({
+			OnSelectionChanged ($0);
+		}, hasSelection);
+#else
+		(void) hasSelection;
+#endif
+	}
+
+	virtual void OnUndoStateChanged (bool canUndo, bool canRedo) override
+	{
+#ifdef EMSCRIPTEN
+		EM_ASM ({
+			OnUndoStateChanged ($0, $1);
+		}, canUndo, canRedo);
+#else
+		(void) canUndo;
+		(void) canRedo;
+#endif
+	}
+
 	virtual bool SaveFile (NUIE::NodeEditor& nodeEditor, std::vector<char>& buffer) const override
 	{
 		NE::MemoryOutputStream outputStream;
