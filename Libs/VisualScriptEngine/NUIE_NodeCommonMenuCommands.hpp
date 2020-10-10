@@ -27,31 +27,31 @@ private:
 class CopyNodesMenuCommand : public SingleMenuCommand
 {
 public:
-	CopyNodesMenuCommand (NodeUIManager& uiManager, NodeUIInteractionEnvironment& interactionEnv, const NE::NodeCollection& relevantNodes);
+	CopyNodesMenuCommand (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const NE::NodeCollection& relevantNodes);
 	virtual ~CopyNodesMenuCommand ();
 
 	virtual bool WillModify () const override;
 	virtual void DoModification () override;
 
 private:
-	NodeUIManager&					uiManager;
-	NodeUIInteractionEnvironment&	interactionEnv;
-	NE::NodeCollection				relevantNodes;
+	NodeUIManager&		uiManager;
+	NodeUIEnvironment&	uiEnvironment;
+	NE::NodeCollection	relevantNodes;
 };
 
 class PasteNodesMenuCommand : public SingleMenuCommand
 {
 public:
-	PasteNodesMenuCommand (NodeUIManager& uiManager, NodeUIInteractionEnvironment& interactionEnv, const Point& position);
+	PasteNodesMenuCommand (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const Point& position);
 	virtual ~PasteNodesMenuCommand ();
 
 	virtual bool WillModify () const override;
 	virtual void DoModification () override;
 
 private:
-	NodeUIManager&					uiManager;
-	NodeUIInteractionEnvironment&	interactionEnv;
-	Point							position;
+	NodeUIManager&		uiManager;
+	NodeUIEnvironment&	uiEnvironment;
+	Point				position;
 };
 
 class AlignToWindowMenuCommand : public SingleMenuCommand
@@ -127,7 +127,7 @@ private:
 class SetParametersMenuCommand : public SingleMenuCommand
 {
 public:
-	SetParametersMenuCommand (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UINodePtr& currentNode, const NE::NodeCollection& relevantNodes);
+	SetParametersMenuCommand (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UINodeConstPtr& currentNode, const NE::NodeCollection& relevantNodes);
 	virtual ~SetParametersMenuCommand ();
 
 	virtual bool WillModify () const override;
@@ -136,14 +136,14 @@ public:
 private:
 	NodeUIManager&		uiManager;
 	NodeUIEnvironment&	uiEnvironment;
-	UINodePtr			currentNode;
+	UINodeConstPtr		currentNode;
 	NE::NodeCollection	relevantNodes;
 };
 
 class CreateGroupMenuCommand : public SingleMenuCommand
 {
 public:
-	CreateGroupMenuCommand (NodeUIManager& uiManager, const NE::NodeCollection& relevantNodes);
+	CreateGroupMenuCommand (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const NE::NodeCollection& relevantNodes);
 	virtual ~CreateGroupMenuCommand ();
 
 	virtual bool WillModify () const override;
@@ -151,13 +151,14 @@ public:
 
 private:
 	NodeUIManager&		uiManager;
+	NodeUIEnvironment&	uiEnvironment;
 	NE::NodeCollection	relevantNodes;
 };
 
 class RemoveNodesFromGroupMenuCommand : public SingleMenuCommand
 {
 public:
-	RemoveNodesFromGroupMenuCommand (NodeUIManager& uiManager, const NE::NodeCollection& relevantNodes);
+	RemoveNodesFromGroupMenuCommand (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const NE::NodeCollection& relevantNodes);
 	virtual ~RemoveNodesFromGroupMenuCommand ();
 
 	virtual bool WillModify () const override;
@@ -165,6 +166,7 @@ public:
 
 private:
 	NodeUIManager&		uiManager;
+	NodeUIEnvironment&	uiEnvironment;
 	NE::NodeCollection	relevantNodes;
 };
 
@@ -183,10 +185,10 @@ private:
 	UINodeGroupPtr		group;
 };
 
-NE::NodeCollection		GetNodesForCommand (const NodeUIManager& uiManager, const UINodePtr& uiNode);
+NE::NodeCollection		GetNodesForCommand (const NodeUIManager& uiManager, const UINodeConstPtr& uiNode);
 
 MenuCommandStructure	CreateEmptyAreaCommandStructure (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const Point& position);
-MenuCommandStructure	CreateNodeCommandStructure (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UINodePtr& uiNode);
+MenuCommandStructure	CreateNodeCommandStructure (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UINodeConstPtr& uiNode);
 MenuCommandStructure	CreateOutputSlotCommandStructure (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UIOutputSlotConstPtr& outputSlot);
 MenuCommandStructure	CreateInputSlotCommandStructure (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UIInputSlotConstPtr& inputSlot);
 MenuCommandStructure	CreateNodeGroupCommandStructure (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UINodeGroupPtr& group);

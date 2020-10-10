@@ -15,7 +15,7 @@ class NodeCollection
 
 public:
 	NodeCollection ();
-	NodeCollection (const std::unordered_set<NodeId>& nodeIds);
+	NodeCollection (const std::vector<NodeId>& nodeIds);
 	~NodeCollection ();
 
 	bool				IsEmpty () const;
@@ -28,8 +28,6 @@ public:
 	void				Erase (const NodeId& nodeId);
 	void				Clear ();
 
-	void				MakeSorted ();
-	
 	bool				operator== (const NodeCollection& rhs) const;
 	bool				operator!= (const NodeCollection& rhs) const;
 

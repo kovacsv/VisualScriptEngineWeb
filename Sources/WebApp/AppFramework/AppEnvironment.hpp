@@ -12,15 +12,9 @@ public:
 	AppEventHandler (BrowserInterface* browserInterface);
 	virtual ~AppEventHandler ();
 
-	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands) override;
-	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::UINodePtr& uiNode, const NUIE::MenuCommandStructure& commands) override;
-	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::UIOutputSlotConstPtr& outputSlot, const NUIE::MenuCommandStructure& commands) override;
-	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::UIInputSlotConstPtr& inputSlot, const NUIE::MenuCommandStructure& commands) override;
-	virtual NUIE::MenuCommandPtr	OnContextMenu (const NUIE::Point& position, const NUIE::UINodeGroupPtr& uiGroup, const NUIE::MenuCommandStructure& commands) override;
-	
+	virtual NUIE::MenuCommandPtr	OnContextMenu (ContextMenuType type, const NUIE::Point& position, const NUIE::MenuCommandStructure& commands) override;
+	virtual bool					OnParameterSettings (ParameterSettingsType type, NUIE::ParameterInterfacePtr parameters) override;
 	virtual void					OnDoubleClick (const NUIE::Point& position, NUIE::MouseButton mouseButton) override;
-	virtual bool					OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodePtr& uiNode) override;
-	virtual bool					OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodeGroupPtr& uiGroup) override;
 
 private:
 	BrowserInterface*			browserInterface;
@@ -48,8 +42,8 @@ public:
 
 	virtual NUIE::EventHandler&			GetEventHandler () override;
 	virtual NUIE::ClipboardHandler&		GetClipboardHandler () override;
-
-	virtual double						GetMouseMoveMinOffset () override;
+	virtual void						OnSelectionChanged (const NUIE::Selection& selection) override;
+	virtual void						OnUndoStateChanged (const NUIE::UndoState& undoState) override;
 
 private:
 	CustomAppInterface&				customAppInterface;

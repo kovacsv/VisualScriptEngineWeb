@@ -13,12 +13,12 @@ namespace NUIE
 static void EnumerateInternalConnections (NodeUIDrawingEnvironment& drawingEnv, const NodeUIManager& uiManager, const NE::NodeCollection& nodes, const std::function<void (const Point&, const Point&)>& processor)
 {
 	nodes.Enumerate ([&] (const NE::NodeId& nodeId) {
-		UINodeConstPtr inputNode = uiManager.GetUINode (nodeId);
+		UINodeConstPtr inputNode = uiManager.GetNode (nodeId);
 		inputNode->EnumerateUIInputSlots ([&] (const UIInputSlotConstPtr& inputSlot) {
 			NE::SlotInfo inputSlotInfo (inputSlot->GetOwnerNodeId (), inputSlot->GetId ());
 			uiManager.EnumerateConnectedUIOutputSlots (inputSlot, [&] (const UIOutputSlotConstPtr outputSlot) {
 				if (nodes.Contains (outputSlot->GetOwnerNodeId ())) {
-					UINodeConstPtr outputNode = uiManager.GetUINode (outputSlot->GetOwnerNodeId ());
+					UINodeConstPtr outputNode = uiManager.GetNode (outputSlot->GetOwnerNodeId ());
 					processor (
 						outputNode->GetOutputSlotConnPosition (drawingEnv, outputSlot->GetId ()),
 						inputNode->GetInputSlotConnPosition (drawingEnv, inputSlot->GetId ())
@@ -84,24 +84,24 @@ public:
 	{
 		const ViewBox& viewBox = uiManager.GetViewBox ();
 		Rect modelSelectionRect = viewBox.ViewToModel (selectionRect);
-		NE::NodeCollection selectedNodes = uiManager.GetSelectedNodes ();
+		Selection selection = uiManager.GetSelection ();
 		if (!modifierKeys.Contains (ModifierKeyCode::Control)) {
-			selectedNodes.Clear ();
+			selection.Clear ();
 		}
 		std::unordered_set<UINodePtr> nodesToSelect;
-		uiManager.EnumerateUINodes ([&] (const UINodePtr& uiNode) {
+		uiManager.EnumerateNodes ([&] (const UINodePtr& uiNode) {
 			const NE::NodeId& uiNodeId = uiNode->GetId ();
 			Rect nodeRect = uiNode->GetRect (uiEnvironment);
 			if (modelSelectionRect.Contains (nodeRect)) {
-				if (selectedNodes.Contains (uiNodeId)) {
-					selectedNodes.Erase (uiNodeId);
+				if (selection.ContainsNode (uiNodeId)) {
+					selection.DeleteNode (uiNodeId);
 				} else {
-					selectedNodes.Insert (uiNodeId);
+					selection.AddNode (uiNodeId);
 				}
 			}
 			return true;
 		});
-		uiManager.SetSelectedNodes (selectedNodes);
+		uiManager.SetSelection (selection, uiEnvironment);
 	}
 
 	virtual void HandleAbort () override
@@ -156,13 +156,13 @@ public:
 		RequestRedraw ();
 	}
 
-	virtual void HandleMouseUp (NodeUIEnvironment&, const ModifierKeys&, const Point& position)	override
+	virtual void HandleMouseUp (NodeUIEnvironment& uiEnvironment, const ModifierKeys&, const Point& position)	override
 	{
 		const ViewBox& viewBox = uiManager.GetViewBox ();
 		Point offset = viewBox.ViewToModel (position) - startModelPosition;
 
 		MoveNodesCommand command (relevantNodes, offset);
-		uiManager.ExecuteCommand (command);
+		uiManager.ExecuteCommand (command, uiEnvironment);
 
 		uiManager.RequestRedraw ();
 	}
@@ -226,13 +226,13 @@ public:
 		RequestRedraw ();
 	}
 
-	virtual void HandleMouseUp (NodeUIEnvironment&, const ModifierKeys&, const Point& position)	override
+	virtual void HandleMouseUp (NodeUIEnvironment& uiEnvironment, const ModifierKeys&, const Point& position)	override
 	{
 		const ViewBox& viewBox = uiManager.GetViewBox ();
 		Point offset = viewBox.ViewToModel (position) - startModelPosition;
 
-		CopyMoveNodesCommand command (relevantNodes, offset);
-		uiManager.ExecuteCommand (command);
+		CopyMoveNodesCommand command (uiEnvironment, relevantNodes, offset);
+		uiManager.ExecuteCommand (command, uiEnvironment);
 
 		uiManager.RequestRedraw ();
 	}
@@ -322,7 +322,7 @@ public:
 		endSlot = FindInputSlotUnderPosition (uiManager, uiEnvironment, currentPosition);
 		if (endSlot != nullptr) {
 			if (SnapToInputSlot (startSlot, endSlot)) {
-				UINodePtr uiNode = uiManager.GetUINode (endSlot->GetOwnerNodeId ());
+				UINodePtr uiNode = uiManager.GetNode (endSlot->GetOwnerNodeId ());
 				currentPosition = viewBox.ModelToView (uiNode->GetInputSlotConnPosition (uiEnvironment, endSlot->GetId ()));
 			} else {
 				endSlot = nullptr;
@@ -331,11 +331,11 @@ public:
 		uiManager.RequestRedraw ();
 	}
 
-	virtual void HandleMouseUp (NodeUIEnvironment&, const ModifierKeys&, const Point&) override
+	virtual void HandleMouseUp (NodeUIEnvironment& uiEnvironment, const ModifierKeys&, const Point&) override
 	{
 		if (endSlot != nullptr) {
 			ConnectSlotsCommand command (startSlot, endSlot);
-			uiManager.ExecuteCommand (command);
+			uiManager.ExecuteCommand (command, uiEnvironment);
 		} else {
 			uiManager.RequestRedraw ();
 		}
@@ -369,14 +369,14 @@ public:
 		return true;
 	}
 
-	virtual void HandleMouseUp (NodeUIEnvironment&, const ModifierKeys&, const Point&) override
+	virtual void HandleMouseUp (NodeUIEnvironment& uiEnvironment, const ModifierKeys&, const Point&) override
 	{
 		if (endSlot != nullptr && endSlot != originalEndSlot) {
 			ReconnectInputSlotCommand command (startSlot, originalEndSlot, endSlot);
-			uiManager.ExecuteCommand (command);
+			uiManager.ExecuteCommand (command, uiEnvironment);
 		} else if (endSlot == nullptr) {
 			DisconnectSlotsCommand disconnectCommand (startSlot, originalEndSlot);
-			uiManager.ExecuteCommand (disconnectCommand);
+			uiManager.ExecuteCommand (disconnectCommand, uiEnvironment);
 		} else {
 			uiManager.RequestRedraw ();
 		}
@@ -414,7 +414,7 @@ public:
 		endSlot = FindOutputSlotUnderPosition (uiManager, uiEnvironment, currentPosition);
 		if (endSlot != nullptr) {
 			if (SnapToOutputSlot (endSlot, startSlot)) {
-				UINodePtr uiNode = uiManager.GetUINode (endSlot->GetOwnerNodeId ());
+				UINodePtr uiNode = uiManager.GetNode (endSlot->GetOwnerNodeId ());
 				currentPosition = viewBox.ModelToView (uiNode->GetOutputSlotConnPosition (uiEnvironment, endSlot->GetId ()));
 			} else {
 				endSlot = nullptr;
@@ -423,11 +423,11 @@ public:
 		uiManager.RequestRedraw ();
 	}
 
-	virtual void HandleMouseUp (NodeUIEnvironment&, const ModifierKeys&, const Point&) override
+	virtual void HandleMouseUp (NodeUIEnvironment& uiEnvironment, const ModifierKeys&, const Point&) override
 	{
 		if (endSlot != nullptr) {
 			ConnectSlotsCommand command (endSlot, startSlot);
-			uiManager.ExecuteCommand (command);
+			uiManager.ExecuteCommand (command, uiEnvironment);
 		} else {
 			uiManager.RequestRedraw ();
 		}
@@ -460,14 +460,14 @@ public:
 		return true;
 	}
 
-	virtual void HandleMouseUp (NodeUIEnvironment&, const ModifierKeys&, const Point&) override
+	virtual void HandleMouseUp (NodeUIEnvironment& uiEnvironment, const ModifierKeys&, const Point&) override
 	{
 		if (endSlot != nullptr && endSlot != originalEndSlot) {
 			ReconnectOutputSlotCommand command (originalEndSlot, endSlot, startSlot);
-			uiManager.ExecuteCommand (command);
+			uiManager.ExecuteCommand (command, uiEnvironment);
 		} else if (endSlot == nullptr) {
 			DisconnectSlotsCommand disconnectCommand (originalEndSlot, startSlot);
-			uiManager.ExecuteCommand (disconnectCommand);
+			uiManager.ExecuteCommand (disconnectCommand, uiEnvironment);
 		} else {
 			uiManager.RequestRedraw ();
 		}
@@ -485,9 +485,10 @@ private:
 class UINodeInteractionCommandInterface : public UINodeCommandInterface
 {
 public:
-	UINodeInteractionCommandInterface (NodeUIManager& uiManager) :
+	UINodeInteractionCommandInterface (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment) :
 		UINodeCommandInterface (),
-		uiManager (uiManager)
+		uiManager (uiManager),
+		uiEnvironment (uiEnvironment)
 	{
 
 	}
@@ -495,11 +496,12 @@ public:
 	virtual void RunUndoableCommand (const std::function<void ()>& func) override
 	{
 		CustomUndoableCommand command (func);
-		uiManager.ExecuteCommand (command);
+		uiManager.ExecuteCommand (command, uiEnvironment);
 	}
 
 private:
 	NodeUIManager& uiManager;
+	NodeUIEnvironment& uiEnvironment;
 };
 
 PastePositionCalculator::PastePositionCalculator () :
@@ -552,7 +554,7 @@ EventHandlerResult NodeInputEventHandler::HandleMouseDrag (NodeUIEnvironment&, c
 EventHandlerResult NodeInputEventHandler::HandleMouseClick (NodeUIEnvironment& uiEnvironment, const ModifierKeys& modifierKeys, MouseButton mouseButton, const Point& position)
 {
 	return ForwardEventToNode ([&] () {
-		UINodeInteractionCommandInterface commandInterface (uiManager);
+		UINodeInteractionCommandInterface commandInterface (uiManager, uiEnvironment);
 		Point modelPosition = uiManager.GetViewBox ().ViewToModel (position);
 		return uiNode->HandleMouseClick (uiEnvironment, modifierKeys, mouseButton, modelPosition, commandInterface);
 	});
@@ -561,7 +563,7 @@ EventHandlerResult NodeInputEventHandler::HandleMouseClick (NodeUIEnvironment& u
 EventHandlerResult NodeInputEventHandler::HandleMouseDoubleClick (NodeUIEnvironment& uiEnvironment, const ModifierKeys& modifierKeys, MouseButton mouseButton, const Point& position)
 {
 	return ForwardEventToNode ([&] () {
-		UINodeInteractionCommandInterface commandInterface (uiManager);
+		UINodeInteractionCommandInterface commandInterface (uiManager, uiEnvironment);
 		Point modelPosition = uiManager.GetViewBox ().ViewToModel (position);
 		return uiNode->HandleMouseDoubleClick (uiEnvironment, modifierKeys, mouseButton, modelPosition, commandInterface);
 	});
@@ -620,25 +622,26 @@ void InteractionHandler::ExecuteCommand (NodeUIEnvironment& uiEnvironment, NUIE:
 		return;
 	}
 
-	const NE::NodeCollection& selectedNodes = uiManager.GetSelectedNodes ();
+	const Selection& selection = uiManager.GetSelection ();
+	const NE::NodeCollection& selectedNodes = selection.GetNodes ();
 	MenuCommandPtr menuCommand = nullptr;
 
 	switch (command) {
 		case CommandCode::SelectAll:
 			{
-				NE::NodeCollection allSelectedNodes;
-				uiManager.EnumerateUINodes ([&] (const UINodeConstPtr& uiNode) {
-					allSelectedNodes.Insert (uiNode->GetId ());
+				Selection allSelection;
+				uiManager.EnumerateNodes ([&] (const UINodeConstPtr& uiNode) {
+					allSelection.AddNode (uiNode->GetId ());
 					return true;
 				});
-				uiManager.SetSelectedNodes (allSelectedNodes);
+				uiManager.SetSelection (allSelection, uiEnvironment);
 			}
 			break;
 		case CommandCode::SetParameters:
 			{
 				if (!selectedNodes.IsEmpty ()) {
 					size_t nodeCount = selectedNodes.Count ();
-					UINodePtr currentNode = uiManager.GetUINode (selectedNodes.Get (nodeCount - 1));
+					UINodePtr currentNode = uiManager.GetNode (selectedNodes.Get (nodeCount - 1));
 					menuCommand.reset (new SetParametersMenuCommand (uiManager, uiEnvironment, currentNode, selectedNodes));
 				}
 			}
@@ -661,12 +664,12 @@ void InteractionHandler::ExecuteCommand (NodeUIEnvironment& uiEnvironment, NUIE:
 			break;
 		case CommandCode::Group:
 			{
-				menuCommand.reset (new CreateGroupMenuCommand (uiManager, selectedNodes));
+				menuCommand.reset (new CreateGroupMenuCommand (uiManager, uiEnvironment, selectedNodes));
 			}
 			break;
 		case CommandCode::Ungroup:
 			{
-				menuCommand.reset (new RemoveNodesFromGroupMenuCommand (uiManager, selectedNodes));
+				menuCommand.reset (new RemoveNodesFromGroupMenuCommand (uiManager, uiEnvironment, selectedNodes));
 			}
 			break;
 		case CommandCode::Undo:
@@ -699,12 +702,26 @@ EventHandlerResult InteractionHandler::HandleMouseDragStart (NodeUIEnvironment& 
 
 	if (mouseButton == MouseButton::Left) {
 		bool found = FindItemUnderPosition (uiManager, uiEnvironment, position,
-			[&] (const UINodePtr& foundNode) {
-				NE::NodeCollection nodesToMove = GetNodesForCommand (uiManager, foundNode);
+			[&] (const UIInputSlotConstPtr& foundInputSlot) {
 				if (modifierKeys.Contains (ModifierKeyCode::Control)) {
-					multiMouseMoveHandler.AddHandler (mouseButton, new NodeCopyMovingHandler (uiEnvironment, uiManager, nodesToMove));
+					if (uiManager.GetConnectedOutputSlotCount (foundInputSlot) == 1) {
+						UIOutputSlotConstPtr foundOutputSlot = nullptr;
+						uiManager.EnumerateConnectedUIOutputSlots (foundInputSlot, [&] (const UIOutputSlotConstPtr& outputSlot) {
+							foundOutputSlot = outputSlot;
+							return true;
+						});
+						if (DBGVERIFY (foundOutputSlot != nullptr)) {
+							UINodeConstPtr outputNode = uiManager.GetNode (foundOutputSlot->GetOwnerNodeId ());
+							Point startSlotPosition = outputNode->GetOutputSlotConnPosition (uiEnvironment, foundOutputSlot->GetId ());
+							multiMouseMoveHandler.AddHandler (mouseButton, new NodeOutputToInputReconnectionHandler (uiManager, foundOutputSlot, foundInputSlot, startSlotPosition));
+						}
+					}
 				} else {
-					multiMouseMoveHandler.AddHandler (mouseButton, new NodeMovingHandler (uiManager, nodesToMove));
+					if (uiManager.CanConnectMoreOutputSlotToInputSlot (foundInputSlot)) {
+						UINodeConstPtr uiNode = uiManager.GetNode (foundInputSlot->GetOwnerNodeId ());
+						Point startSlotPosition = uiNode->GetInputSlotConnPosition (uiEnvironment, foundInputSlot->GetId ());
+						multiMouseMoveHandler.AddHandler (mouseButton, new NodeInputToOutputConnectionHandler (uiManager, foundInputSlot, startSlotPosition));
+					}
 				}
 			},
 			[&] (const UIOutputSlotConstPtr& foundOutputSlot) {
@@ -716,41 +733,27 @@ EventHandlerResult InteractionHandler::HandleMouseDragStart (NodeUIEnvironment& 
 							return true;
 						});
 						if (DBGVERIFY (foundInputSlot != nullptr)) {
-							UINodeConstPtr inputNode = uiManager.GetUINode (foundInputSlot->GetOwnerNodeId ());
+							UINodeConstPtr inputNode = uiManager.GetNode (foundInputSlot->GetOwnerNodeId ());
 							Point startSlotPosition = inputNode->GetInputSlotConnPosition (uiEnvironment, foundInputSlot->GetId ());
 							multiMouseMoveHandler.AddHandler (mouseButton, new NodeInputToOutputReconnectionHandler (uiManager, foundInputSlot, foundOutputSlot, startSlotPosition));
 						}
 					}
 				} else {
-					UINodeConstPtr uiNode = uiManager.GetUINode (foundOutputSlot->GetOwnerNodeId ());
+					UINodeConstPtr uiNode = uiManager.GetNode (foundOutputSlot->GetOwnerNodeId ());
 					Point startSlotPosition = uiNode->GetOutputSlotConnPosition (uiEnvironment, foundOutputSlot->GetId ());
 					multiMouseMoveHandler.AddHandler (mouseButton, new NodeOutputToInputConnectionHandler (uiManager, foundOutputSlot, startSlotPosition));
 				}
 			},
-			[&] (const UIInputSlotConstPtr& foundInputSlot) {
+			[&] (const UINodePtr& foundNode) {
+				NE::NodeCollection nodesToMove = GetNodesForCommand (uiManager, foundNode);
 				if (modifierKeys.Contains (ModifierKeyCode::Control)) {
-					if (uiManager.GetConnectedOutputSlotCount (foundInputSlot) == 1) {
-						UIOutputSlotConstPtr foundOutputSlot = nullptr;
-						uiManager.EnumerateConnectedUIOutputSlots (foundInputSlot, [&] (const UIOutputSlotConstPtr& outputSlot) {
-							foundOutputSlot = outputSlot;
-							return true;
-						});
-						if (DBGVERIFY (foundOutputSlot != nullptr)) {
-							UINodeConstPtr outputNode = uiManager.GetUINode (foundOutputSlot->GetOwnerNodeId ());
-							Point startSlotPosition = outputNode->GetOutputSlotConnPosition (uiEnvironment, foundOutputSlot->GetId ());
-							multiMouseMoveHandler.AddHandler (mouseButton, new NodeOutputToInputReconnectionHandler (uiManager, foundOutputSlot, foundInputSlot, startSlotPosition));
-						}
-					}
+					multiMouseMoveHandler.AddHandler (mouseButton, new NodeCopyMovingHandler (uiEnvironment, uiManager, nodesToMove));
 				} else {
-					if (uiManager.CanConnectMoreOutputSlotToInputSlot (foundInputSlot)) {
-						UINodeConstPtr uiNode = uiManager.GetUINode (foundInputSlot->GetOwnerNodeId ());
-						Point startSlotPosition = uiNode->GetInputSlotConnPosition (uiEnvironment, foundInputSlot->GetId ());
-						multiMouseMoveHandler.AddHandler (mouseButton, new NodeInputToOutputConnectionHandler (uiManager, foundInputSlot, startSlotPosition));
-					}
+					multiMouseMoveHandler.AddHandler (mouseButton, new NodeMovingHandler (uiManager, nodesToMove));
 				}
 			},
 			[&] (const UINodeGroupPtr& foundGroup) {
-				NE::NodeCollection nodesToMove = uiManager.GetUIGroupNodes (foundGroup);
+				NE::NodeCollection nodesToMove = uiManager.GetGroupNodes (foundGroup);
 				multiMouseMoveHandler.AddHandler (mouseButton, new NodeMovingHandler (uiManager, nodesToMove));
 			}
 		);
@@ -807,48 +810,48 @@ EventHandlerResult InteractionHandler::HandleMouseClick (NodeUIEnvironment& uiEn
 	}
 
 	if (mouseButton == MouseButton::Left) {
-		NE::NodeCollection selectedNodes;
+		Selection selection;
 		if (foundNode != nullptr) {
 			const NE::NodeId& foundNodeId = foundNode->GetId ();
-			selectedNodes = uiManager.GetSelectedNodes ();
+			selection = uiManager.GetSelection ();
 			if (modifierKeys.Contains (ModifierKeyCode::Control)) {
-				if (selectedNodes.Contains (foundNodeId)) {
-					selectedNodes.Erase (foundNodeId);
+				if (selection.ContainsNode (foundNodeId)) {
+					selection.DeleteNode (foundNodeId);
 				} else {
-					selectedNodes.Insert (foundNodeId);
+					selection.AddNode (foundNodeId);
 				}
 			} else {
-				selectedNodes.Clear ();
-				selectedNodes.Insert (foundNodeId);
+				selection.Clear ();
+				selection.AddNode (foundNodeId);
 			}
 		}
-		uiManager.SetSelectedNodes (selectedNodes);
+		uiManager.SetSelection (selection, uiEnvironment);
 		handlerResult = EventHandlerResult::EventHandled;
 	} else if (mouseButton == MouseButton::Right) {
 		EventHandler& eventHandler = uiEnvironment.GetEventHandler ();
 		MenuCommandPtr selectedCommand;
 		bool found = FindItemUnderPosition (uiManager, uiEnvironment, position,
-			[&] (const UINodePtr& foundNode) {
-				MenuCommandStructure commands = CreateNodeCommandStructure (uiManager, uiEnvironment, foundNode);
-				selectedCommand = eventHandler.OnContextMenu (position, foundNode, commands);
+			[&] (const UIInputSlotConstPtr& foundInputSlot) {
+				MenuCommandStructure commands = CreateInputSlotCommandStructure (uiManager, uiEnvironment, foundInputSlot);
+				selectedCommand = eventHandler.OnContextMenu (EventHandler::ContextMenuType::InputSlot, position, commands);
 			},
 			[&] (const UIOutputSlotConstPtr& foundOutputSlot) {
 				MenuCommandStructure commands = CreateOutputSlotCommandStructure (uiManager, uiEnvironment, foundOutputSlot);
-				selectedCommand = eventHandler.OnContextMenu (position, foundOutputSlot, commands);
+				selectedCommand = eventHandler.OnContextMenu (EventHandler::ContextMenuType::OutputSlot, position, commands);
 			},
-			[&] (const UIInputSlotConstPtr& foundInputSlot) {
-				MenuCommandStructure commands = CreateInputSlotCommandStructure (uiManager, uiEnvironment, foundInputSlot);
-				selectedCommand = eventHandler.OnContextMenu (position, foundInputSlot, commands);
+			[&] (const UINodePtr& foundNode) {
+				MenuCommandStructure commands = CreateNodeCommandStructure (uiManager, uiEnvironment, foundNode);
+				selectedCommand = eventHandler.OnContextMenu (EventHandler::ContextMenuType::Node, position, commands);
 			},
 			[&] (const UINodeGroupPtr& foundGroup) {
 				MenuCommandStructure commands = CreateNodeGroupCommandStructure (uiManager, uiEnvironment, foundGroup);
-				selectedCommand = eventHandler.OnContextMenu (position, foundGroup, commands);
+				selectedCommand = eventHandler.OnContextMenu (EventHandler::ContextMenuType::Group, position, commands);
 			}
 		);
 		if (!found) {
 			Point modelPosition = uiManager.GetViewBox ().ViewToModel (position);
 			MenuCommandStructure commands = CreateEmptyAreaCommandStructure (uiManager, uiEnvironment, modelPosition);
-			selectedCommand = eventHandler.OnContextMenu (position, commands);
+			selectedCommand = eventHandler.OnContextMenu (EventHandler::ContextMenuType::EmptyArea, position, commands);
 		}
 		if (selectedCommand != nullptr) {
 			selectedCommand->Do ();
@@ -899,15 +902,14 @@ EventHandlerResult InteractionHandler::HandleMouseWheel (NodeUIEnvironment&, con
 	return EventHandlerResult::EventHandled;
 }
 
-EventHandlerResult InteractionHandler::HandleKeyPress (NodeUIEnvironment&, KeyCode pressedKey)
+EventHandlerResult InteractionHandler::HandleKeyPress (NodeUIEnvironment& uiEnvironment, KeyCode pressedKey)
 {
 	if (pressedKey == KeyCode::Escape) {
 		if (multiMouseMoveHandler.HasHandler ()) {
 			multiMouseMoveHandler.AbortHandlers ();
 			return EventHandlerResult::EventHandled;
 		} else {
-			NE::NodeCollection emptySelectedNodes;
-			uiManager.SetSelectedNodes (emptySelectedNodes);
+			uiManager.SetSelection (EmptySelection, uiEnvironment);
 		}
 		return EventHandlerResult::EventHandled;
 	}

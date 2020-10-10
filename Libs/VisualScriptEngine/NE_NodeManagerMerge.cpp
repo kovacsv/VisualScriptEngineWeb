@@ -156,7 +156,6 @@ bool NodeManagerMerge::AppendNodeManager (const NodeManager& source, NodeManager
 		nodesToClone.Insert (nodeId);
 		return true;
 	});
-	nodesToClone.MakeSorted ();
 
 	// add nodes
 	std::unordered_map<NodeId, NodeId> oldToNewNodeIdTable;
@@ -267,11 +266,11 @@ bool NodeManagerMerge::UpdateNodeManager (const NodeManager& source, NodeManager
 	target.DeleteAllNodeGroups ();
 	source.EnumerateNodeGroups ([&] (const NodeGroupConstPtr& sourceGroup) {
 		NodeGroupPtr targetGroup (NodeGroup::Clone (sourceGroup));
-		target.AddNodeGroup (targetGroup);
-		const NodeCollection& sourceGroupNodes = source.GetGroupNodes (sourceGroup);
+		target.AddInitializedNodeGroup (targetGroup, NodeManager::IdHandlingPolicy::KeepOriginalId);
+		const NodeCollection& sourceGroupNodes = source.GetGroupNodes (sourceGroup->GetId ());
 		sourceGroupNodes.Enumerate ([&] (const NodeId& sourceNodeId) {
 			if (target.ContainsNode (sourceNodeId)) {
-				target.AddNodeToGroup (targetGroup, sourceNodeId);
+				target.AddNodeToGroup (targetGroup->GetId (), sourceNodeId);
 			}
 			return true;
 		});

@@ -4,7 +4,7 @@
 namespace NUIE
 {
 
-static void SaveAndAddState (const NE::NodeManager& nodeManager, std::vector<std::shared_ptr<NE::NodeManager>>& stack)
+static void AddStateToStack (const NE::NodeManager& nodeManager, std::vector<std::shared_ptr<NE::NodeManager>>& stack)
 {
 	std::shared_ptr<NE::NodeManager> undoState (new NE::NodeManager ());
 	NE::NodeManager::Clone (nodeManager, *undoState.get ());
@@ -14,12 +14,6 @@ static void SaveAndAddState (const NE::NodeManager& nodeManager, std::vector<std
 UndoHandler::UndoHandler ()
 {
 
-}
-
-void UndoHandler::SaveUndoState (const NE::NodeManager& nodeManager)
-{
-	redoStack.clear ();
-	SaveAndAddState (nodeManager, undoStack);
 }
 
 bool UndoHandler::CanUndo () const
@@ -32,36 +26,60 @@ bool UndoHandler::CanRedo () const
 	return !redoStack.empty ();
 }
 
-bool UndoHandler::Undo (NE::NodeManager& targetNodeManager, NE::UpdateEventHandler& eventHandler)
+UndoHandler::ChangeResult UndoHandler::AddUndoStep (const NE::NodeManager& nodeManager)
+{
+	redoStack.clear ();
+	AddStateToStack (nodeManager, undoStack);
+	return UndoHandler::ChangeResult::Changed;
+}
+
+UndoHandler::ChangeResult UndoHandler::Undo (NE::NodeManager& targetNodeManager, NE::UpdateEventHandler& eventHandler)
 {
 	if (!CanUndo ()) {
-		return false;
+		return ChangeResult::NotChanged;
 	}
 
-	SaveAndAddState (targetNodeManager, redoStack);
+	AddStateToStack (targetNodeManager, redoStack);
 
 	std::shared_ptr<NE::NodeManager> undoState = undoStack.back ();
 	undoStack.pop_back ();
 
-	return NE::NodeManagerMerge::UpdateNodeManager (*undoState.get (), targetNodeManager, eventHandler);
-}
-
-bool UndoHandler::Redo (NE::NodeManager& targetNodeManager, NE::UpdateEventHandler& eventHandler)
-{
-	if (!CanRedo ()) {
-		return false;
+	bool success = NE::NodeManagerMerge::UpdateNodeManager (*undoState.get (), targetNodeManager, eventHandler);
+	if (DBGERROR (!success)) {
+		return ChangeResult::NotChanged;
 	}
 
-	SaveAndAddState (targetNodeManager, undoStack);
-	std::shared_ptr<NE::NodeManager> redoState = redoStack.back ();
-	redoStack.pop_back ();
-	return NE::NodeManagerMerge::UpdateNodeManager (*redoState.get (), targetNodeManager, eventHandler);
+	return ChangeResult::Changed;
 }
 
-void UndoHandler::Clear ()
+UndoHandler::ChangeResult UndoHandler::Redo (NE::NodeManager& targetNodeManager, NE::UpdateEventHandler& eventHandler)
 {
-	undoStack.clear ();
-	redoStack.clear ();
+	if (!CanRedo ()) {
+		return ChangeResult::NotChanged;
+	}
+
+	AddStateToStack (targetNodeManager, undoStack);
+
+	std::shared_ptr<NE::NodeManager> redoState = redoStack.back ();
+	redoStack.pop_back ();
+
+	bool success = NE::NodeManagerMerge::UpdateNodeManager (*redoState.get (), targetNodeManager, eventHandler);
+	if (DBGERROR (!success)) {
+		return ChangeResult::NotChanged;
+	}
+
+	return ChangeResult::Changed;
+}
+
+UndoHandler::ChangeResult UndoHandler::Clear ()
+{
+	ChangeResult result = ChangeResult::NotChanged;
+	if (!undoStack.empty () || !redoStack.empty ()) {
+		undoStack.clear ();
+		redoStack.clear ();
+		result = ChangeResult::Changed;
+	}
+	return result;
 }
 
 }

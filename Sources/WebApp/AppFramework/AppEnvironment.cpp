@@ -11,44 +11,19 @@ AppEventHandler::~AppEventHandler ()
 
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
+NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (ContextMenuType, const NUIE::Point& position, const NUIE::MenuCommandStructure& commands)
 {
 	return browserInterface->ContextMenuRequest (position, commands);
 }
 
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UINodePtr&, const NUIE::MenuCommandStructure& commands)
+bool AppEventHandler::OnParameterSettings (ParameterSettingsType, NUIE::ParameterInterfacePtr parameters)
 {
-	return browserInterface->ContextMenuRequest (position, commands);
-}
-
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UIOutputSlotConstPtr&, const NUIE::MenuCommandStructure& commands)
-{
-	return browserInterface->ContextMenuRequest (position, commands);
-}
-
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UIInputSlotConstPtr&, const NUIE::MenuCommandStructure& commands)
-{
-	return browserInterface->ContextMenuRequest (position, commands);
-}
-
-NUIE::MenuCommandPtr AppEventHandler::OnContextMenu (const NUIE::Point& position, const NUIE::UINodeGroupPtr&, const NUIE::MenuCommandStructure& commands)
-{
-	return browserInterface->ContextMenuRequest (position, commands);
+	return browserInterface->ParameterSettingsRequest (parameters);
 }
 
 void AppEventHandler::OnDoubleClick (const NUIE::Point& position, NUIE::MouseButton)
 {
 	browserInterface->DoubleClickRequest (position);
-}
-
-bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodePtr&)
-{
-	return browserInterface->ParameterSettingsRequest (parameters);
-}
-
-bool AppEventHandler::OnParameterSettings (NUIE::ParameterInterfacePtr parameters, const NUIE::UINodeGroupPtr&)
-{
-	return browserInterface->ParameterSettingsRequest (parameters);
 }
 
 AppUIEnvironment::AppUIEnvironment (CustomAppInterface& customAppInterface, BrowserInterface* browserInterface) :
@@ -129,7 +104,12 @@ NUIE::ClipboardHandler& AppUIEnvironment::GetClipboardHandler ()
 	return clipboardHandler;
 }
 
-double AppUIEnvironment::GetMouseMoveMinOffset ()
+void AppUIEnvironment::OnSelectionChanged (const NUIE::Selection&)
 {
-	return 2.0;
+
+}
+
+void AppUIEnvironment::OnUndoStateChanged (const NUIE::UndoState&)
+{
+
 }

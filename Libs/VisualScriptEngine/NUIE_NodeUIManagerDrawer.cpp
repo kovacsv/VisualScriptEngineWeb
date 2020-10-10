@@ -11,7 +11,7 @@ namespace NUIE
 
 NodeIdToNodeMap::NodeIdToNodeMap (const NodeUIManager& uiManager)
 {
-	uiManager.EnumerateUINodes ([&] (const UINodeConstPtr& uiNode) {
+	uiManager.EnumerateNodes ([&] (const UINodeConstPtr& uiNode) {
 		const UINode* uiNodePtr = uiNode.get ();
 		Insert (uiNodePtr->GetId (), uiNodePtr);
 		return true;
@@ -106,7 +106,7 @@ void NodeUIManagerDrawer::DrawGroups (NodeUIDrawingEnvironment& drawingEnv, cons
 
 		virtual Rect GetNodeRect (const NE::NodeId& nodeId) const override
 		{
-			UINodeConstPtr uiNode = uiManager.GetUINode (nodeId);
+			UINodeConstPtr uiNode = uiManager.GetNode (nodeId);
 			return uiManagerDrawer.GetNodeRect (drawingEnv, drawModifier, uiNode.get ());
 		}
 
@@ -118,10 +118,10 @@ void NodeUIManagerDrawer::DrawGroups (NodeUIDrawingEnvironment& drawingEnv, cons
 	};
 
 	ModifiedNodeRectGetter rectGetter (uiManager, *this, drawModifier, drawingEnv);
-	uiManager.EnumerateUINodeGroups ([&] (const UINodeGroupConstPtr& group) {
-		Rect groupRect = group->GetRect (drawingEnv, rectGetter, uiManager.GetUIGroupNodes (group));
+	uiManager.EnumerateNodeGroups ([&] (const UINodeGroupConstPtr& group) {
+		Rect groupRect = group->GetRect (drawingEnv, rectGetter, uiManager.GetGroupNodes (group));
 		if (IsRectVisible (drawingEnv, groupRect)) {
-			group->Draw (drawingEnv, rectGetter, uiManager.GetUIGroupNodes (group));
+			group->Draw (drawingEnv, rectGetter, uiManager.GetGroupNodes (group));
 		}
 		return true;
 	});
@@ -133,7 +133,8 @@ void NodeUIManagerDrawer::DrawConnections (NodeUIDrawingEnvironment& drawingEnv,
 	const Pen& pen = skinParams.GetConnectionLinePen ();
 	Pen selectionPen (skinParams.GetNodeSelectionRectPen ().GetColor (), scaleIndependentData.GetSelectionThickness ());
 
-	const NE::NodeCollection& selectedNodes = uiManager.GetSelectedNodes ();
+	const Selection& selection = uiManager.GetSelection ();
+	const NE::NodeCollection& selectedNodes = selection.GetNodes ();
 	for (const UINode* begNode : sortedNodeList) {
 		bool begSelected = selectedNodes.Contains (begNode->GetId ());
 		begNode->EnumerateUIOutputSlots ([&] (const UIOutputSlotConstPtr& outputSlot) {
@@ -184,7 +185,7 @@ void NodeUIManagerDrawer::DrawNodes (NodeUIDrawingEnvironment& drawingEnv, const
 		}
 		
 		SelectionMode selectionMode = SelectionMode::NotSelected;
-		if (uiManager.GetSelectedNodes ().Contains (uiNode->GetId ())) {
+		if (uiManager.GetSelection ().ContainsNode (uiNode->GetId ())) {
 			selectionMode = SelectionMode::Selected;
 		}
 

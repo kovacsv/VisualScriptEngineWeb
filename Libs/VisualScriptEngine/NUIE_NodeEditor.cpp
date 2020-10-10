@@ -108,14 +108,14 @@ void NodeEditor::Draw ()
 void NodeEditor::AddNode (const UINodePtr& uiNode)
 {
 	AddNodeCommand command (uiNode, uiEnvironment.GetEvaluationEnv ());
-	uiManager.ExecuteCommand (command);
+	uiManager.ExecuteCommand (command, uiEnvironment);
 	Update ();
 }
 
 void NodeEditor::ConnectOutputSlotToInputSlot (const UIOutputSlotConstPtr& outputSlot, const UIInputSlotConstPtr& inputSlot)
 {
 	ConnectSlotsCommand command (outputSlot, inputSlot);
-	uiManager.ExecuteCommand (command);
+	uiManager.ExecuteCommand (command, uiEnvironment);
 	Update ();
 }
 
@@ -154,14 +154,14 @@ void NodeEditor::SetViewBox (const ViewBox& newViewBox)
 	Update ();
 }
 
-const NE::NodeCollection& NodeEditor::GetSelectedNodes () const
+const Selection& NodeEditor::GetSelection () const
 {
-	return uiManager.GetSelectedNodes ();
+	return uiManager.GetSelection ();
 }
 
-void NodeEditor::SetSelectedNodes (const NE::NodeCollection& newSelectedNodes)
+void NodeEditor::SetSelection (const Selection& newSelection)
 {
-	uiManager.SetSelectedNodes (newSelectedNodes);
+	uiManager.SetSelection (newSelection, uiEnvironment);
 	Update ();
 }
 
@@ -250,21 +250,21 @@ void NodeEditor::ExecuteMenuCommand (const MenuCommandPtr& command)
 void NodeEditor::ApplyParameterChanges (const ParameterInterfacePtr& parameters)
 {
 	ApplyParametersCommand command (parameters, uiEnvironment.GetEvaluationEnv ());
-	uiManager.ExecuteCommand (command);
+	uiManager.ExecuteCommand (command, uiEnvironment);
 	Update ();
 }
 
 void NodeEditor::Undo ()
 {
-	UndoCommand command (uiEnvironment.GetEvaluationEnv ());
-	uiManager.ExecuteCommand (command);
+	UndoCommand command (uiEnvironment);
+	uiManager.ExecuteCommand (command, uiEnvironment);
 	Update ();
 }
 
 void NodeEditor::Redo ()
 {
-	RedoCommand command (uiEnvironment.GetEvaluationEnv ());
-	uiManager.ExecuteCommand (command);
+	RedoCommand command (uiEnvironment);
+	uiManager.ExecuteCommand (command, uiEnvironment);
 	Update ();
 }
 
@@ -272,12 +272,12 @@ NodeEditorInfo NodeEditor::GetInfo () const
 {
 	NodeEditorInfo info;
 
-	DrawingContext& context = uiEnvironment.GetDrawingContext ();
+	const DrawingContext& context = uiEnvironment.GetDrawingContext ();
 	info.view.width = context.GetWidth ();
 	info.view.height = context.GetHeight ();
 
 	const ViewBox& viewBox = uiManager.GetViewBox ();
-	uiManager.EnumerateUINodes ([&] (const UINodeConstPtr& uiNode) {
+	uiManager.EnumerateNodes ([&] (const UINodeConstPtr& uiNode) {
 		NodeInfo nodeInfo;
 		nodeInfo.id = uiNode->GetId ();
 		nodeInfo.name = uiNode->GetName ().GetLocalized ();
@@ -321,9 +321,10 @@ NodeEditorInfo NodeEditor::GetInfo () const
 	});
 
 	NodeUIManagerNodeRectGetter rectGetter (uiManager, uiEnvironment);
-	uiManager.EnumerateUINodeGroups ([&] (const UINodeGroupConstPtr& uiGroup) {
+	uiManager.EnumerateNodeGroups ([&] (const UINodeGroupConstPtr& uiGroup) {
 		GroupInfo groupInfo;
-		NE::NodeCollection nodesInGroup = uiManager.GetUIGroupNodes (uiGroup);
+		NE::NodeCollection nodesInGroup = uiManager.GetGroupNodes (uiGroup);
+		groupInfo.id = uiGroup->GetId ();
 		groupInfo.name = uiGroup->GetName ().GetLocalized ();
 		groupInfo.modelRect = uiGroup->GetRect (uiEnvironment, rectGetter, nodesInGroup);
 		groupInfo.viewRect = viewBox.ModelToView (groupInfo.modelRect);
