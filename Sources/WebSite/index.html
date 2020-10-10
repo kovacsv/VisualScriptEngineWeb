@@ -85,7 +85,12 @@
 		function OnUndoStateChanged (canUndo, canRedo)
 		{
 			editor.OnUndoStateChanged (canUndo, canRedo);
-		}		
+		}
+		
+		function OnClipboardStateChanged (hasContent)
+		{
+			editor.OnClipboardStateChanged (hasContent);
+		}
 		
 		$(window).resize (function () {
 			OnResize ();

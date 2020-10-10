@@ -114,3 +114,8 @@ void AppUIEnvironment::OnUndoStateChanged (const NUIE::UndoState& undoState)
 {
 	customAppInterface.OnUndoStateChanged (undoState.CanUndo (), undoState.CanRedo ());
 }
+
+void AppUIEnvironment::OnClipboardStateChanged (const NUIE::ClipboardState& clipboardState)
+{
+	customAppInterface.OnClipboardStateChanged (clipboardState.HasContent ());
+}

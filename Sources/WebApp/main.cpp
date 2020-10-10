@@ -142,6 +142,17 @@ public:
 #endif
 	}
 
+	virtual void OnClipboardStateChanged (bool hasContent) override
+	{
+#ifdef EMSCRIPTEN
+		EM_ASM ({
+			OnClipboardStateChanged ($0);
+		}, hasContent);
+#else
+		(void) hasContent;
+#endif
+	}
+
 	virtual bool SaveFile (NUIE::NodeEditor& nodeEditor, std::vector<char>& buffer) const override
 	{
 		NE::MemoryOutputStream outputStream;

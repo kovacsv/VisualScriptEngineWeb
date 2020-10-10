@@ -55,6 +55,7 @@ NodeEditor.prototype.InitToolbar = function (controlsDiv)
 	
 	this.OnSelectionChanged (false);
 	this.OnUndoStateChanged (false, false);
+	this.OnClipboardStateChanged (false);
 
 	var myThis = this;
 	if (this.settings.customCommandCreator) {
@@ -213,6 +214,11 @@ NodeEditor.prototype.OnUndoStateChanged = function (canUndo, canRedo)
 {
 	this.toolbar.SetButtonEnabled ('Undo', canUndo);
 	this.toolbar.SetButtonEnabled ('Redo', canRedo);
+};
+
+NodeEditor.prototype.OnClipboardStateChanged = function (hasContent)
+{
+	this.toolbar.SetButtonEnabled ('Paste', hasContent);
 };
 
 NodeEditor.prototype.OpenContextMenu = function (mouseX, mouseY, commands)
