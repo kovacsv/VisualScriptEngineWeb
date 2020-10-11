@@ -33,9 +33,12 @@ NodeEditor.prototype.InitToolbar = function (controlsDiv)
 		controlKeyText = 'Cmd';
 	}
 
+	var myThis = this;
 	this.toolbar = new Toolbar (controlsDiv);
 	this.toolbar.AddButton ('New', 'New', null, function () {
-		window.open ('.', '_blank');
+		myThis.ShowSaveConfirmationDialog ('New File?', 'New', function () {
+			myThis.ExecuteCommand ('New');
+		});
 	});
 	this.toolbar.AddButton ('Open', 'Open', null, function () {
 		myThis.ShowOpenFileDialog ();
@@ -57,7 +60,6 @@ NodeEditor.prototype.InitToolbar = function (controlsDiv)
 	this.OnUndoStateChanged (false, false);
 	this.OnClipboardStateChanged (false);
 
-	var myThis = this;
 	if (this.settings.customCommandCreator) {
 		this.settings.customCommandCreator (
 			function () {
@@ -266,20 +268,9 @@ NodeEditor.prototype.ShowOpenFileDialog = function ()
 		file.click ();			
 	}
 	
-	if (this.editorInterface.NeedToSave ()) {
-		var confirmation = new ConfirmationDialog (this.canvas, {
-			title : 'Open New File?',
-			text : 'Changes you\'ve made may not be saved.',
-			okButtonText : 'Open',
-			cancelButtonText : 'Cancel',
-			onOk : function () {
-				ShowOpenFileDialog ();
-			}
-		});
-		confirmation.Open ();
-	} else {
+	this.ShowSaveConfirmationDialog ('Open File?', 'Open', function () {
 		ShowOpenFileDialog ();
-	}
+	});
 };
 
 NodeEditor.prototype.OpenFile = function (fileBuffer)
@@ -304,4 +295,20 @@ NodeEditor.prototype.SaveFile = function (data, size)
 	var url = window.URL.createObjectURL (blob);
 	DownloadFile (url, 'Untitled' + this.settings.fileExtension);
 	window.URL.revokeObjectURL (url);
+};
+
+NodeEditor.prototype.ShowSaveConfirmationDialog = function (title, okButtonText, onOk)
+{
+	if (this.editorInterface.NeedToSave ()) {
+		var confirmation = new ConfirmationDialog (this.canvas, {
+			title : title,
+			text : 'Changes you\'ve made may not be saved.',
+			okButtonText : okButtonText,
+			cancelButtonText : 'Cancel',
+			onOk : onOk
+		});
+		confirmation.Open ();
+	} else {
+		onOk ();
+	}
 };
