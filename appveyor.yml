@@ -26,8 +26,10 @@ after_build:
   - git clone https://github.com/emscripten-core/emsdk.git
   - cd emsdk
   - git pull
+  - echo PATH=%PATH%
   - emsdk install latest
   - emsdk activate latest
+  - echo PATH=%PATH%
   - emsdk install mingw-4.6.2-32bit
   - emsdk activate mingw-4.6.2-32bit
   - cd ..
