@@ -20,6 +20,7 @@ popd
 exit /b 0
 
 :error
+SET PATH=%SAVED_PATH%
 echo Build Failed with Error %errorlevel%.
 popd
 popd
