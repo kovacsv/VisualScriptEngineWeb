@@ -4,13 +4,7 @@ mkdir BuildEm
 SET SAVED_PATH=%PATH%
 
 pushd BuildEm
-echo -----
-echo %PATH%
-echo -----
 call %1\emsdk_env.bat || goto :error
-echo -----
-echo %PATH%
-echo -----
 call emcmake cmake -G "Unix Makefiles" -DEMSCRIPTEN=1 -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_BUILD_TYPE=Release .. || goto :error
 call emmake mingw32-make || goto :error
 popd
