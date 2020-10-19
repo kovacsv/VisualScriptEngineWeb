@@ -24,4 +24,4 @@ SET PATH=%SAVED_PATH%
 echo Build Failed with Error %errorlevel%.
 popd
 popd
-exit /b %errorlevel%
+exit /b 1
