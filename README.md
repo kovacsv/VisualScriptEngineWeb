@@ -15,7 +15,7 @@ The [Emscripten](https://emscripten.org) port of [VisualScriptEngine](https://gi
 ### 1. Install Prerequisites
 
 You have to install the following software:
-- [CMake](https://cmake.org) (3.16 minimum version is needed).
+- [CMake](https://cmake.org) (3.6 minimum version is needed).
 - [Python](https://www.python.org) (version 2.7+ or 3.5+).
 
 ### 2. Install Emscripten SDK
