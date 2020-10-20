@@ -26,8 +26,9 @@ You can find detailed instruction on [Emscripten Download and install](https://e
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
 git pull
-emsdk install latest
-emsdk activate latest
+git checkout tags/2.0.5
+emsdk install 2.0.5
+emsdk activate 2.0.5
 emsdk install mingw-4.6.2-32bit
 emsdk activate mingw-4.6.2-32bit
 ```
