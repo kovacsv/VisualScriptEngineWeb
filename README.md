@@ -46,12 +46,13 @@ cd ..
 
 ### 4. Generate the Web Application
 
-The easiest way is to run the `EmscriptenBuild.bat` file from the root directory. It needs two command line parameters:
+The easiest way is to run the `EmscriptenBuild.bat` file from the root directory. It needs three command line parameters:
 - The Emscripten SDK folder (e.g. "C:\Emscripten\emsdk").
 - The result folder of the web application (e.g. "C:\xampp\htdocs\WebApp").
+- The build configuration type (Debug or Release).
 
 ```
-EmscriptenBuild.bat C:\Emscripten\emsdk C:\xampp\htdocs\WebApp
+EmscriptenBuild.bat C:\Emscripten\emsdk C:\xampp\htdocs\WebApp Release
 ```
 
 ### 5. Open it in a Web Browser
