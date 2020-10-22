@@ -241,7 +241,7 @@ PasteNodesCommand::PasteNodesCommand (NodeUIEnvironment& uiEnvironment, const Po
 
 void PasteNodesCommand::Do (NodeUIManager& uiManager)
 {
-	ClipboardHandler& clipboard = uiEnvironment.GetClipboardHandler ();
+	const ClipboardHandler& clipboard = uiEnvironment.GetClipboardHandler ();
 	if (DBGERROR (!clipboard.HasClipboardContent ())) {
 		return;
 	}
@@ -255,8 +255,10 @@ void PasteNodesCommand::Do (NodeUIManager& uiManager)
 	Version readVersion;
 	readVersion.Read (inputStream);
 	if (!clipboard.IsCompatibleVersion (readVersion)) {
+		uiEnvironment.OnIncompatibleVersionPasted (readVersion);
 		return;
 	}
+
 	NE::NodeManager clipboardNodeManager;
 	clipboardNodeManager.Read (inputStream);
 

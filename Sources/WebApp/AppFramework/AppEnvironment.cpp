@@ -119,3 +119,8 @@ void AppUIEnvironment::OnClipboardStateChanged (const NUIE::ClipboardState& clip
 {
 	customAppInterface.OnClipboardStateChanged (clipboardState.HasContent ());
 }
+
+void AppUIEnvironment::OnIncompatibleVersionPasted (const NUIE::Version&)
+{
+
+}
