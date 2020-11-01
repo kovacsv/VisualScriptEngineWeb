@@ -1,5 +1,5 @@
-#ifndef BI_ARITHMETICUINODES_HPP
-#define BI_ARITHMETICUINODES_HPP
+#ifndef BI_BINARYOPERATIONNODES_HPP
+#define BI_BINARYOPERATIONNODES_HPP
 
 #include "NE_SingleValues.hpp"
 #include "BI_BasicUINode.hpp"
@@ -27,6 +27,7 @@ public:
 	virtual NE::Stream::Status	Write (NE::OutputStream& outputStream) const override;
 
 private:
+	NE::ValuePtr				DoSingleOperation (const NE::ValueConstPtr& aValue, const NE::ValueConstPtr& bValue) const;
 	virtual double				DoOperation (double a, double b) const = 0;
 };
 

@@ -79,6 +79,7 @@ void MoveNodesCommand::Do (NodeUIManager& uiManager)
 		uiNode->SetPosition (uiNode->GetPosition () + offset);
 		uiManager.InvalidateNodeGroupDrawing (uiNode);
 	}
+	uiManager.RequestRedraw ();
 }
 
 MoveNodesWithOffsetsCommand::MoveNodesWithOffsetsCommand (const NE::NodeCollection& nodes, const std::vector<Point>& offsets) :
@@ -100,6 +101,7 @@ void MoveNodesWithOffsetsCommand::Do (NodeUIManager& uiManager)
 		uiNode->SetPosition (uiNode->GetPosition () + offset);
 		uiManager.InvalidateNodeGroupDrawing (uiNode);
 	}
+	uiManager.RequestRedraw ();
 }
 
 CopyMoveNodesCommand::CopyMoveNodesCommand (NodeUIEnvironment& uiEnvironment, const NE::NodeCollection& nodes, const Point& offset) :

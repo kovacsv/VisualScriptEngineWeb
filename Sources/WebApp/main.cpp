@@ -89,6 +89,21 @@ public:
 		nodeTree.AddItem (arithmetics, L"Division", L"Division.png", [&] (const NUIE::Point& position) {
 			return NUIE::UINodePtr (new BI::DivisionNode (NE::LocString (L"Division"), position));
 		});
+		nodeTree.AddItem (arithmetics, L"Floor", L"Floor.png", [&] (const NUIE::Point& position) {
+			return NUIE::UINodePtr (new BI::FloorNode (NE::LocString (L"Floor"), position));
+		});
+		nodeTree.AddItem (arithmetics, L"Ceil", L"Ceil.png", [&] (const NUIE::Point& position) {
+			return NUIE::UINodePtr (new BI::CeilNode (NE::LocString (L"Ceil"), position));
+		});
+		nodeTree.AddItem (arithmetics, L"Abs", L"Abs.png", [&] (const NUIE::Point& position) {
+			return NUIE::UINodePtr (new BI::AbsNode (NE::LocString (L"Abs"), position));
+		});
+		nodeTree.AddItem (arithmetics, L"Negative", L"Negative.png", [&] (const NUIE::Point& position) {
+			return NUIE::UINodePtr (new BI::NegativeNode (NE::LocString (L"Negative"), position));
+		});
+		nodeTree.AddItem (arithmetics, L"Sqrt", L"Sqrt.png", [&] (const NUIE::Point& position) {
+			return NUIE::UINodePtr (new BI::SqrtNode (NE::LocString (L"Sqrt"), position));
+		});
 
 		size_t other = nodeTree.AddGroup (L"Other");
 		nodeTree.AddItem (other, L"List Builder", L"ListBuilder.png", [&] (const NUIE::Point& position) {
