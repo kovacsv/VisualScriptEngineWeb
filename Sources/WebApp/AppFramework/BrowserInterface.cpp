@@ -142,11 +142,11 @@ bool BrowserInterface::AreEventsSuspended () const
 
 void BrowserInterface::OnAppInitialized (const AppNodeTree& appNodeTree) const
 {
-	std::string aaa = ConvertNodeTreeToJson (appNodeTree);
+	std::string nodeTree = ConvertNodeTreeToJson (appNodeTree);
 #ifdef EMSCRIPTEN
 	EM_ASM ({
 		OnAppInitialized ($0);
-	}, aaa.c_str ());
+	}, nodeTree.c_str ());
 #endif
 }
 

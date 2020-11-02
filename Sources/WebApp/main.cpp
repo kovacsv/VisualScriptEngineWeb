@@ -2,6 +2,7 @@
 #include "NE_MemoryStream.hpp"
 #include "BI_BuiltInNodes.hpp"
 
+#include <locale>
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif
@@ -200,6 +201,8 @@ private:
 
 int main (int, char**)
 {
+	setlocale (LC_ALL, "");
+
 	MyAppInterface appInterface;
 	Application app (appInterface);
 	app.Init ("VisualScriptEngineWeb");

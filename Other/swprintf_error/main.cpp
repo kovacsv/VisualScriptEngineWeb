@@ -1,3 +1,5 @@
+// https://github.com/emscripten-core/emscripten/issues/11947
+
 #include <iostream>
 #include <locale>
 #include <codecvt>
@@ -10,6 +12,8 @@ std::string WStringToString (const std::wstring& str)
 
 int main (int, char**)
 {
+	setlocale (LC_ALL, "");
+	
 	std::cout << "BEGIN" << std::endl;
 	
 	std::wstring directString (L"Aa\xc1");

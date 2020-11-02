@@ -185,7 +185,7 @@ NUIE::Size SDL2Context::MeasureText (const NUIE::Font& font, const std::wstring&
 	std::string textStr = NE::WStringToString (text);
 	int textWidth = 0;
 	int textHeight = 0;
-	TTF_SizeText (ttfFont, textStr.c_str (), &textWidth, &textHeight);
+	TTF_SizeUTF8 (ttfFont, textStr.c_str (), &textWidth, &textHeight);
 	return NUIE::Size (textWidth * TextRatioX, textHeight * TextRatioY);
 }
 
