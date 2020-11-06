@@ -74,7 +74,6 @@ PopUpDiv.prototype.FitToElement = function (elem)
 
 PopUpDiv.prototype.CenterToElement = function (elem, hRatio, vRatio)
 {
-	var offset = this.popUpDiv.offset ();
 	var width = this.popUpDiv.outerWidth ();
 	var height = this.popUpDiv.outerHeight ();
 	

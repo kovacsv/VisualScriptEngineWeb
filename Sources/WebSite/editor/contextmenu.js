@@ -26,7 +26,7 @@ ContextMenu.prototype.Open = function (positionX, positionY)
 
 ContextMenu.prototype.AddCommands = function (parentDiv, commands)
 {
-	var i, command, itemDiv, subItemsDiv;
+	var i, command;
 	for (i = 0; i < commands.length; i++) {
 		command = commands[i];
 		if (command.commands === undefined) {
@@ -46,7 +46,7 @@ ContextMenu.prototype.AddCommand = function (parentDiv, command)
 	} else {
 		imgItem.attr ('src', 'images/nocheck.png');
 	}
-	var textItem = $('<span>').html (command.name).appendTo (itemDiv);
+	$('<span>').html (command.name).appendTo (itemDiv);
 	itemDiv.appendTo (parentDiv);
 	var myThis = this;
 	itemDiv.click (function () {
@@ -58,8 +58,8 @@ ContextMenu.prototype.AddCommand = function (parentDiv, command)
 ContextMenu.prototype.AddGroupCommand = function (parentDiv, command)
 {
 	var itemDiv = $('<div>').addClass ('contextmenugroupitem');
-	var imgItem = $('<img>').addClass ('contextmenuicon').attr ('src', 'images/arrow.png').appendTo (itemDiv);
-	var textItem = $('<span>').html (command.name).appendTo (itemDiv);
+	$('<img>').addClass ('contextmenuicon').attr ('src', 'images/arrow.png').appendTo (itemDiv);
+	$('<span>').html (command.name).appendTo (itemDiv);
 	itemDiv.appendTo (parentDiv);
 	
 	var subItemsDiv = $('<div>').addClass ('contextmenusubitems').appendTo (parentDiv);

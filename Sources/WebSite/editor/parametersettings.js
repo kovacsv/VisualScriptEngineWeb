@@ -139,11 +139,11 @@ ParameterSettings.prototype.GenerateTable = function ()
 	
 	var popUpDivElem = this.popUpDiv.GetDiv ();
 	var table = $('<table>').addClass ('parametertable').appendTo (popUpDivElem);
-	var i, parameter, row, nameColumn, controlColumn;
+	var i, parameter, row, controlColumn;
 	for (i = 0; i < this.parameters.length; i++) {
 		parameter = this.parameters[i];
 		row = $('<tr>').appendTo (table);
-		nameColumn = $('<td>').html (parameter.name).appendTo (row);
+		$('<td>').html (parameter.name).appendTo (row);
 		controlColumn = $('<td>').appendTo (row);
 		AddControl (controlColumn, i, parameter, this.customControlCreator, this.changedParams);
 	}

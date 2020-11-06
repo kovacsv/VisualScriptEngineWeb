@@ -29,7 +29,7 @@ NodeTree.prototype.FocusSearchInput = function ()
 NodeTree.prototype.BuildTree = function ()
 {
 	this.nodeGroups = [];
-	var groupId, groupObj, nodeId, nodeObj;
+	var groupId, groupObj, group, nodeId, nodeObj;
 	for (groupId = 0; groupId < this.nodeList.length; groupId++) {
 		groupObj = this.nodeList[groupId];
 		group = this.AddNodeGroup (groupObj.name);
@@ -273,7 +273,6 @@ var NodeTreePopUp = function (parentElement, nodeList, onNodeClick)
 	this.nodeList = nodeList;
 	this.onNodeClick = onNodeClick;
 	
-	var myThis = this;
 	this.popUpDiv = new PopUpDiv ({
 		onOpen : function () {
 		},
