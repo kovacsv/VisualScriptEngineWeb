@@ -18,6 +18,28 @@
 namespace NE
 {
 
+class OutputSlotList
+{
+public:
+	OutputSlotList ();
+	virtual ~OutputSlotList ();
+
+	bool			IsEmpty () const;
+	virtual size_t	GetSize () const = 0;
+	virtual void	Enumerate (const std::function<bool (const OutputSlotConstPtr&)>& processor) const = 0;
+};
+
+class InputSlotList
+{
+public:
+	InputSlotList ();
+	virtual ~InputSlotList ();
+
+	bool			IsEmpty () const;
+	virtual size_t	GetSize () const = 0;
+	virtual void	Enumerate (const std::function<bool (const InputSlotConstPtr&)>& processor) const = 0;
+};
+
 class NodeManager
 {
 	SERIALIZABLE;
@@ -55,11 +77,17 @@ public:
 	bool					DeleteNode (const NodePtr& node);
 
 	bool					IsOutputSlotConnectedToInputSlot (const OutputSlotConstPtr& outputSlot, const InputSlotConstPtr& inputSlot) const;
-	bool					CanConnectMoreOutputSlotToInputSlot (const InputSlotConstPtr& inputSlot) const;
+	bool					CanConnectOutputSlotToInputSlot (const InputSlotConstPtr& inputSlot) const;
 	bool					CanConnectOutputSlotToInputSlot (const OutputSlotConstPtr& outputSlot, const InputSlotConstPtr& inputSlot) const;
-	
+	bool					CanConnectOutputSlotsToInputSlot (const OutputSlotList& outputSlots, const InputSlotConstPtr& inputSlot) const;
+	bool					CanConnectOutputSlotToInputSlots (const OutputSlotConstPtr& outputSlot, const InputSlotList& inputSlots) const;
+
 	bool					ConnectOutputSlotToInputSlot (const OutputSlotConstPtr& outputSlot, const InputSlotConstPtr& inputSlot);
+	bool					ConnectOutputSlotsToInputSlot (const OutputSlotList& outputSlots, const InputSlotConstPtr& inputSlot);
+	bool					ConnectOutputSlotToInputSlots (const OutputSlotConstPtr& outputSlot, const InputSlotList& inputSlots);
 	bool					DisconnectOutputSlotFromInputSlot (const OutputSlotConstPtr& outputSlot, const InputSlotConstPtr& inputSlot);
+	bool					DisconnectOutputSlotsFromInputSlot (const OutputSlotList& outputSlots, const InputSlotConstPtr& inputSlot);
+	bool					DisconnectOutputSlotFromInputSlots (const OutputSlotConstPtr& outputSlot, const InputSlotList& inputSlots);
 	bool					DisconnectAllInputSlotsFromOutputSlot (const OutputSlotConstPtr& outputSlot);
 	bool					DisconnectAllOutputSlotsFromInputSlot (const InputSlotConstPtr& inputSlot);
 
@@ -118,7 +146,7 @@ private:
 	NodePtr				AddUninitializedNode (const NodePtr& node);
 	NodePtr				AddInitializedNode (const NodePtr& node, IdHandlingPolicy idHandling);
 
-	NodeGroupPtr		AddNodeGroup (const NodeGroupPtr& group, const NE::NodeGroupId& groupId);
+	NodeGroupPtr		AddNodeGroup (const NodeGroupPtr& group, const NodeGroupId& groupId);
 	NodeGroupPtr		AddUninitializedNodeGroup (const NodeGroupPtr& group);
 	NodeGroupPtr		AddInitializedNodeGroup (const NodeGroupPtr& group, IdHandlingPolicy idHandling);
 

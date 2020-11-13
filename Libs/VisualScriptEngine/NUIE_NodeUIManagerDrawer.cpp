@@ -1,5 +1,4 @@
 #include "NUIE_NodeUIManagerDrawer.hpp"
-#include "NUIE_NodeDrawingModifier.hpp"
 #include "NUIE_ContextDecorators.hpp"
 #include "NUIE_EnvironmentDecorators.hpp"
 #include "NUIE_SkinParams.hpp"
@@ -8,6 +7,14 @@
 
 namespace NUIE
 {
+
+static void GetBezierControlPoints (const Point& beg, const Point& end, Point& controlPoint1, Point& controlPoint2)
+{
+	double bezierOffsetVal = std::fabs (beg.GetX () - end.GetX ()) / 2.0;
+	Point bezierOffset (bezierOffsetVal, 0.0);
+	controlPoint1 = beg + bezierOffset;
+	controlPoint2 = end - bezierOffset;
+}
 
 NodeIdToNodeMap::NodeIdToNodeMap (const NodeUIManager& uiManager)
 {
@@ -162,9 +169,9 @@ void NodeUIManagerDrawer::DrawConnections (NodeUIDrawingEnvironment& drawingEnv,
 	}
 
 	if (drawModifier != nullptr) {
-		drawModifier->EnumerateTemporaryConnections ([&] (const Point& beg, const Point& end) {
+		drawModifier->EnumerateTemporaryConnections ([&] (const Point& beg, const Point& end, NodeDrawingModifier::Direction dir) {
 			if (IsConnectionVisible (drawingEnv, beg, end)) {
-				DrawConnection (drawingEnv, pen, beg, end);
+				DrawTemporaryConnection (drawingEnv, pen, beg, end, dir);
 			}
 		});
 	}
@@ -172,9 +179,30 @@ void NodeUIManagerDrawer::DrawConnections (NodeUIDrawingEnvironment& drawingEnv,
 
 void NodeUIManagerDrawer::DrawConnection (NodeUIDrawingEnvironment& drawingEnv, const Pen& pen, const Point& beg, const Point& end) const
 {
-	double bezierOffsetVal = std::fabs (beg.GetX () - end.GetX ()) / 2.0;
-	Point bezierOffset (bezierOffsetVal, 0.0);
-	drawingEnv.GetDrawingContext ().DrawBezier (beg, beg + bezierOffset, end - bezierOffset, end, pen);
+	DrawingContext& context = drawingEnv.GetDrawingContext ();
+	Point controlPoint1, controlPoint2;
+	GetBezierControlPoints (beg, end, controlPoint1, controlPoint2);
+	context.DrawBezier (beg, controlPoint1, controlPoint2, end, pen);
+}
+
+void NodeUIManagerDrawer::DrawTemporaryConnection (NodeUIDrawingEnvironment& drawingEnv, const Pen& pen, const Point& beg, const Point& end, NodeDrawingModifier::Direction dir) const
+{
+	const SkinParams& skinParams = drawingEnv.GetSkinParams ();
+	DrawingContext& context = drawingEnv.GetDrawingContext ();
+	DrawConnection (drawingEnv, pen, beg, end);
+	if (skinParams.GetConnectionMarker () == SkinParams::ConnectionMarker::Circle) {
+		const Color& markerColor = skinParams.GetSlotTextBackgroundColor ();
+		const Size& markerSize = skinParams.GetConnectionMarkerSize ();
+		if (dir == NodeDrawingModifier::Direction::Forward) {
+			Rect markerRect = Rect::FromCenterAndSize (end, markerSize);
+			context.FillEllipse (markerRect, markerColor);
+			context.DrawEllipse (markerRect, pen);
+		} else if (dir == NodeDrawingModifier::Direction::Backward) {
+			Rect markerRect = Rect::FromCenterAndSize (beg, markerSize);
+			context.FillEllipse (markerRect, markerColor);
+			context.DrawEllipse (markerRect, pen);
+		}
+	}
 }
 
 void NodeUIManagerDrawer::DrawNodes (NodeUIDrawingEnvironment& drawingEnv, const NodeUIScaleIndependentData& scaleIndependentData, const NodeDrawingModifier* drawModifier) const
@@ -254,8 +282,10 @@ void NodeUIManagerDrawer::InitSortedNodeList () const
 
 bool NodeUIManagerDrawer::IsConnectionVisible (NodeUIDrawingEnvironment& drawingEnv, const Point& beg, const Point& end) const
 {
-	Rect connectionRect = Rect::FromTwoPoints (beg, end);
-	return IsRectVisible (drawingEnv, connectionRect);
+	Point controlPoint1, controlPoint2;
+	GetBezierControlPoints (beg, end, controlPoint1, controlPoint2);
+	Rect boundingRect = GetBezierBoundingRect (beg, controlPoint1, controlPoint2, end);
+	return IsRectVisible (drawingEnv, boundingRect);
 }
 
 bool NodeUIManagerDrawer::IsNodeVisible (NodeUIDrawingEnvironment& drawingEnv, const NodeUIScaleIndependentData& scaleIndependentData, const NodeDrawingModifier* drawModifier, const UINode* uiNode) const
@@ -297,11 +327,11 @@ Point NodeUIManagerDrawer::GetInputSlotConnPosition (NodeUIDrawingEnvironment& d
 Rect ExtendNodeRect (NodeUIDrawingEnvironment& drawingEnv, const Rect& originalRect)
 {
 	const SkinParams& skinParams = drawingEnv.GetSkinParams ();
-	if (!skinParams.NeedToDrawSlotCircles ()) {
+	if (skinParams.GetSlotMarker () == SkinParams::SlotMarker::None) {
 		return originalRect;
 	}
-	const Size& slotCircleSize = skinParams.GetSlotCircleSize ();
-	return originalRect.Expand (Size (slotCircleSize.GetWidth (), 0.0));
+	const Size& slotMarkerSize = skinParams.GetSlotMarkerSize ();
+	return originalRect.Expand (Size (slotMarkerSize.GetWidth (), 0.0));
 }
 
 Rect GetNodeExtendedRect (NodeUIDrawingEnvironment& drawingEnv, const UINode* uiNode)

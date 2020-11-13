@@ -45,7 +45,7 @@ static NUIE::ModifierKeys GetModifierKeys ()
 		isControlPressed = keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL];
 	}
 	if (isControlPressed) {
-		keys.Insert (NUIE::ModifierKeyCode::Control);
+		keys.Insert (NUIE::ModifierKeyCode::Command);
 	} else if (keyboardState[SDL_SCANCODE_LSHIFT] || keyboardState[SDL_SCANCODE_RSHIFT]) {
 		keys.Insert (NUIE::ModifierKeyCode::Shift);
 	}

@@ -1,8 +1,7 @@
 #ifndef NUIE_GEOMETRY_HPP
 #define NUIE_GEOMETRY_HPP
 
-#include "NE_Serializable.hpp"
-#include "NE_Checksum.hpp"
+#include "NE_Stream.hpp"
 
 #include <vector>
 
@@ -151,11 +150,12 @@ private:
 	int height;
 };
 
-class BoundingRectCalculator
+class BoundingRect
 {
 public:
-	BoundingRectCalculator ();
+	BoundingRect ();
 
+	void			AddPoint (const Point& point);
 	void			AddRect (const Rect& rect);
 
 	bool			IsValid () const;
@@ -174,10 +174,6 @@ NE::Stream::Status WritePoint (NE::OutputStream& outputStream, const Point& poin
 NE::Stream::Status WriteSize (NE::OutputStream& outputStream, const Size& size);
 NE::Stream::Status WriteRect (NE::OutputStream& outputStream, const Rect& rect);
 
-void AddPointToChecksum (NE::Checksum& checksum, const Point& point);
-void AddSizeToChecksum (NE::Checksum& checksum, const Size& size);
-void AddRectToChecksum (NE::Checksum& checksum, const Rect& rect);
-
 bool IsEqual (double a, double b);
 bool IsLower (double a, double b);
 bool IsGreater (double a, double b);
@@ -186,7 +182,8 @@ bool IsEqual (const Point& a, const Point& b);
 bool IsEqual (const Size& a, const Size& b);
 bool IsEqual (const Rect& a, const Rect& b);
 
-std::vector<NUIE::Point> SegmentBezier (size_t segmentCount, const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4);
+std::vector<Point>	SegmentBezier (size_t segmentCount, const Point& p1, const Point& p2, const Point& p3, const Point& p4);
+Rect				GetBezierBoundingRect (const Point& p1, const Point& p2, const Point& p3, const Point& p4);
 
 }
 

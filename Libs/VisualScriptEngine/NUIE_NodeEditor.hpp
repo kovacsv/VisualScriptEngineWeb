@@ -26,13 +26,15 @@ public:
 	NodeEditor (NodeUIEnvironment& uiEnvironment);
 	virtual ~NodeEditor ();
 
-	void						OnMouseDown (const ModifierKeys& modifierKeys, MouseButton button, int x, int y);
-	void						OnMouseUp (const ModifierKeys& modifierKeys, MouseButton button, int x, int y);
-	void						OnMouseMove (const ModifierKeys& modifierKeys, int x, int y);
-	void						OnMouseWheel (const ModifierKeys& modifierKeys, MouseWheelRotation rotation, int x, int y);
-	void						OnMouseDoubleClick (const ModifierKeys& modifierKeys, MouseButton button, int x, int y);
+	void						OnMouseDown (const ModifierKeys& keys, MouseButton button, int posX, int posY);
+	void						OnMouseUp (const ModifierKeys& keys, MouseButton button, int posX, int posY);
+	void						OnMouseMove (const ModifierKeys& keys, int posX, int posY);
+	void						OnMouseWheel (const ModifierKeys& keys, MouseWheelRotation rotation, int posX, int posY);
+	void						OnMouseSwipe (const ModifierKeys& keys, int offsetX, int offsetY);
+	void						OnMouseDoubleClick (const ModifierKeys& keys, MouseButton button, int posX, int posY);
+	void						OnContextMenuRequest (int posX, int posY);
 	void						OnResize (int newWidth, int newHeight);
-	
+
 	UpdateMode					GetUpdateMode () const;
 	void						SetUpdateMode (UpdateMode newUpdateMode);
 	void						ManualUpdate ();

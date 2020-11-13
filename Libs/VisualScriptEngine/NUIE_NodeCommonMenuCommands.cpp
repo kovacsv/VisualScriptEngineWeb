@@ -200,7 +200,7 @@ void RedoMenuCommand::DoModification ()
 	uiManager.ExecuteCommand (command, uiEnvironment);
 }
 
-SetParametersMenuCommand::SetParametersMenuCommand (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UINodeConstPtr& currentNode, const NE::NodeCollection& relevantNodes) :
+SetNodeParametersMenuCommand::SetNodeParametersMenuCommand (NodeUIManager& uiManager, NodeUIEnvironment& uiEnvironment, const UINodeConstPtr& currentNode, const NE::NodeCollection& relevantNodes) :
 	SingleMenuCommand (NE::LocString (L"Node Settings"), false),
 	uiManager (uiManager),
 	uiEnvironment (uiEnvironment),
@@ -210,17 +210,17 @@ SetParametersMenuCommand::SetParametersMenuCommand (NodeUIManager& uiManager, No
 	DBGASSERT (relevantNodes.Contains (currentNode->GetId ()));
 }
 
-SetParametersMenuCommand::~SetParametersMenuCommand ()
+SetNodeParametersMenuCommand::~SetNodeParametersMenuCommand ()
 {
 
 }
 
-bool SetParametersMenuCommand::WillModify () const
+bool SetNodeParametersMenuCommand::WillModify () const
 {
 	return !relevantNodes.IsEmpty ();
 }
 
-void SetParametersMenuCommand::DoModification ()
+void SetNodeParametersMenuCommand::DoModification ()
 {
 	class NodeSelectionParameterInterface : public ParameterInterface
 	{
@@ -448,6 +448,9 @@ void SetGroupParametersMenuCommand::DoModification ()
 		virtual std::vector<std::wstring> GetParameterValueChoices (size_t index) const override
 		{
 			switch (index) {
+				case 0:
+					DBGBREAK ();
+					return {};
 				case 1:
 					{
 						std::vector<std::wstring> result;
@@ -1069,7 +1072,7 @@ MenuCommandStructure CreateNodeCommandStructure (NodeUIManager& uiManager, NodeU
 	NE::NodeCollection relevantNodes = GetNodesForCommand (uiManager, uiNode);
 	NodeCommandStructureBuilder commandStructureBuilder (uiManager, uiEnvironment, relevantNodes);
 
-	commandStructureBuilder.RegisterCommand (MenuCommandPtr (new SetParametersMenuCommand (uiManager, uiEnvironment, uiNode, relevantNodes)));
+	commandStructureBuilder.RegisterCommand (MenuCommandPtr (new SetNodeParametersMenuCommand (uiManager, uiEnvironment, uiNode, relevantNodes)));
 	uiNode->RegisterCommands (commandStructureBuilder);
 
 	commandStructureBuilder.RegisterCommand (MenuCommandPtr (new CopyNodesMenuCommand (uiManager, uiEnvironment, relevantNodes)));

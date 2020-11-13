@@ -1,4 +1,6 @@
 #include "NUIE_Geometry.hpp"
+#include "NE_Debug.hpp"
+
 #include <cmath>
 #include <algorithm>
 
@@ -409,13 +411,26 @@ int IntRect::GetHeight () const
 	return height;
 }
 
-BoundingRectCalculator::BoundingRectCalculator () :
+BoundingRect::BoundingRect () :
 	boundingRect (),
 	isValid (false)
 {
 }
 
-void BoundingRectCalculator::AddRect (const Rect& rect)
+void BoundingRect::AddPoint (const Point& point)
+{
+	if (!isValid) {
+		boundingRect = Rect::FromPositionAndSize (point, Size (0.0, 0.0));
+		isValid = true;
+	} else {
+		boundingRect = Rect::FromTwoPoints (
+			Point (std::min (point.GetX (), boundingRect.GetLeft ()), std::min (point.GetY (), boundingRect.GetTop ())),
+			Point (std::max (point.GetX (), boundingRect.GetRight ()), std::max (point.GetY (), boundingRect.GetBottom ()))
+		);
+	}
+}
+
+void BoundingRect::AddRect (const Rect& rect)
 {
 	if (!isValid) {
 		boundingRect = rect;
@@ -428,12 +443,12 @@ void BoundingRectCalculator::AddRect (const Rect& rect)
 	}
 }
 
-bool BoundingRectCalculator::IsValid () const
+bool BoundingRect::IsValid () const
 {
 	return isValid;
 }
 
-const Rect& BoundingRectCalculator::GetRect () const
+const Rect& BoundingRect::GetRect () const
 {
 	DBGASSERT (isValid);
 	return boundingRect;
@@ -491,24 +506,6 @@ NE::Stream::Status WriteRect (NE::OutputStream& outputStream, const Rect& rect)
 	return outputStream.GetStatus ();
 }
 
-void AddPointToChecksum (NE::Checksum& checksum, const Point& point)
-{
-	checksum.Add (point.GetX ());
-	checksum.Add (point.GetY ());
-}
-
-void AddSizeToChecksum (NE::Checksum& checksum, const Size& size)
-{
-	checksum.Add (size.GetWidth ());
-	checksum.Add (size.GetHeight ());
-}
-
-void AddRectToChecksum (NE::Checksum& checksum, const Rect& rect)
-{
-	AddPointToChecksum (checksum, rect.GetTopLeft ());
-	AddSizeToChecksum (checksum, rect.GetSize ());
-}
-
 bool IsEqual (double a, double b)
 {
 	return std::fabs (a - b) < EPS;
@@ -539,17 +536,27 @@ bool IsEqual (const Rect& a, const Rect& b)
 	return IsEqual (a.GetPosition (), b.GetPosition ()) && IsEqual (a.GetSize (), b.GetSize ());
 }
 
-std::vector<NUIE::Point> SegmentBezier (size_t segmentCount, const NUIE::Point& p1, const NUIE::Point& p2, const NUIE::Point& p3, const NUIE::Point& p4)
+std::vector<Point> SegmentBezier (size_t segmentCount, const Point& p1, const Point& p2, const Point& p3, const Point& p4)
 {
-	std::vector<NUIE::Point> points;
+	std::vector<Point> points;
 	double tStep = 1.0 / segmentCount;
 	for (size_t i = 0; i <= segmentCount; i++) {
 		double t = i * tStep;
 		double omt = 1.0 - t;
-		NUIE::Point pt = p1 * std::pow (omt, 3) + p2 * (3.0 * std::pow (omt, 2) * t) + p3 * (3.0 * omt * std::pow (t, 2)) + p4 * std::pow (t, 3);
+		Point pt = p1 * std::pow (omt, 3) + p2 * (3.0 * std::pow (omt, 2) * t) + p3 * (3.0 * omt * std::pow (t, 2)) + p4 * std::pow (t, 3);
 		points.push_back (pt);
 	}
 	return points;
+}
+
+Rect GetBezierBoundingRect (const Point& p1, const Point& p2, const Point& p3, const Point& p4)
+{
+	BoundingRect boundingRect;
+	boundingRect.AddPoint (p1);
+	boundingRect.AddPoint (p2);
+	boundingRect.AddPoint (p3);
+	boundingRect.AddPoint (p4);
+	return boundingRect.GetRect ();
 }
 
 }

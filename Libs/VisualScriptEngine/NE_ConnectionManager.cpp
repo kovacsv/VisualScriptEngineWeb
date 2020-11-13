@@ -68,9 +68,9 @@ bool ConnectionManager::IsOutputSlotConnectedToInputSlot (const OutputSlotConstP
 	return outputToInputConnections.HasConnection (outputSlot, inputSlot);
 }
 
-bool ConnectionManager::CanConnectMoreOutputSlotToInputSlot (const InputSlotConstPtr& inputSlot) const
+bool ConnectionManager::CanConnectOutputSlotToInputSlot (const InputSlotConstPtr& inputSlot) const
 {
-	if (inputSlot == nullptr) {
+	if (DBGERROR (inputSlot == nullptr)) {
 		return false;
 	}
 
@@ -79,14 +79,16 @@ bool ConnectionManager::CanConnectMoreOutputSlotToInputSlot (const InputSlotCons
 	bool canConnect = false;
 	switch (outputSlotConnectionMode) {
 		case OutputSlotConnectionMode::Disabled:
+			// it's not possible to connect to a disabled input slot
 			canConnect = false;
 			break;
 		case OutputSlotConnectionMode::Single:
-			// you can always connect to single input slot
+			// you can always connect to single input slot,
 			// the previous connection will be disconnected
 			canConnect = true;
 			break;
 		case OutputSlotConnectionMode::Multiple:
+			// you can always connect to multiple input slot
 			canConnect = true;
 			break;
 		default:
@@ -99,11 +101,11 @@ bool ConnectionManager::CanConnectMoreOutputSlotToInputSlot (const InputSlotCons
 
 bool ConnectionManager::CanConnectOutputSlotToInputSlot (const OutputSlotConstPtr& outputSlot, const InputSlotConstPtr& inputSlot) const
 {
-	if (outputSlot == nullptr || inputSlot == nullptr) {
+	if (DBGERROR (outputSlot == nullptr || inputSlot == nullptr)) {
 		return false;
 	}
 
-	if (!CanConnectMoreOutputSlotToInputSlot (inputSlot)) {
+	if (!CanConnectOutputSlotToInputSlot (inputSlot)) {
 		return false;
 	}
 

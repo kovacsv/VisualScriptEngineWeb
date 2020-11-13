@@ -11,6 +11,21 @@ namespace NE
 
 SERIALIZATION_INFO (NodeManager, 2);
 
+template <typename SlotListType, typename SlotType>
+static bool HasDuplicates (const SlotListType& slots)
+{
+	bool hasDuplicates = false;
+	std::unordered_set<SlotType> slotSet;
+	slots.Enumerate ([&] (const SlotType& slot) {
+		if (slotSet.find (slot) != slotSet.end ()) {
+			hasDuplicates = true;
+		}
+		slotSet.insert (slot);
+		return !hasDuplicates;
+	});
+	return hasDuplicates;
+}
+
 class NodeManagerNodeEvaluator : public NodeEvaluator
 {
 public:
@@ -92,6 +107,36 @@ private:
 	const NodeEvaluatorConstPtr&	newNodeEvaluator;
 	InitializationMode				initMode;
 };
+
+OutputSlotList::OutputSlotList ()
+{
+
+}
+
+OutputSlotList::~OutputSlotList ()
+{
+
+}
+
+bool OutputSlotList::IsEmpty () const
+{
+	return GetSize () == 0;
+}
+
+InputSlotList::InputSlotList ()
+{
+
+}
+
+InputSlotList::~InputSlotList ()
+{
+
+}
+
+bool InputSlotList::IsEmpty () const
+{
+	return GetSize () == 0;
+}
 
 NodeManager::NodeManager () :
 	idGenerator (),
@@ -210,9 +255,9 @@ bool NodeManager::IsOutputSlotConnectedToInputSlot (const OutputSlotConstPtr& ou
 	return connectionManager.IsOutputSlotConnectedToInputSlot (outputSlot, inputSlot);
 }
 
-bool NodeManager::CanConnectMoreOutputSlotToInputSlot (const InputSlotConstPtr& inputSlot) const
+bool NodeManager::CanConnectOutputSlotToInputSlot (const InputSlotConstPtr& inputSlot) const
 {
-	return connectionManager.CanConnectMoreOutputSlotToInputSlot (inputSlot);
+	return connectionManager.CanConnectOutputSlotToInputSlot (inputSlot);
 }
 
 bool NodeManager::CanConnectOutputSlotToInputSlot (const OutputSlotConstPtr& outputSlot, const InputSlotConstPtr& inputSlot) const
@@ -228,7 +273,7 @@ bool NodeManager::CanConnectOutputSlotToInputSlot (const OutputSlotConstPtr& out
 	NodeConstPtr outputNode = GetNode (outputSlot->GetOwnerNodeId ());
 	NodeConstPtr inputNode = GetNode (inputSlot->GetOwnerNodeId ());
 	if (DBGERROR (outputNode == nullptr || inputNode == nullptr)) {
-		return true;
+		return false;
 	}
 
 	bool willCreateCycle = false;
@@ -249,9 +294,55 @@ bool NodeManager::CanConnectOutputSlotToInputSlot (const OutputSlotConstPtr& out
 	return true;
 }
 
+bool NodeManager::CanConnectOutputSlotsToInputSlot (const OutputSlotList& outputSlots, const InputSlotConstPtr& inputSlot) const
+{
+	if (DBGERROR (outputSlots.IsEmpty () || inputSlot == nullptr)) {
+		return false;
+	}
+
+	if (HasDuplicates<OutputSlotList, OutputSlotConstPtr> (outputSlots)) {
+		return false;
+	}
+
+	if (outputSlots.GetSize () > 1 && inputSlot->GetOutputSlotConnectionMode () != OutputSlotConnectionMode::Multiple) {
+		return false;
+	}
+
+	bool canConnect = true;
+	outputSlots.Enumerate ([&] (const OutputSlotConstPtr& outputSlot) {
+		if (!CanConnectOutputSlotToInputSlot (outputSlot, inputSlot)) {
+			canConnect = false;
+		}
+		return canConnect;
+	});
+
+	return canConnect;
+}
+
+bool NodeManager::CanConnectOutputSlotToInputSlots (const OutputSlotConstPtr& outputSlot, const InputSlotList& inputSlots) const
+{
+	if (DBGERROR (outputSlot == nullptr || inputSlots.IsEmpty ())) {
+		return false;
+	}
+
+	if (HasDuplicates<InputSlotList, InputSlotConstPtr> (inputSlots)) {
+		return false;
+	}
+
+	bool canConnect = true;
+	inputSlots.Enumerate ([&] (const InputSlotConstPtr& inputSlot) {
+		if (!CanConnectOutputSlotToInputSlot (outputSlot, inputSlot)) {
+			canConnect = false;
+		}
+		return canConnect;
+	});
+	
+	return canConnect;
+}
+
 bool NodeManager::ConnectOutputSlotToInputSlot (const OutputSlotConstPtr& outputSlot, const InputSlotConstPtr& inputSlot)
 {
-	if (!CanConnectOutputSlotToInputSlot (outputSlot, inputSlot)) {
+	if (DBGERROR (!CanConnectOutputSlotToInputSlot (outputSlot, inputSlot))) {
 		return false;
 	}
 
@@ -259,10 +350,118 @@ bool NodeManager::ConnectOutputSlotToInputSlot (const OutputSlotConstPtr& output
 	return connectionManager.ConnectOutputSlotToInputSlot (outputSlot, inputSlot);
 }
 
+bool NodeManager::ConnectOutputSlotsToInputSlot (const OutputSlotList& outputSlots, const InputSlotConstPtr& inputSlot)
+{
+	if (DBGERROR (!CanConnectOutputSlotsToInputSlot (outputSlots, inputSlot))) {
+		return false;
+	}
+
+	bool success = true;
+	outputSlots.Enumerate ([&] (const OutputSlotConstPtr& outputSlot) {
+		if (DBGERROR (!ConnectOutputSlotToInputSlot (outputSlot, inputSlot))) {
+			success = false;
+		}
+		return success;
+	});
+
+	return success;
+}
+
+bool NodeManager::ConnectOutputSlotToInputSlots (const OutputSlotConstPtr& outputSlot, const InputSlotList& inputSlots)
+{
+	if (DBGERROR (!CanConnectOutputSlotToInputSlots (outputSlot, inputSlots))) {
+		return false;
+	}
+
+	bool success = true;
+	inputSlots.Enumerate ([&] (const InputSlotConstPtr& inputSlot) {
+		if (DBGERROR (!ConnectOutputSlotToInputSlot (outputSlot, inputSlot))) {
+			success = false;
+		}
+		return success;
+	});
+
+	return success;
+}
+
 bool NodeManager::DisconnectOutputSlotFromInputSlot (const OutputSlotConstPtr& outputSlot, const InputSlotConstPtr& inputSlot)
 {
+	if (DBGERROR (outputSlot == nullptr || inputSlot == nullptr)) {
+		return false;
+	}
+	
+	if (DBGERROR (!IsOutputSlotConnectedToInputSlot (outputSlot, inputSlot))) {
+		return false;
+	}
+
 	InvalidateNodeValue (GetNode (inputSlot->GetOwnerNodeId ()));
 	return connectionManager.DisconnectOutputSlotFromInputSlot (outputSlot, inputSlot);
+}
+
+bool NodeManager::DisconnectOutputSlotsFromInputSlot (const OutputSlotList& outputSlots, const InputSlotConstPtr& inputSlot)
+{
+	if (DBGERROR (outputSlots.IsEmpty () || inputSlot == nullptr)) {
+		return false;
+	}
+
+	bool hasDuplicates = HasDuplicates<OutputSlotList, OutputSlotConstPtr> (outputSlots);
+	if (DBGERROR (hasDuplicates)) {
+		return false;
+	}
+
+	bool canDisconnect = true;
+	outputSlots.Enumerate ([&] (const OutputSlotConstPtr& outputSlot) {
+		if (DBGERROR (!IsOutputSlotConnectedToInputSlot (outputSlot, inputSlot))) {
+			canDisconnect = false;
+		}
+		return canDisconnect;
+	});
+	if (DBGERROR (!canDisconnect)) {
+		return false;
+	}
+
+	bool success = true;
+	outputSlots.Enumerate ([&] (const OutputSlotConstPtr& outputSlot) {
+		if (DBGERROR (!DisconnectOutputSlotFromInputSlot (outputSlot, inputSlot))) {
+			success = false;
+		}
+		return success;
+	});
+
+	return success;
+}
+
+bool NodeManager::DisconnectOutputSlotFromInputSlots (const OutputSlotConstPtr& outputSlot, const InputSlotList& inputSlots)
+{
+	if (DBGERROR (outputSlot == nullptr || inputSlots.IsEmpty ())) {
+		return false;
+	}
+
+	bool hasDuplicates = HasDuplicates<InputSlotList, InputSlotConstPtr> (inputSlots);
+	if (DBGERROR (hasDuplicates)) {
+		return false;
+	}
+
+	bool canDisconnect = true;
+	inputSlots.Enumerate ([&] (const InputSlotConstPtr& inputSlot) {
+		if (DBGERROR (!IsOutputSlotConnectedToInputSlot (outputSlot, inputSlot))) {
+			canDisconnect = false;
+		}
+		return canDisconnect;
+	});
+	if (DBGERROR (!canDisconnect)) {
+		return false;
+	}
+
+	bool success = true;
+	inputSlots.Enumerate ([&] (const InputSlotConstPtr& inputSlot) {
+		if (DBGERROR (!DisconnectOutputSlotFromInputSlot (outputSlot, inputSlot))) {
+			success = false;
+		}
+		return success;
+	});
+
+	return success;
 }
 
 bool NodeManager::DisconnectAllInputSlotsFromOutputSlot (const OutputSlotConstPtr& outputSlot)
@@ -317,7 +516,7 @@ void NodeManager::EvaluateAllNodes (EvaluationEnv& env) const
 
 void NodeManager::ForceEvaluateAllNodes (EvaluationEnv& env) const
 {
-	NE::ValueGuard<bool> isForceCalculateGuard (isForceCalculate, true);
+	ValueGuard<bool> isForceCalculateGuard (isForceCalculate, true);
 	std::vector<NodeConstPtr> nodesToRecalculate;
 	EnumerateNodes ([&] (const NodeConstPtr& node) {
 		Node::CalculationStatus calcStatus = node->GetCalculationStatus ();
@@ -404,7 +603,7 @@ NodeGroupPtr NodeManager::AddNodeGroup (const NodeGroupPtr& group)
 	return AddUninitializedNodeGroup (group);
 }
 
-NE::NodeGroupPtr NodeManager::AddNodeGroup (const NodeGroupPtr& group, const NE::NodeGroupId& groupId)
+NodeGroupPtr NodeManager::AddNodeGroup (const NodeGroupPtr& group, const NodeGroupId& groupId)
 {
 	group->SetId (groupId);
 	nodeGroupList.AddGroup (group);
@@ -589,7 +788,7 @@ NodePtr NodeManager::AddInitializedNode (const NodePtr& node, IdHandlingPolicy i
 	return AddNode (node, setter);
 }
 
-NE::NodeGroupPtr NodeManager::AddUninitializedNodeGroup (const NodeGroupPtr& group)
+NodeGroupPtr NodeManager::AddUninitializedNodeGroup (const NodeGroupPtr& group)
 {
 	if (DBGERROR (group == nullptr || group->GetId () != NullNodeGroupId)) {
 		return nullptr;
@@ -599,7 +798,7 @@ NE::NodeGroupPtr NodeManager::AddUninitializedNodeGroup (const NodeGroupPtr& gro
 	return AddNodeGroup (group, newGroupId);
 }
 
-NE::NodeGroupPtr NodeManager::AddInitializedNodeGroup (const NodeGroupPtr& group, IdHandlingPolicy idHandling)
+NodeGroupPtr NodeManager::AddInitializedNodeGroup (const NodeGroupPtr& group, IdHandlingPolicy idHandling)
 {
 	if (DBGERROR (group == nullptr || group->GetId () == NullNodeGroupId)) {
 		return nullptr;
