@@ -29,13 +29,12 @@ public:
 class AddNodeCommand : public UndoableCommand
 {
 public:
-	AddNodeCommand (const UINodePtr& uiNode, NE::EvaluationEnv& evaluationEnv);
+	AddNodeCommand (const UINodePtr& uiNode);
 
 	virtual void Do (NodeUIManager& uiManager) override;
 
 private:
 	const UINodePtr&	uiNode;
-	NE::EvaluationEnv&	evaluationEnv;
 };
 
 class DeleteNodesCommand : public UndoableCommand
@@ -65,13 +64,12 @@ private:
 class MoveNodesWithOffsetsCommand : public UndoableCommand
 {
 public:
-	MoveNodesWithOffsetsCommand (const NE::NodeCollection& nodes, const std::vector<Point>& offsets);
+	MoveNodesWithOffsetsCommand (const std::unordered_map<NE::NodeId, Point>& offsets);
 
 	virtual void Do (NodeUIManager& uiManager) override;
 
 private:
-	const NE::NodeCollection&	nodes;
-	const std::vector<Point>&	offsets;
+	const std::unordered_map<NE::NodeId, Point>&	offsets;
 };
 
 class CopyMoveNodesCommand : public UndoableCommand

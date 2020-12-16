@@ -12,6 +12,9 @@ public:
 	NativeNodeEditorControl ();
 	virtual ~NativeNodeEditorControl ();
 
+	bool						IsInputHandlingEnabled () const;
+	virtual void				EnableInputHandling (bool enabled);
+
 	virtual bool				Init (NodeEditor* nodeEditorPtr, void* nativeParentHandle, int x, int y, int width, int height) = 0;
 	virtual void*				GetEditorNativeHandle () const = 0;
 	virtual bool				IsMouseOverEditorWindow () const = 0;
@@ -21,6 +24,9 @@ public:
 	virtual void				Draw () = 0;
 
 	virtual DrawingContext&		GetDrawingContext () = 0;
+
+private:
+	bool						inputHandlingEnabled;
 };
 
 using NativeNodeEditorControlPtr = std::shared_ptr<NativeNodeEditorControl>;

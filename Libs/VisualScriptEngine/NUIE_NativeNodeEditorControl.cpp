@@ -3,7 +3,8 @@
 namespace NUIE
 {
 
-NativeNodeEditorControl::NativeNodeEditorControl ()
+NativeNodeEditorControl::NativeNodeEditorControl () :
+	inputHandlingEnabled (true)
 {
 
 }
@@ -11,6 +12,16 @@ NativeNodeEditorControl::NativeNodeEditorControl ()
 NativeNodeEditorControl::~NativeNodeEditorControl ()
 {
 
+}
+
+bool NativeNodeEditorControl::IsInputHandlingEnabled () const
+{
+	return inputHandlingEnabled;
+}
+
+void NativeNodeEditorControl::EnableInputHandling (bool enabled)
+{
+	inputHandlingEnabled = enabled;
 }
 
 }

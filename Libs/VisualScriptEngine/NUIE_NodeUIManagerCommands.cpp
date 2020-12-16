@@ -34,16 +34,15 @@ bool NotUndoableCommand::IsUndoable () const
 	return false;
 }
 
-AddNodeCommand::AddNodeCommand (const UINodePtr& uiNode, NE::EvaluationEnv& evaluationEnv) :
+AddNodeCommand::AddNodeCommand (const UINodePtr& uiNode) :
 	UndoableCommand (),
-	uiNode (uiNode),
-	evaluationEnv (evaluationEnv)
+	uiNode (uiNode)
 {
 }
 
 void AddNodeCommand::Do (NodeUIManager& uiManager)
 {
-	uiManager.AddNode (uiNode, evaluationEnv);
+	uiManager.AddNode (uiNode);
 }
 
 DeleteNodesCommand::DeleteNodesCommand (NodeUIEnvironment& uiEnvironment, const NE::NodeCollection& nodes) :
@@ -82,21 +81,17 @@ void MoveNodesCommand::Do (NodeUIManager& uiManager)
 	uiManager.RequestRedraw ();
 }
 
-MoveNodesWithOffsetsCommand::MoveNodesWithOffsetsCommand (const NE::NodeCollection& nodes, const std::vector<Point>& offsets) :
+MoveNodesWithOffsetsCommand::MoveNodesWithOffsetsCommand (const std::unordered_map<NE::NodeId, Point>& offsets) :
 	UndoableCommand (),
-	nodes (nodes),
 	offsets (offsets)
 {
 }
 
 void MoveNodesWithOffsetsCommand::Do (NodeUIManager& uiManager)
 {
-	if (DBGERROR (nodes.Count () != offsets.size ())) {
-		return;
-	}
-	for (size_t i = 0; i < nodes.Count (); i++) {
-		const NE::NodeId& nodeId = nodes.Get (i);
-		const Point& offset = offsets[i];
+	for (const auto& nodeOffset : offsets) {
+		const NE::NodeId& nodeId = nodeOffset.first;
+		const Point& offset = nodeOffset.second;
 		UINodePtr uiNode = uiManager.GetNode (nodeId);
 		uiNode->SetPosition (uiNode->GetPosition () + offset);
 		uiManager.InvalidateNodeGroupDrawing (uiNode);

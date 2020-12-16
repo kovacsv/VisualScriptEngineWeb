@@ -119,7 +119,7 @@ void NodeEditor::Draw ()
 
 void NodeEditor::AddNode (const UINodePtr& uiNode)
 {
-	AddNodeCommand command (uiNode, uiEnvironment.GetEvaluationEnv ());
+	AddNodeCommand command (uiNode);
 	uiManager.ExecuteCommand (command, uiEnvironment);
 	Update ();
 }
@@ -128,6 +128,12 @@ void NodeEditor::ConnectOutputSlotToInputSlot (const UIOutputSlotConstPtr& outpu
 {
 	ConnectSlotsCommand command (outputSlot, inputSlot);
 	uiManager.ExecuteCommand (command, uiEnvironment);
+	Update ();
+}
+
+void NodeEditor::InvalidateAllDrawings ()
+{
+	uiManager.InvalidateAllDrawings ();
 	Update ();
 }
 
