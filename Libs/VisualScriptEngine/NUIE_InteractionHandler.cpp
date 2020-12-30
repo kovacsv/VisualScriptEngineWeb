@@ -11,27 +11,6 @@
 namespace NUIE
 {
 
-static void EnumerateInternalConnections (NodeUIDrawingEnvironment& drawingEnv, const NodeUIManager& uiManager, const NE::NodeCollection& nodes, const std::function<void (const Point&, const Point&)>& processor)
-{
-	nodes.Enumerate ([&] (const NE::NodeId& nodeId) {
-		UINodeConstPtr inputNode = uiManager.GetNode (nodeId);
-		inputNode->EnumerateUIInputSlots ([&] (const UIInputSlotConstPtr& inputSlot) {
-			NE::SlotInfo inputSlotInfo (inputSlot->GetOwnerNodeId (), inputSlot->GetId ());
-			uiManager.EnumerateConnectedUIOutputSlots (inputSlot, [&] (const UIOutputSlotConstPtr outputSlot) {
-				if (nodes.Contains (outputSlot->GetOwnerNodeId ())) {
-					UINodeConstPtr outputNode = uiManager.GetNode (outputSlot->GetOwnerNodeId ());
-					processor (
-						outputNode->GetOutputSlotConnPosition (drawingEnv, outputSlot->GetId ()),
-						inputNode->GetInputSlotConnPosition (drawingEnv, inputSlot->GetId ())
-					);
-				}
-			});
-			return true;
-		});
-		return true;
-	});
-}
-
 class PanningHandler : public MouseMoveHandler
 {
 public:
@@ -90,7 +69,7 @@ public:
 			selection.Clear ();
 		}
 		std::unordered_set<UINodePtr> nodesToSelect;
-		uiManager.EnumerateNodes ([&] (const UINodePtr& uiNode) {
+		uiManager.EnumerateNodes ([&] (UINodePtr uiNode) {
 			const NE::NodeId& uiNodeId = uiNode->GetId ();
 			Rect nodeRect = uiNode->GetRect (uiEnvironment);
 			if (modelSelectionRect.Contains (nodeRect)) {
@@ -206,8 +185,13 @@ public:
 		uiManager (uiManager),
 		relevantNodes (relevantNodes)
 	{
-		EnumerateInternalConnections (drawingEnv, uiManager, relevantNodes, [&] (const Point& beg, const Point& end) {
-			temporaryConnections.push_back ({ beg, end });
+		uiManager.EnumerateUIConnections (relevantNodes, [&] (UIOutputSlotConstPtr outputSlot, UIInputSlotConstPtr inputSlot) {
+			UINodeConstPtr outputNode = uiManager.GetNode (outputSlot->GetOwnerNodeId ());
+			UINodeConstPtr inputNode = uiManager.GetNode (inputSlot->GetOwnerNodeId ());
+			temporaryConnections.push_back ({
+				outputNode->GetOutputSlotConnPosition (drawingEnv, outputSlot->GetId ()),
+				inputNode->GetInputSlotConnPosition (drawingEnv, inputSlot->GetId ())
+			});
 		});
 	}
 
@@ -439,7 +423,7 @@ void InteractionHandler::ExecuteCommand (NodeUIEnvironment& uiEnvironment, Comma
 		case CommandCode::SelectAll:
 			{
 				Selection allSelection;
-				uiManager.EnumerateNodes ([&] (const UINodeConstPtr& uiNode) {
+				uiManager.EnumerateNodes ([&] (UINodeConstPtr uiNode) {
 					allSelection.AddNode (uiNode->GetId ());
 					return true;
 				});
@@ -507,11 +491,11 @@ void InteractionHandler::HandleContextMenuRequest (NodeUIEnvironment& uiEnvironm
 	EventHandler& eventHandler = uiEnvironment.GetEventHandler ();
 	MenuCommandPtr selectedCommand;
 	bool found = FindItemUnderPosition (uiManager, uiEnvironment, position,
-		[&] (const UIInputSlotConstPtr& foundInputSlot) {
+		[&] (const UIInputSlotPtr& foundInputSlot) {
 			MenuCommandStructure commands = CreateInputSlotCommandStructure (uiManager, uiEnvironment, foundInputSlot);
 			selectedCommand = eventHandler.OnContextMenu (EventHandler::ContextMenuType::InputSlot, position, commands);
 		},
-		[&] (const UIOutputSlotConstPtr& foundOutputSlot) {
+		[&] (const UIOutputSlotPtr& foundOutputSlot) {
 			MenuCommandStructure commands = CreateOutputSlotCommandStructure (uiManager, uiEnvironment, foundOutputSlot);
 			selectedCommand = eventHandler.OnContextMenu (EventHandler::ContextMenuType::OutputSlot, position, commands);
 		},
@@ -547,7 +531,7 @@ EventHandlerResult InteractionHandler::HandleMouseDragStart (NodeUIEnvironment& 
 				if (modifierKeys.Contains (ModifierKeyCode::Command)) {
 					if (uiManager.HasConnectedOutputSlots (foundInputSlot)) {
 						std::vector<ConnectionStartOutputSlot> foundOutputSlots;
-						uiManager.EnumerateConnectedUIOutputSlots (foundInputSlot, [&] (const UIOutputSlotConstPtr& outputSlot) {
+						uiManager.EnumerateConnectedUIOutputSlots (foundInputSlot, [&] (UIOutputSlotConstPtr outputSlot) {
 							UINodeConstPtr outputNode = uiManager.GetNode (outputSlot->GetOwnerNodeId ());
 							Point outputSlotPosition = outputNode->GetOutputSlotConnPosition (uiEnvironment, outputSlot->GetId ());
 							foundOutputSlots.push_back (ConnectionStartOutputSlot (outputSlot, outputSlotPosition));
@@ -570,7 +554,7 @@ EventHandlerResult InteractionHandler::HandleMouseDragStart (NodeUIEnvironment& 
 				if (modifierKeys.Contains (ModifierKeyCode::Command)) {
 					if (uiManager.HasConnectedInputSlots (foundOutputSlot)) {
 						std::vector<ConnectionStartInputSlot> foundInputSlots;
-						uiManager.EnumerateConnectedUIInputSlots (foundOutputSlot, [&] (const UIInputSlotConstPtr& inputSlot) {
+						uiManager.EnumerateConnectedUIInputSlots (foundOutputSlot, [&] (UIInputSlotConstPtr inputSlot) {
 							UINodeConstPtr inputNode = uiManager.GetNode (inputSlot->GetOwnerNodeId ());
 							Point inputSlotPosition = inputNode->GetInputSlotConnPosition (uiEnvironment, inputSlot->GetId ());
 							foundInputSlots.push_back (ConnectionStartInputSlot (inputSlot, inputSlotPosition));

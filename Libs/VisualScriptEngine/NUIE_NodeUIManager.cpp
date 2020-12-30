@@ -160,6 +160,16 @@ Rect NodeUIManagerNodeRectGetter::GetNodeRect (const NE::NodeId& nodeId) const
 	return uiNode->GetRect (drawingEnv);
 }
 
+UINodeFilter::UINodeFilter ()
+{
+
+}
+
+UINodeFilter::~UINodeFilter ()
+{
+
+}
+
 UIOutputSlotList::UIOutputSlotList () :
 	NE::OutputSlotList ()
 {
@@ -371,16 +381,6 @@ size_t NodeUIManager::GetConnectedOutputSlotCount (const UIInputSlotConstPtr& in
 	return nodeManager.GetConnectedOutputSlotCount (inputSlot);
 }
 
-void NodeUIManager::EnumerateConnectedInputSlots (const NE::OutputSlotConstPtr& outputSlot, const std::function<void (const NE::InputSlotConstPtr&)>& processor) const
-{
-	nodeManager.EnumerateConnectedInputSlots (outputSlot, processor);
-}
-
-void NodeUIManager::EnumerateConnectedOutputSlots (const NE::InputSlotConstPtr& inputSlot, const std::function<void (const NE::OutputSlotConstPtr&)>& processor) const
-{
-	nodeManager.EnumerateConnectedOutputSlots (inputSlot, processor);
-}
-
 void NodeUIManager::EnumerateConnectedUIInputSlots (const UIOutputSlotConstPtr& outputSlot, const std::function<void (UIInputSlotConstPtr)>& processor) const
 {
 	nodeManager.EnumerateConnectedInputSlots (outputSlot, [&] (const NE::InputSlotConstPtr& inputSlot) {
@@ -395,9 +395,41 @@ void NodeUIManager::EnumerateConnectedUIOutputSlots (const UIInputSlotConstPtr& 
 	});
 }
 
+void NodeUIManager::EnumerateUIConnections (const std::function<void (UIOutputSlotConstPtr, UIInputSlotConstPtr)>& processor) const
+{
+	nodeManager.EnumerateConnections ([&] (const NE::OutputSlotConstPtr& outputSlot, const NE::InputSlotConstPtr& inputSlot) {
+		processor (
+			std::dynamic_pointer_cast<const UIOutputSlot> (outputSlot),
+			std::dynamic_pointer_cast<const UIInputSlot> (inputSlot)
+		);
+	});
+}
+
+void NodeUIManager::EnumerateUIConnections (const NE::NodeCollection& nodes, const std::function<void (UIOutputSlotConstPtr, UIInputSlotConstPtr)>& processor) const
+{
+	nodeManager.EnumerateConnections (nodes, [&] (const NE::OutputSlotConstPtr& outputSlot, const NE::InputSlotConstPtr& inputSlot) {
+		processor (
+			std::dynamic_pointer_cast<const UIOutputSlot> (outputSlot),
+			std::dynamic_pointer_cast<const UIInputSlot> (inputSlot)
+		);
+	});
+}
+
 bool NodeUIManager::ContainsNode (const NE::NodeId& nodeId) const
 {
 	return nodeManager.ContainsNode (nodeId);
+}
+
+std::vector<NUIE::UINodeConstPtr> NodeUIManager::FindNodes (const UINodeFilter& nodeFilter) const
+{
+	std::vector<NUIE::UINodeConstPtr> result;
+	EnumerateNodes ([&] (UINodeConstPtr uiNode) {
+		if (nodeFilter.IsMatch (uiNode)) {
+			result.push_back (uiNode);
+		}
+		return true;
+	});
+	return result;
 }
 
 UINodePtr NodeUIManager::GetNode (const NE::NodeId& nodeId)
@@ -412,16 +444,16 @@ UINodeConstPtr NodeUIManager::GetNode (const NE::NodeId& nodeId) const
 	return std::dynamic_pointer_cast<const UINode> (node);
 }
 
-void NodeUIManager::EnumerateNodes (const std::function<bool (const UINodePtr&)>& processor)
+void NodeUIManager::EnumerateNodes (const std::function<bool (UINodePtr)>& processor)
 {
-	nodeManager.EnumerateNodes ([&] (const NE::NodePtr& node) {
+	nodeManager.EnumerateNodes ([&] (NE::NodePtr node) {
 		return processor (std::static_pointer_cast<UINode> (node));
 	});
 }
 
-void NodeUIManager::EnumerateNodes (const std::function<bool (const UINodeConstPtr&)>& processor) const
+void NodeUIManager::EnumerateNodes (const std::function<bool (UINodeConstPtr)>& processor) const
 {
-	nodeManager.EnumerateNodes ([&] (const NE::NodeConstPtr& node) {
+	nodeManager.EnumerateNodes ([&] (NE::NodeConstPtr node) {
 		return processor (std::static_pointer_cast<const UINode> (node));
 	});
 }
@@ -450,7 +482,7 @@ void NodeUIManager::InvalidateAllDrawings ()
 
 void NodeUIManager::InvalidateAllNodesDrawing ()
 {
-	EnumerateNodes ([&] (const UINodePtr& uiNode) {
+	EnumerateNodes ([&] (UINodePtr uiNode) {
 		uiNode->InvalidateDrawing ();
 		return true;
 	});
@@ -459,7 +491,7 @@ void NodeUIManager::InvalidateAllNodesDrawing ()
 
 void NodeUIManager::InvalidateAllNodeGroupsDrawing ()
 {
-	EnumerateNodeGroups ([&] (const UINodeGroupConstPtr& group) {
+	EnumerateNodeGroups ([&] (UINodeGroupConstPtr group) {
 		group->InvalidateGroupDrawing ();
 		return true;
 	});
@@ -538,14 +570,14 @@ void NodeUIManager::ResizeContext (NodeUIDrawingEnvironment& drawingEnv, int new
 bool NodeUIManager::GetBoundingRect (NodeUIDrawingEnvironment& drawingEnv, Rect& rect) const
 {
 	BoundingRect boundingRect;
-	EnumerateNodes ([&] (const UINodeConstPtr& uiNode) {
-		Rect nodeRect = GetNodeExtendedRect (drawingEnv, uiNode.get ());
+	EnumerateNodes ([&] (UINodeConstPtr uiNode) {
+		Rect nodeRect = GetNodeExtendedRect (drawingEnv, uiNode);
 		boundingRect.AddRect (nodeRect);
 		return true;
 	});
 
 	NodeUIManagerNodeRectGetter nodeRectGetter (*this, drawingEnv);
-	EnumerateNodeGroups ([&] (const UINodeGroupConstPtr& uiGroup) {
+	EnumerateNodeGroups ([&] (UINodeGroupConstPtr uiGroup) {
 		Rect groupRect = uiGroup->GetRect (drawingEnv, nodeRectGetter, GetGroupNodes (uiGroup));
 		boundingRect.AddRect (groupRect);
 		return true;
@@ -772,16 +804,16 @@ UINodeGroupConstPtr NodeUIManager::GetNodeGroup (const NE::NodeId& nodeId) const
 	return std::static_pointer_cast<const UINodeGroup> (nodeManager.GetNodeGroup (nodeId));
 }
 
-void NodeUIManager::EnumerateNodeGroups (const std::function<bool (const UINodeGroupConstPtr&)>& processor) const
+void NodeUIManager::EnumerateNodeGroups (const std::function<bool (UINodeGroupConstPtr)>& processor) const
 {
-	nodeManager.EnumerateNodeGroups ([&] (const NE::NodeGroupConstPtr& nodeGroup) {
+	nodeManager.EnumerateNodeGroups ([&] (NE::NodeGroupConstPtr nodeGroup) {
 		return processor (std::static_pointer_cast<const UINodeGroup> (nodeGroup));
 	});
 }
 
-void NodeUIManager::EnumerateNodeGroups (const std::function<bool (const UINodeGroupPtr&)>& processor)
+void NodeUIManager::EnumerateNodeGroups (const std::function<bool (UINodeGroupPtr)>& processor)
 {
-	nodeManager.EnumerateNodeGroups ([&] (const NE::NodeGroupPtr& nodeGroup) {
+	nodeManager.EnumerateNodeGroups ([&] (NE::NodeGroupPtr nodeGroup) {
 		return processor (std::static_pointer_cast<UINodeGroup> (nodeGroup));
 	});
 }
@@ -823,7 +855,7 @@ void NodeUIManager::Clear (NodeUIEnvironment& uiEnvironment)
 void NodeUIManager::InvalidateDrawingsForInvalidatedNodes ()
 {
 	std::vector<UINodePtr> nodesToInvalidate;
-	EnumerateNodes ([&] (const UINodePtr& uiNode) {
+	EnumerateNodes ([&] (UINodePtr uiNode) {
 		NE::Node::CalculationStatus calcStatus = uiNode->GetCalculationStatus ();
 		if (calcStatus == NE::Node::CalculationStatus::NeedToCalculate || calcStatus == NE::Node::CalculationStatus::NeedToCalculateButDisabled) {
 			nodesToInvalidate.push_back (uiNode);

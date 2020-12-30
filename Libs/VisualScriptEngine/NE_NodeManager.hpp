@@ -26,7 +26,7 @@ public:
 
 	bool			IsEmpty () const;
 	virtual size_t	GetSize () const = 0;
-	virtual void	Enumerate (const std::function<bool (const OutputSlotConstPtr&)>& processor) const = 0;
+	virtual void	Enumerate (const std::function<bool (OutputSlotConstPtr)>& processor) const = 0;
 };
 
 class InputSlotList
@@ -37,19 +37,20 @@ public:
 
 	bool			IsEmpty () const;
 	virtual size_t	GetSize () const = 0;
-	virtual void	Enumerate (const std::function<bool (const InputSlotConstPtr&)>& processor) const = 0;
+	virtual void	Enumerate (const std::function<bool (InputSlotConstPtr)>& processor) const = 0;
 };
 
 class NodeManager
 {
 	SERIALIZABLE;
 	friend class NodeManagerMerge;
+	friend class NodeManagerSerialization;
 
 public:
 	enum class UpdateMode
 	{
-		Automatic,
-		Manual
+		Automatic	= 0,
+		Manual		= 1
 	};
 
 	NodeManager ();
@@ -63,10 +64,11 @@ public:
 	void					Clear ();
 	bool					IsEmpty () const;
 	size_t					GetNodeCount () const;
+	size_t					GetNodeGroupCount () const;
 	size_t					GetConnectionCount () const;
 
-	void					EnumerateNodes (const std::function<bool (const NodePtr&)>& processor);
-	void					EnumerateNodes (const std::function<bool (const NodeConstPtr&)>& processor) const;
+	void					EnumerateNodes (const std::function<bool (NodePtr)>& processor);
+	void					EnumerateNodes (const std::function<bool (NodeConstPtr)>& processor) const;
 
 	bool					ContainsNode (const NodeId& id) const;
 	NodeConstPtr			GetNode (const NodeId& id) const;
@@ -97,6 +99,8 @@ public:
 	size_t					GetConnectedInputSlotCount (const OutputSlotConstPtr& outputSlot) const;
 	void					EnumerateConnectedOutputSlots (const InputSlotConstPtr& inputSlot, const std::function<void (const OutputSlotConstPtr&)>& processor) const;
 	void					EnumerateConnectedInputSlots (const OutputSlotConstPtr& outputSlot, const std::function<void (const InputSlotConstPtr&)>& processor) const;
+	void					EnumerateConnections (const std::function<void (const OutputSlotConstPtr&, const InputSlotConstPtr&)>& processor) const;
+	void					EnumerateConnections (const NodeCollection& nodes, const std::function<void (const OutputSlotConstPtr&, const InputSlotConstPtr&)>& processor) const;
 
 	void					EvaluateAllNodes (EvaluationEnv& env) const;
 	void					ForceEvaluateAllNodes (EvaluationEnv& env) const;
@@ -112,6 +116,8 @@ public:
 	void					EnumerateDependentNodes (const NodeConstPtr& node, const std::function<void (const NodeConstPtr&)>& processor) const;
 	void					EnumerateDependentNodesRecursive (const NodeConstPtr& node, const std::function<void (const NodeConstPtr&)>& processor) const;
 
+	bool					ContainsNodeGroup (const NodeGroupId& groupId) const;
+	
 	NodeGroupPtr			AddNodeGroup (const NodeGroupPtr& group);
 	void					DeleteNodeGroup (const NodeGroupId& groupId);
 	void					AddNodeToGroup (const NodeGroupId& groupId, const NodeId& nodeId);
@@ -120,8 +126,8 @@ public:
 	NodeGroupConstPtr		GetNodeGroup (const NodeId& nodeId) const;
 	const NodeCollection&	GetGroupNodes (const NodeGroupId& groupId) const;
 
-	void					EnumerateNodeGroups (const std::function<bool (const NodeGroupConstPtr&)>& processor) const;
-	void					EnumerateNodeGroups (const std::function<bool (const NodeGroupPtr&)>& processor);
+	void					EnumerateNodeGroups (const std::function<bool (NodeGroupConstPtr)>& processor) const;
+	void					EnumerateNodeGroups (const std::function<bool (NodeGroupPtr)>& processor);
 	void					DeleteAllNodeGroups ();
 
 	bool					IsCalculationEnabled () const;
@@ -136,25 +142,21 @@ public:
 	static bool				WriteToBuffer (const NodeManager& nodeManager, std::vector<char>& buffer);
 
 private:
-	enum class IdHandlingPolicy
+	enum class IdPolicy
 	{
-		KeepOriginalId,
-		GenerateNewId
+		KeepOriginal,
+		GenerateNew
 	};
 
-	NodePtr				AddNode (const NodePtr& node, const NodeEvaluatorSetter& setter);
-	NodePtr				AddUninitializedNode (const NodePtr& node);
-	NodePtr				AddInitializedNode (const NodePtr& node, IdHandlingPolicy idHandling);
+	enum class InitPolicy
+	{
+		Initialize,
+		DoNotInitialize
+	};
 
-	NodeGroupPtr		AddNodeGroup (const NodeGroupPtr& group, const NodeGroupId& groupId);
-	NodeGroupPtr		AddUninitializedNodeGroup (const NodeGroupPtr& group);
-	NodeGroupPtr		AddInitializedNodeGroup (const NodeGroupPtr& group, IdHandlingPolicy idHandling);
-
-	Stream::Status		ReadNodes (InputStream& inputStream);
-	Stream::Status		WriteNodes (OutputStream& outputStream) const;
-
-	Stream::Status		ReadGroups (InputStream& inputStream, const ObjectVersion& version);
-	Stream::Status		WriteGroups (OutputStream& outputStream) const;
+	NodePtr				AddNode (const NodePtr& node, IdPolicy idHandling, InitPolicy initPolicy);
+	NodeGroupPtr		AddNodeGroup (const NodeGroupPtr& group, IdPolicy idHandling);
+	void				MakeNodesAndGroupsSorted ();
 
 	UniqueIdGenerator						idGenerator;
 	NodeList								nodeList;

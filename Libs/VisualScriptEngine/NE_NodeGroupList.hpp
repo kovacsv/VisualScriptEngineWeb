@@ -3,6 +3,7 @@
 
 #include "NE_NodeGroup.hpp"
 #include "NE_OrderedMap.hpp"
+#include "NE_NodeCollection.hpp"
 
 #include <memory>
 #include <unordered_map>
@@ -25,6 +26,7 @@ public:
 
 	bool					AddGroup (const NodeGroupPtr& group);
 	void					DeleteGroup (const NodeGroupId& groupId);
+	void					MakeSorted ();
 
 	void					AddNodeToGroup (const NodeGroupId& groupId, const NodeId& nodeId);
 	void					RemoveNodeFromGroup (const NodeId& nodeId);
@@ -34,8 +36,8 @@ public:
 
 	void					Clear ();
 
-	void					Enumerate (const std::function<bool (const NodeGroupConstPtr&)>& processor) const;
-	void					Enumerate (const std::function<bool (const NodeGroupPtr&)>& processor);
+	void					Enumerate (const std::function<bool (NodeGroupConstPtr)>& processor) const;
+	void					Enumerate (const std::function<bool (NodeGroupPtr)>& processor);
 
 private:
 	OrderedMap<NodeGroupId, NodeGroupPtr>				groups;

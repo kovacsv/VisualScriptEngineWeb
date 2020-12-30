@@ -74,15 +74,13 @@ public:
 	Rect ();
 	Rect (double x, double y, double width, double height);
 
-	double	GetX () const;
-	double	GetY () const;
-	double	GetWidth () const;
-	double	GetHeight () const;
-
 	double	GetLeft () const;
 	double	GetRight () const;
 	double	GetTop () const;
 	double	GetBottom () const;
+
+	double	GetWidth () const;
+	double	GetHeight () const;
 
 	Point	GetCenter () const;
 	Point	GetLeftCenter () const;
@@ -102,6 +100,8 @@ public:
 
 	Rect	Offset (const Point& p) const;
 	Rect	Expand (const Size& s) const;
+	Rect	ExpandHorizontally (double left, double right) const;
+	Rect	ExpandVertically (double top, double bottom) const;
 
 	bool	operator== (const Rect& r) const;
 	bool	operator!= (const Rect& r) const;
@@ -138,10 +138,15 @@ public:
 	IntRect (int x, int y, int width, int height);
 	IntRect (const Rect& rect);
 
-	int		GetX () const;
-	int		GetY () const;
-	int		GetWidth () const;
-	int		GetHeight () const;
+	int			GetLeft () const;
+	int			GetRight () const;
+	int			GetTop () const;
+	int			GetBottom () const;
+
+	int			GetWidth () const;
+	int			GetHeight () const;
+
+	IntPoint	GetCenter () const;
 
 private:
 	int x;

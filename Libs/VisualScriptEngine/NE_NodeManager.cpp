@@ -5,11 +5,12 @@
 #include "NE_InputSlot.hpp"
 #include "NE_OutputSlot.hpp"
 #include "NE_MemoryStream.hpp"
+#include "NE_NodeManagerSerialization.hpp"
 
 namespace NE
 {
 
-SERIALIZATION_INFO (NodeManager, 2);
+SERIALIZATION_INFO (NodeManager, 4);
 
 template <typename SlotListType, typename SlotType>
 static bool HasDuplicates (const SlotListType& slots)
@@ -76,38 +77,6 @@ private:
 	NodeValueCache&		nodeValueCache;
 };
 
-class NodeManagerNodeEvaluatorSetter : public NodeEvaluatorSetter
-{
-public:
-	NodeManagerNodeEvaluatorSetter (const NodeId& newNodeId, const NodeEvaluatorConstPtr& newNodeEvaluator, InitializationMode initMode) :
-		newNodeId (newNodeId),
-		newNodeEvaluator (newNodeEvaluator),
-		initMode (initMode)
-	{
-		
-	}
-
-	virtual const NodeId& GetNodeId () const override
-	{
-		return newNodeId;
-	}
-
-	virtual const NodeEvaluatorConstPtr& GetNodeEvaluator () const override
-	{
-		return newNodeEvaluator;
-	}
-
-	virtual InitializationMode GetInitializationMode () const override
-	{
-		return initMode;
-	}
-
-private:
-	const NodeId&					newNodeId;
-	const NodeEvaluatorConstPtr&	newNodeEvaluator;
-	InitializationMode				initMode;
-};
-
 OutputSlotList::OutputSlotList ()
 {
 
@@ -158,16 +127,20 @@ NodeManager::~NodeManager ()
 
 void NodeManager::Clear ()
 {
+	idGenerator.Clear ();
 	nodeList.Clear ();
 	connectionManager.Clear ();
 	nodeGroupList.Clear ();
-	nodeValueCache.Clear ();
 	updateMode = UpdateMode::Automatic;
+
+	nodeValueCache.Clear ();
+	nodeEvaluator.reset (new NodeManagerNodeEvaluator (*this, nodeValueCache));
+	isForceCalculate = false;
 }
 
 bool NodeManager::IsEmpty () const
 {
-	return nodeList.IsEmpty () && connectionManager.IsEmpty ();
+	return nodeList.IsEmpty () && nodeGroupList.IsEmpty () && connectionManager.IsEmpty ();
 }
 
 size_t NodeManager::GetNodeCount () const
@@ -175,17 +148,22 @@ size_t NodeManager::GetNodeCount () const
 	return nodeList.Count ();
 }
 
+size_t NodeManager::GetNodeGroupCount () const
+{
+	return nodeGroupList.Count ();
+}
+
 size_t NodeManager::GetConnectionCount () const
 {
 	return connectionManager.GetConnectionCount ();
 }
 
-void NodeManager::EnumerateNodes (const std::function<bool (const NodePtr&)>& processor)
+void NodeManager::EnumerateNodes (const std::function<bool (NodePtr)>& processor)
 {
 	nodeList.Enumerate (processor);
 }
 
-void NodeManager::EnumerateNodes (const std::function<bool (const NodeConstPtr&)>& processor) const
+void NodeManager::EnumerateNodes (const std::function<bool (NodeConstPtr)>& processor) const
 {
 	nodeList.Enumerate (processor);
 }
@@ -207,7 +185,7 @@ NodePtr NodeManager::GetNode (const NodeId& id)
 
 NodePtr NodeManager::AddNode (const NodePtr& node)
 {
-	return AddUninitializedNode (node);
+	return AddNode (node, IdPolicy::GenerateNew, InitPolicy::Initialize);
 }
 
 bool NodeManager::DeleteNode (const NodeId& id)
@@ -220,7 +198,7 @@ bool NodeManager::DeleteNode (const NodeId& id)
 
 bool NodeManager::DeleteNode (const NodePtr& node)
 {
-	if (DBGERROR (node == nullptr || node->GetId () == NullNodeId || !node->HasNodeEvaluator ())) {
+	if (DBGERROR (node == nullptr || !node->IsEvaluatorSet ())) {
 		return false;
 	}
 
@@ -231,18 +209,18 @@ bool NodeManager::DeleteNode (const NodePtr& node)
 	nodeGroupList.RemoveNodeFromGroup (node->GetId ());
 	node->InvalidateValue ();
 
-	node->EnumerateInputSlots ([&] (const InputSlotConstPtr& inputSlot) {
+	node->EnumerateInputSlots ([&] (InputSlotConstPtr inputSlot) {
 		connectionManager.DisconnectAllOutputSlotsFromInputSlot (inputSlot);
 		return true;
 	});
 
-	node->EnumerateOutputSlots ([&] (const OutputSlotConstPtr& outputSlot) {
+	node->EnumerateOutputSlots ([&] (OutputSlotConstPtr outputSlot) {
 		connectionManager.DisconnectAllInputSlotsFromOutputSlot (outputSlot);
 		return true;
 	});
 
 	nodeList.DeleteNode (node->GetId ());
-	node->ClearNodeEvaluator ();
+	node->ClearEvaluator ();
 
 	return true;
 }
@@ -357,7 +335,7 @@ bool NodeManager::ConnectOutputSlotsToInputSlot (const OutputSlotList& outputSlo
 	}
 
 	bool success = true;
-	outputSlots.Enumerate ([&] (const OutputSlotConstPtr& outputSlot) {
+	outputSlots.Enumerate ([&] (OutputSlotConstPtr outputSlot) {
 		if (DBGERROR (!ConnectOutputSlotToInputSlot (outputSlot, inputSlot))) {
 			success = false;
 		}
@@ -374,7 +352,7 @@ bool NodeManager::ConnectOutputSlotToInputSlots (const OutputSlotConstPtr& outpu
 	}
 
 	bool success = true;
-	inputSlots.Enumerate ([&] (const InputSlotConstPtr& inputSlot) {
+	inputSlots.Enumerate ([&] (InputSlotConstPtr inputSlot) {
 		if (DBGERROR (!ConnectOutputSlotToInputSlot (outputSlot, inputSlot))) {
 			success = false;
 		}
@@ -410,7 +388,7 @@ bool NodeManager::DisconnectOutputSlotsFromInputSlot (const OutputSlotList& outp
 	}
 
 	bool canDisconnect = true;
-	outputSlots.Enumerate ([&] (const OutputSlotConstPtr& outputSlot) {
+	outputSlots.Enumerate ([&] (OutputSlotConstPtr outputSlot) {
 		if (DBGERROR (!IsOutputSlotConnectedToInputSlot (outputSlot, inputSlot))) {
 			canDisconnect = false;
 		}
@@ -421,7 +399,7 @@ bool NodeManager::DisconnectOutputSlotsFromInputSlot (const OutputSlotList& outp
 	}
 
 	bool success = true;
-	outputSlots.Enumerate ([&] (const OutputSlotConstPtr& outputSlot) {
+	outputSlots.Enumerate ([&] (OutputSlotConstPtr outputSlot) {
 		if (DBGERROR (!DisconnectOutputSlotFromInputSlot (outputSlot, inputSlot))) {
 			success = false;
 		}
@@ -443,7 +421,7 @@ bool NodeManager::DisconnectOutputSlotFromInputSlots (const OutputSlotConstPtr& 
 	}
 
 	bool canDisconnect = true;
-	inputSlots.Enumerate ([&] (const InputSlotConstPtr& inputSlot) {
+	inputSlots.Enumerate ([&] (InputSlotConstPtr inputSlot) {
 		if (DBGERROR (!IsOutputSlotConnectedToInputSlot (outputSlot, inputSlot))) {
 			canDisconnect = false;
 		}
@@ -454,7 +432,7 @@ bool NodeManager::DisconnectOutputSlotFromInputSlots (const OutputSlotConstPtr& 
 	}
 
 	bool success = true;
-	inputSlots.Enumerate ([&] (const InputSlotConstPtr& inputSlot) {
+	inputSlots.Enumerate ([&] (InputSlotConstPtr inputSlot) {
 		if (DBGERROR (!DisconnectOutputSlotFromInputSlot (outputSlot, inputSlot))) {
 			success = false;
 		}
@@ -506,9 +484,38 @@ void NodeManager::EnumerateConnectedInputSlots (const OutputSlotConstPtr& output
 	connectionManager.EnumerateConnectedInputSlots (outputSlot, processor);
 }
 
+void NodeManager::EnumerateConnections (const std::function<void (const OutputSlotConstPtr&, const InputSlotConstPtr&)>& processor) const
+{
+	nodeList.Enumerate ([&] (const NodeConstPtr& node) {
+		node->EnumerateOutputSlots ([&] (OutputSlotConstPtr outputSlot) {
+			connectionManager.EnumerateConnectedInputSlots (outputSlot, [&] (const InputSlotConstPtr& inputSlot) {
+				processor (outputSlot, inputSlot);
+			});
+			return true;
+		});
+		return true;
+	});
+}
+
+void NodeManager::EnumerateConnections (const NodeCollection& nodes, const std::function<void (const OutputSlotConstPtr&, const InputSlotConstPtr&)>& processor) const
+{
+	nodes.Enumerate ([&] (const NodeId& nodeId) {
+		NodeConstPtr node = GetNode (nodeId);
+		node->EnumerateOutputSlots ([&] (OutputSlotConstPtr outputSlot) {
+			connectionManager.EnumerateConnectedInputSlots (outputSlot, [&] (const InputSlotConstPtr& inputSlot) {
+				if (nodes.Contains (inputSlot->GetOwnerNodeId ())) {
+					processor (outputSlot, inputSlot);
+				}
+			});
+			return true;
+		});
+		return true;
+	});
+}
+
 void NodeManager::EvaluateAllNodes (EvaluationEnv& env) const
 {
-	EnumerateNodes ([&] (const NodeConstPtr& node) {
+	EnumerateNodes ([&] (NodeConstPtr node) {
 		node->Evaluate (env);
 		return true;
 	});
@@ -518,7 +525,7 @@ void NodeManager::ForceEvaluateAllNodes (EvaluationEnv& env) const
 {
 	ValueGuard<bool> isForceCalculateGuard (isForceCalculate, true);
 	std::vector<NodeConstPtr> nodesToRecalculate;
-	EnumerateNodes ([&] (const NodeConstPtr& node) {
+	EnumerateNodes ([&] (NodeConstPtr node) {
 		Node::CalculationStatus calcStatus = node->GetCalculationStatus ();
 		DBGASSERT (calcStatus != Node::CalculationStatus::NeedToCalculateButDisabled);
 		if (calcStatus == Node::CalculationStatus::NeedToCalculate) {
@@ -551,7 +558,7 @@ void NodeManager::InvalidateNodeValue (const NodeConstPtr& node) const
 
 void NodeManager::EnumerateDependentNodes (const NodeConstPtr& node, const std::function<void (const NodeId&)>& processor) const
 {
-	node->EnumerateOutputSlots ([&] (const OutputSlotConstPtr& outputSlot) {
+	node->EnumerateOutputSlots ([&] (OutputSlotConstPtr outputSlot) {
 		if (connectionManager.HasConnectedInputSlots (outputSlot)) {
 			connectionManager.EnumerateConnectedInputSlots (outputSlot, [&] (const InputSlotConstPtr& inputSlot) {
 				processor (inputSlot->GetOwnerNodeId ());
@@ -598,16 +605,20 @@ void NodeManager::EnumerateDependentNodesRecursive (const NodeConstPtr& node, co
 	});
 }
 
-NodeGroupPtr NodeManager::AddNodeGroup (const NodeGroupPtr& group)
+bool NodeManager::ContainsNodeGroup (const NodeGroupId& groupId) const
 {
-	return AddUninitializedNodeGroup (group);
+	return nodeGroupList.Contains (groupId);
 }
 
-NodeGroupPtr NodeManager::AddNodeGroup (const NodeGroupPtr& group, const NodeGroupId& groupId)
+NodeGroupPtr NodeManager::AddNodeGroup (const NodeGroupPtr& group)
 {
-	group->SetId (groupId);
-	nodeGroupList.AddGroup (group);
-	return group;
+	return AddNodeGroup (group, IdPolicy::GenerateNew);
+}
+
+void NodeManager::MakeNodesAndGroupsSorted ()
+{
+	nodeList.MakeSorted ();
+	nodeGroupList.MakeSorted ();
 }
 
 void NodeManager::DeleteNodeGroup (const NodeGroupId& groupId)
@@ -636,12 +647,12 @@ const NodeCollection& NodeManager::GetGroupNodes (const NodeGroupId& groupId) co
 	return nodeGroupList.GetGroupNodes (groupId);
 }
 
-void NodeManager::EnumerateNodeGroups (const std::function<bool (const NodeGroupConstPtr&)>& processor) const
+void NodeManager::EnumerateNodeGroups (const std::function<bool (NodeGroupConstPtr)>& processor) const
 {
 	nodeGroupList.Enumerate (processor);
 }
 
-void NodeManager::EnumerateNodeGroups (const std::function<bool (const NodeGroupPtr&)>& processor)
+void NodeManager::EnumerateNodeGroups (const std::function<bool (NodeGroupPtr)>& processor)
 {
 	nodeGroupList.Enumerate (processor);
 }
@@ -668,46 +679,12 @@ void NodeManager::SetUpdateMode (UpdateMode newUpdateMode)
 
 Stream::Status NodeManager::Read (InputStream& inputStream)
 {
-	if (DBGERROR (!IsEmpty ())) {
-		return Stream::Status::Error;
-	}
-
-	ObjectHeader header (inputStream);
-	idGenerator.Read (inputStream);
-
-	Stream::Status nodeStatus = ReadNodes (inputStream);
-	if (DBGERROR (nodeStatus != Stream::Status::NoError)) {
-		return nodeStatus;
-	}
-
-	Stream::Status groupStatus = ReadGroups (inputStream, header.GetVersion ());
-	if (DBGERROR (groupStatus != Stream::Status::NoError)) {
-		return groupStatus;
-	}
-	
-	ReadEnum (inputStream, updateMode);
-
-	return inputStream.GetStatus ();
+	return NodeManagerSerialization::Read (*this, inputStream);
 }
 
 Stream::Status NodeManager::Write (OutputStream& outputStream) const
 {
-	ObjectHeader header (outputStream, serializationInfo);
-	idGenerator.Write (outputStream);
-
-	Stream::Status nodeStatus = WriteNodes (outputStream);
-	if (DBGERROR (nodeStatus != Stream::Status::NoError)) {
-		return nodeStatus;
-	}
-
-	Stream::Status groupStatus = WriteGroups (outputStream);
-	if (DBGERROR (groupStatus != Stream::Status::NoError)) {
-		return groupStatus;
-	}
-
-	WriteEnum (outputStream, updateMode);
-
-	return outputStream.GetStatus ();
+	return NodeManagerSerialization::Write (*this, outputStream);
 }
 
 bool NodeManager::Clone (const NodeManager& source, NodeManager& target)
@@ -748,195 +725,65 @@ bool NodeManager::WriteToBuffer (const NodeManager& nodeManager, std::vector<cha
 	return true;
 }
 
-NodePtr NodeManager::AddNode (const NodePtr& node, const NodeEvaluatorSetter& setter)
+NE::NodePtr NodeManager::AddNode (const NodePtr& node, IdPolicy idPolicy, InitPolicy initPolicy)
 {
-	if (DBGERROR (ContainsNode (setter.GetNodeId ()))) {
+	if (DBGERROR (node == nullptr || node->IsEvaluatorSet ())) {
 		return nullptr;
 	}
-	node->SetNodeEvaluator (setter);
-	nodeList.AddNode (node->GetId (), node);
+
+	NodeId nodeId;
+	if (idPolicy == IdPolicy::KeepOriginal) {
+		nodeId = node->GetId ();
+	} else if (idPolicy == IdPolicy::GenerateNew) {
+		nodeId = idGenerator.GenerateNodeId ();
+	} else {
+		DBGBREAK ();
+		return nullptr;
+	}
+
+	if (DBGERROR (ContainsNode (nodeId))) {
+		return nullptr;
+	}
+
+	node->SetId (nodeId);
+	node->SetEvaluator (nodeEvaluator);
+	if (initPolicy == InitPolicy::Initialize) {
+		node->Initialize ();
+	}
+
+	if (DBGERROR (!nodeList.AddNode (node->GetId (), node))) {
+		return nullptr;
+	}
+
 	return node;
 }
 
-NodePtr NodeManager::AddUninitializedNode (const NodePtr& node)
+NE::NodeGroupPtr NodeManager::AddNodeGroup (const NodeGroupPtr& group, IdPolicy idHandling)
 {
-	if (DBGERROR (node == nullptr || node->HasNodeEvaluator () || node->GetId () != NullNodeId)) {
+	if (DBGERROR (group == nullptr)) {
 		return nullptr;
 	}
 
-	NodeId newNodeId = idGenerator.GenerateNodeId ();
-	NodeManagerNodeEvaluatorSetter setter (newNodeId, nodeEvaluator, InitializationMode::Initialize);
-	return AddNode (node, setter);
-}
-
-NodePtr NodeManager::AddInitializedNode (const NodePtr& node, IdHandlingPolicy idHandling)
-{
-	if (DBGERROR (node == nullptr || node->HasNodeEvaluator () || node->GetId () == NullNodeId)) {
-		return nullptr;
-	}
-
-	NodeId newNodeId;
-	if (idHandling == IdHandlingPolicy::KeepOriginalId) {
-		newNodeId = node->GetId ();
-	} else if (idHandling == IdHandlingPolicy::GenerateNewId) {
-		newNodeId = idGenerator.GenerateNodeId ();
+	NodeGroupId groupId;
+	if (idHandling == IdPolicy::KeepOriginal) {
+		groupId = group->GetId ();
+	} else if (idHandling == IdPolicy::GenerateNew) {
+		groupId = idGenerator.GenerateNodeGroupId ();
 	} else {
 		DBGBREAK ();
-	}
-
-	NodeManagerNodeEvaluatorSetter setter (newNodeId, nodeEvaluator, InitializationMode::DoNotInitialize);
-	return AddNode (node, setter);
-}
-
-NodeGroupPtr NodeManager::AddUninitializedNodeGroup (const NodeGroupPtr& group)
-{
-	if (DBGERROR (group == nullptr || group->GetId () != NullNodeGroupId)) {
 		return nullptr;
 	}
 
-	NodeGroupId newGroupId = idGenerator.GenerateNodeGroupId ();
-	return AddNodeGroup (group, newGroupId);
-}
-
-NodeGroupPtr NodeManager::AddInitializedNodeGroup (const NodeGroupPtr& group, IdHandlingPolicy idHandling)
-{
-	if (DBGERROR (group == nullptr || group->GetId () == NullNodeGroupId)) {
+	if (DBGERROR (ContainsNodeGroup (groupId))) {
 		return nullptr;
 	}
 
-	NodeGroupId newGroupId;
-	if (idHandling == IdHandlingPolicy::KeepOriginalId) {
-		newGroupId = group->GetId ();
-	} else if (idHandling == IdHandlingPolicy::GenerateNewId) {
-		newGroupId = idGenerator.GenerateNodeGroupId ();
-	} else {
-		DBGBREAK ();
+	group->SetId (groupId);
+	if (DBGERROR (!nodeGroupList.AddGroup (group))) {
+		return nullptr;
 	}
 
-	return AddNodeGroup (group, newGroupId);
-}
-
-Stream::Status NodeManager::ReadNodes (InputStream& inputStream)
-{
-	std::unordered_map<NodeId, NodeId> oldToNewNodeIdTable;
-
-	size_t nodeCount = 0;
-	inputStream.Read (nodeCount);
-	for (size_t i = 0; i < nodeCount; ++i) {
-		NodePtr node (ReadDynamicObject<Node> (inputStream));
-		NodeId oldNodeId = node->GetId ();
-		NodePtr addedNode = AddInitializedNode (node, IdHandlingPolicy::KeepOriginalId);
-		if (DBGERROR (addedNode == nullptr)) {
-			return Stream::Status::Error;
-		}
-		oldToNewNodeIdTable.insert ({ oldNodeId, addedNode->GetId () });
-	}
-
-	size_t connectionCount = 0;
-	inputStream.Read (connectionCount);
-	for (size_t i = 0; i < connectionCount; ++i) {
-		NodeId outputNodeId;
-		SlotId outputSlotId;
-		NodeId inputNodeId;
-		SlotId inputSlotId;
-		
-		outputNodeId.Read (inputStream);
-		outputSlotId.Read (inputStream);
-		inputNodeId.Read (inputStream);
-		inputSlotId.Read (inputStream);
-
-		NodePtr outputNode = GetNode (oldToNewNodeIdTable[outputNodeId]);
-		NodePtr inputNode = GetNode (oldToNewNodeIdTable[inputNodeId]);
-		if (DBGERROR (outputNode == nullptr || inputNode == nullptr)) {
-			return Stream::Status::Error;
-		}
-		if (DBGERROR (!ConnectOutputSlotToInputSlot (outputNode->GetOutputSlot (outputSlotId), inputNode->GetInputSlot (inputSlotId)))) {
-			return Stream::Status::Error;
-		}
-	}
-
-	return inputStream.GetStatus ();
-}
-
-Stream::Status NodeManager::WriteNodes (OutputStream& outputStream) const
-{
-	std::vector<NodeConstPtr> nodesToWrite;
-	EnumerateNodes ([&] (const NodeConstPtr& node) {
-		nodesToWrite.push_back (node);
-		return true;
-	});
-
-	outputStream.Write (nodesToWrite.size ());
-	for (const NodeConstPtr& node : nodesToWrite) {
-		WriteDynamicObject (outputStream, node.get ());
-	};
-
-	std::vector<ConnectionInfo> connectionsToWrite;
-	for (const NodeConstPtr& node : nodesToWrite) {
-		node->EnumerateInputSlots ([&] (const InputSlotConstPtr& inputSlot) {
-			EnumerateConnectedOutputSlots (inputSlot, [&] (const OutputSlotConstPtr& outputSlot) {
-				ConnectionInfo connection (
-					SlotInfo (outputSlot->GetOwnerNodeId (), outputSlot->GetId ()),
-					SlotInfo (inputSlot->GetOwnerNodeId (), inputSlot->GetId ())
-				);
-				connectionsToWrite.push_back (connection);
-			});
-			return true;
-		});
-	}
-
-	outputStream.Write (connectionsToWrite.size ());
-	for (const ConnectionInfo& connection : connectionsToWrite) {
-		connection.GetOutputNodeId ().Write (outputStream);
-		connection.GetOutputSlotId ().Write (outputStream);
-		connection.GetInputNodeId ().Write (outputStream);
-		connection.GetInputSlotId ().Write (outputStream);
-	}
-
-	return outputStream.GetStatus ();
-}
-
-Stream::Status NodeManager::ReadGroups (InputStream& inputStream, const ObjectVersion& version)
-{
-	DBGASSERT (nodeGroupList.IsEmpty ());
-	if (version < 2) {
-		ObjectHeader legacyGroupListHeader (inputStream);
-		if (DBGERROR (legacyGroupListHeader.GetVersion () != 1)) {
-			return Stream::Status::Error;
-		}
-	}
-
-	size_t groupCount = 0;
-	inputStream.Read (groupCount);
-	for (size_t i = 0; i < groupCount; i++) {
-		NodeGroupPtr group (ReadDynamicObject<NodeGroup> (inputStream));
-		if (version < 2) {
-			AddUninitializedNodeGroup (group);
-		} else {
-			AddInitializedNodeGroup (group, IdHandlingPolicy::KeepOriginalId);
-		}
-
-		NodeCollection nodes;
-		nodes.Read (inputStream);
-		nodes.Enumerate ([&] (const NodeId& nodeId) {
-			nodeGroupList.AddNodeToGroup (group->GetId (), nodeId);
-			return true;
-		});
-	}
-
-	return inputStream.GetStatus ();
-}
-
-Stream::Status NodeManager::WriteGroups (OutputStream& outputStream) const
-{
-	outputStream.Write (nodeGroupList.Count ());
-	nodeGroupList.Enumerate ([&] (const NodeGroupConstPtr& group) {
-		WriteDynamicObject (outputStream, group.get ());
-		const NodeCollection& nodes = nodeGroupList.GetGroupNodes (group->GetId ());
-		nodes.Write (outputStream);
-		return true;
-	});
-	return outputStream.GetStatus ();
+	return group;
 }
 
 }

@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "NE_MemoryStream.hpp"
+#include "NUIE_FeatureSet.hpp"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -173,6 +174,7 @@ void Application::Init (const std::string& windowName)
 	window = SDL_CreateWindow (windowName.c_str (), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, InitialWindowWidth, InitialWindowHeight, 0);
 	renderer = SDL_CreateRenderer (window, -1, 0);
 	
+	NUIE::EnableFeature (NUIE::Feature::ConnectionDisplay, true);
 	uiEnvironment.Init (renderer, &nodeEditor);
 	SetAppForBrowser (this);
 	

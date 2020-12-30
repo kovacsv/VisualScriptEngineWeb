@@ -125,30 +125,11 @@ static std::vector<SlotInfo> GetConnectedOutputSlots (const NodeManager& nodeMan
 	return result;
 }
 
-static void EnumerateInternalConnections (const NodeManager& nodeManager, const NodeCollection& nodes, const std::function<void (const ConnectionInfo&)>& processor)
-{
-	nodes.Enumerate ([&] (const NodeId& nodeId) {
-		NodeConstPtr node = nodeManager.GetNode (nodeId);
-		node->EnumerateInputSlots ([&] (const InputSlotConstPtr& inputSlot) {
-			SlotInfo inputSlotInfo (inputSlot->GetOwnerNodeId (), inputSlot->GetId ());
-			nodeManager.EnumerateConnectedOutputSlots (inputSlot, [&] (const OutputSlotConstPtr& outputSlot) {
-				if (nodes.Contains (outputSlot->GetOwnerNodeId ())) {
-					SlotInfo outputSlotInfo (outputSlot->GetOwnerNodeId (), outputSlot->GetId ());
-					ConnectionInfo connection (outputSlotInfo, inputSlotInfo);
-					processor (connection);
-				}
-			});
-			return true;
-		});
-		return true;
-	});
-}
-
 bool NodeManagerMerge::AppendNodeManager (const NodeManager& source, NodeManager& target, const NodeFilter& nodeFilter, AppendEventHandler& eventHandler)
 {
 	// collect nodes to create
 	NodeCollection nodesToClone;
-	source.EnumerateNodes ([&] (const NodeConstPtr& node) {
+	source.EnumerateNodes ([&] (NodeConstPtr node) {
 		NodeId nodeId = node->GetId ();
 		if (!nodeFilter.NeedToProcessSourceNode (nodeId)) {
 			return true;
@@ -162,7 +143,7 @@ bool NodeManagerMerge::AppendNodeManager (const NodeManager& source, NodeManager
 	nodesToClone.Enumerate ([&] (const NodeId& nodeId) {
 		NodeConstPtr sourceNode = source.GetNode (nodeId);
 		NodePtr targetNode = Node::Clone (sourceNode);
-		target.AddInitializedNode (targetNode, NodeManager::IdHandlingPolicy::GenerateNewId);
+		target.AddNode (targetNode, NodeManager::IdPolicy::GenerateNew, NodeManager::InitPolicy::DoNotInitialize);
 		oldToNewNodeIdTable.insert ({ sourceNode->GetId (), targetNode->GetId () });
 		eventHandler.TargetNodeAdded (targetNode->GetId ());
 		return true;
@@ -170,15 +151,15 @@ bool NodeManagerMerge::AppendNodeManager (const NodeManager& source, NodeManager
 
 	// maintain connections between added nodes
 	bool success = true;
-	EnumerateInternalConnections (source, nodesToClone, [&] (const ConnectionInfo& connection) {
-		NodeConstPtr outputNode = target.GetNode (oldToNewNodeIdTable[connection.GetOutputNodeId ()]);
-		NodeConstPtr inputNode = target.GetNode (oldToNewNodeIdTable[connection.GetInputNodeId ()]);
+	source.EnumerateConnections (nodesToClone, [&] (const OutputSlotConstPtr& oldOutputSlot, const InputSlotConstPtr& oldInputSlot) {
+		NodeConstPtr outputNode = target.GetNode (oldToNewNodeIdTable[oldOutputSlot->GetOwnerNodeId ()]);
+		NodeConstPtr inputNode = target.GetNode (oldToNewNodeIdTable[oldInputSlot->GetOwnerNodeId ()]);
 		if (DBGERROR (outputNode == nullptr || inputNode == nullptr)) {
 			success = false;
 			return;
 		}
-		OutputSlotConstPtr outputSlot = outputNode->GetOutputSlot (connection.GetOutputSlotId ());
-		InputSlotConstPtr inputSlot = inputNode->GetInputSlot (connection.GetInputSlotId ());
+		OutputSlotConstPtr outputSlot = outputNode->GetOutputSlot (oldOutputSlot->GetId ());
+		InputSlotConstPtr inputSlot = inputNode->GetInputSlot (oldInputSlot->GetId ());
 		if (DBGERROR (outputSlot == nullptr || inputSlot == nullptr)) {
 			success = false;
 			return;
@@ -197,7 +178,7 @@ bool NodeManagerMerge::UpdateNodeManager (const NodeManager& source, NodeManager
 	// collect nodes to create or delete
 	std::vector<NodeId> nodesToCreate;
 	std::vector<NodeId> nodesToDelete;
-	source.EnumerateNodes ([&] (const NodeConstPtr& sourceNode) {
+	source.EnumerateNodes ([&] (NodeConstPtr sourceNode) {
 		if (target.ContainsNode (sourceNode->GetId ())) {
 			NodeConstPtr targetNode = target.GetNode (sourceNode->GetId ());
 			if (!Node::IsEqual (sourceNode, targetNode)) {
@@ -209,7 +190,7 @@ bool NodeManagerMerge::UpdateNodeManager (const NodeManager& source, NodeManager
 		}
 		return true;
 	});
-	target.EnumerateNodes ([&] (const NodeConstPtr& targetNode) {
+	target.EnumerateNodes ([&] (NodeConstPtr targetNode) {
 		if (!source.ContainsNode (targetNode->GetId ())) {
 			nodesToDelete.push_back (targetNode->GetId ());
 		}
@@ -223,17 +204,17 @@ bool NodeManagerMerge::UpdateNodeManager (const NodeManager& source, NodeManager
 	}
 	for (const NodeId& nodeId : nodesToCreate) {
 		NodePtr cloned = Node::Clone (source.GetNode (nodeId));
-		target.AddInitializedNode (cloned, NodeManager::IdHandlingPolicy::KeepOriginalId);
+		target.AddNode (cloned, NodeManager::IdPolicy::KeepOriginal, NodeManager::InitPolicy::DoNotInitialize);
 	}
 
 	// collect input slots with changed connections
 	std::unordered_map<InputSlotConstPtr, std::vector<SlotInfo>> inputSlotsToReconnect;
-	target.EnumerateNodes ([&] (const NodeConstPtr& targetNode) {
+	target.EnumerateNodes ([&] (NodeConstPtr targetNode) {
 		if (!source.ContainsNode (targetNode->GetId ())) {
 			return true;
 		}
 		NodeConstPtr sourceNode = source.GetNode (targetNode->GetId ());
-		targetNode->EnumerateInputSlots ([&] (const InputSlotConstPtr& targetInputSlot) {
+		targetNode->EnumerateInputSlots ([&] (InputSlotConstPtr targetInputSlot) {
 			if (!sourceNode->HasInputSlot (targetInputSlot->GetId ())) {
 				return true;
 			}
@@ -262,9 +243,9 @@ bool NodeManagerMerge::UpdateNodeManager (const NodeManager& source, NodeManager
 
 	// recreate groups in target
 	target.DeleteAllNodeGroups ();
-	source.EnumerateNodeGroups ([&] (const NodeGroupConstPtr& sourceGroup) {
+	source.EnumerateNodeGroups ([&] (NodeGroupConstPtr sourceGroup) {
 		NodeGroupPtr targetGroup (NodeGroup::Clone (sourceGroup));
-		target.AddInitializedNodeGroup (targetGroup, NodeManager::IdHandlingPolicy::KeepOriginalId);
+		target.AddNodeGroup (targetGroup, NodeManager::IdPolicy::KeepOriginal);
 		const NodeCollection& sourceGroupNodes = source.GetGroupNodes (sourceGroup->GetId ());
 		sourceGroupNodes.Enumerate ([&] (const NodeId& sourceNodeId) {
 			if (target.ContainsNode (sourceNodeId)) {
@@ -275,6 +256,7 @@ bool NodeManagerMerge::UpdateNodeManager (const NodeManager& source, NodeManager
 		return true;
 	});
 
+	target.MakeNodesAndGroupsSorted ();
 	return true;
 }
 

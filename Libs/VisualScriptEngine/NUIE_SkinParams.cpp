@@ -42,6 +42,7 @@ BasicSkinParams::BasicSkinParams (
 	const Color&			slotTextColor,
 	const Color&			slotTextBackgroundColor,
 	SlotMarker				slotMarker,
+	HiddenSlotMarker		hiddenSlotMarker,
 	const Size&				slotMarkerSize,
 	const BlendColor&		disabledBlendColor,
 	const BlendColor&		selectionBlendColor,
@@ -73,6 +74,7 @@ BasicSkinParams::BasicSkinParams (
 	slotTextColor (slotTextColor),
 	slotTextBackgroundColor (slotTextBackgroundColor),
 	slotMarker (slotMarker),
+	hiddenSlotMarker (hiddenSlotMarker),
 	slotMarkerSize (slotMarkerSize),
 	disabledBlendColor (disabledBlendColor),
 	selectionBlendColor (selectionBlendColor),
@@ -180,6 +182,11 @@ SkinParams::SlotMarker BasicSkinParams::GetSlotMarker () const
 	return slotMarker;
 }
 
+SkinParams::HiddenSlotMarker BasicSkinParams::GetHiddenSlotMarker () const
+{
+	return hiddenSlotMarker;
+}
+
 const Size& BasicSkinParams::GetSlotMarkerSize () const
 {
 	return slotMarkerSize;
@@ -265,6 +272,7 @@ const BasicSkinParams& GetDefaultSkinParams ()
 		/*slotTextColor*/ NUIE::Color (0, 0, 0),
 		/*slotTextBackgroundColor*/ NUIE::Color (246, 246, 246),
 		/*slotMarker*/ NUIE::SkinParams::SlotMarker::None,
+		/*hiddenSlotMarker*/ NUIE::SkinParams::HiddenSlotMarker::None,
 		/*slotMarkerSize*/ NUIE::Size (8.0, 8.0),
 		/*selectionBlendColor*/ NUIE::BlendColor (NUIE::Color (41, 127, 255), 0.25),
 		/*disabledBlendColor*/ NUIE::BlendColor (NUIE::Color (0, 138, 184), 0.2),
@@ -281,7 +289,7 @@ const BasicSkinParams& GetDefaultSkinParams ()
 			{ NE::LocalizeString (L"Green"), NUIE::Color (160, 239, 160) },
 			{ NE::LocalizeString (L"Red"), NUIE::Color (239, 189, 160) }
 		}),
-		/*groupPadding*/ 10.0
+		/*groupPadding*/ 12.0
 	);
 	return defaultSkinParams;
 }

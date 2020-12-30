@@ -23,8 +23,8 @@ static SDL_Rect CreateRect (const NUIE::Rect& rect)
 {
 	SDL_Rect sdlRect;
 	NUIE::IntRect intRect (rect);
-	sdlRect.x = intRect.GetX ();
-	sdlRect.y = intRect.GetY ();
+	sdlRect.x = intRect.GetLeft ();
+	sdlRect.y = intRect.GetTop ();
 	sdlRect.w = intRect.GetWidth ();
 	sdlRect.h = intRect.GetHeight ();
 	return sdlRect;

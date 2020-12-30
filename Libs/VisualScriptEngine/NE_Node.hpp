@@ -34,22 +34,8 @@ public:
 	virtual void			SetCalculatedNodeValue (const NodeId& nodeId, const ValueConstPtr& valuePtr) const = 0;
 };
 
-enum class InitializationMode
-{
-	Initialize,
-	DoNotInitialize
-};
-
-class NodeEvaluatorSetter
-{
-public:
-	NodeEvaluatorSetter ();
-	virtual ~NodeEvaluatorSetter ();
-
-	virtual const NodeId&					GetNodeId () const = 0;
-	virtual const NodeEvaluatorConstPtr&	GetNodeEvaluator () const = 0;
-	virtual InitializationMode				GetInitializationMode () const = 0;
-};
+using NodeEvaluatorPtr = std::shared_ptr<NodeEvaluator>;
+using NodeEvaluatorConstPtr = std::shared_ptr<const NodeEvaluator>;
 
 class Node : public DynamicSerializable
 {
@@ -73,6 +59,7 @@ public:
 
 	bool					HasInputSlot (const SlotId& slotId) const;
 	bool					HasOutputSlot (const SlotId& slotId) const;
+	bool					IsInputSlotConnected (const SlotId& slotId) const;
 
 	InputSlotConstPtr		GetInputSlot (const SlotId& slotId) const;
 	OutputSlotConstPtr		GetOutputSlot (const SlotId& slotId) const;
@@ -80,8 +67,11 @@ public:
 	size_t					GetInputSlotCount () const;
 	size_t					GetOutputSlotCount () const;
 
-	void					EnumerateInputSlots (const std::function<bool (const InputSlotConstPtr&)>& processor) const;
-	void					EnumerateOutputSlots (const std::function<bool (const OutputSlotConstPtr&)>& processor) const;
+	void					EnumerateInputSlots (const std::function<bool (InputSlotPtr)>& processor);
+	void					EnumerateOutputSlots (const std::function<bool (OutputSlotPtr)>& processor);
+
+	void					EnumerateInputSlots (const std::function<bool (InputSlotConstPtr)>& processor) const;
+	void					EnumerateOutputSlots (const std::function<bool (OutputSlotConstPtr)>& processor) const;
 
 	ValueConstPtr			Evaluate (EvaluationEnv& env) const;
 	ValueConstPtr			GetCalculatedValue () const;
@@ -97,9 +87,6 @@ public:
 
 	static NodePtr			Clone (const NodeConstPtr& node);
 	static bool				IsEqual (const NodeConstPtr& aNode, const NodeConstPtr& bNode);
-
-	template <class SlotConstType>
-	void EnumerateSlots (const std::function<bool (const SlotConstType&)>& processor) const;
 
 	template <class Type>
 	static bool IsType (Node* node);
@@ -124,13 +111,11 @@ protected:
 	bool					RegisterOutputSlot (const OutputSlotPtr& newOutputSlot);
 	ValueConstPtr			EvaluateInputSlot (const SlotId& slotId, EvaluationEnv& env) const;
 
-	InputSlotPtr			GetModifiableInputSlot (const SlotId& slotId);
-	OutputSlotPtr			GetModifiableOutputSlot (const SlotId& slotId);
-
 private:
-	void					SetNodeEvaluator (const NodeEvaluatorSetter& evaluatorSetter);
-	bool					HasNodeEvaluator () const;
-	void					ClearNodeEvaluator ();
+	void					SetId (const NodeId& newNodeId);
+	void					SetEvaluator (const NodeEvaluatorConstPtr& newNodeEvaluator);
+	bool					IsEvaluatorSet () const;
+	void					ClearEvaluator ();
 
 	virtual void			Initialize () = 0;
 	virtual ValueConstPtr	Calculate (EvaluationEnv& env) const = 0;
@@ -141,10 +126,10 @@ private:
 	ValueConstPtr			EvaluateInputSlot (const InputSlotConstPtr& inputSlot, EvaluationEnv& env) const;
 
 	NodeId					nodeId;
-	NodeEvaluatorConstPtr	nodeEvaluator;
-
 	SlotList<InputSlot>		inputSlots;
 	SlotList<OutputSlot>	outputSlots;
+
+	NodeEvaluatorConstPtr	nodeEvaluator;
 };
 
 template <class Type>

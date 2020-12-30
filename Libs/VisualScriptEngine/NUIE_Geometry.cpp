@@ -178,26 +178,6 @@ Rect::Rect (double x, double y, double width, double height) :
 
 }
 
-double Rect::GetX () const
-{
-	return position.GetX ();
-}
-
-double Rect::GetY () const
-{
-	return position.GetY ();
-}
-
-double Rect::GetWidth () const
-{
-	return size.GetWidth ();
-}
-
-double Rect::GetHeight () const
-{
-	return size.GetHeight ();
-}
-
 double Rect::GetLeft () const
 {
 	return position.GetX ();
@@ -216,6 +196,16 @@ double Rect::GetTop () const
 double Rect::GetBottom () const
 {
 	return position.GetY () + size.GetHeight ();
+}
+
+double Rect::GetWidth () const
+{
+	return size.GetWidth ();
+}
+
+double Rect::GetHeight () const
+{
+	return size.GetHeight ();
 }
 
 Point Rect::GetCenter () const
@@ -290,8 +280,28 @@ Rect Rect::Offset (const Point& p) const
 
 Rect Rect::Expand (const Size& s) const
 {
-	Point sp (s.GetWidth (), s.GetHeight ());
-	return Rect::FromPositionAndSize (position - sp / 2.0, size + s);
+	Point positionOffset (s.GetWidth (), s.GetHeight ());
+	return Rect::FromPositionAndSize (position - positionOffset / 2.0, size + s);
+}
+
+Rect Rect::ExpandHorizontally (double left, double right) const
+{
+	return Rect (
+		position.GetX () - left,
+		position.GetY (),
+		size.GetWidth () + left + right,
+		size.GetHeight ()
+	);
+}
+
+Rect Rect::ExpandVertically (double top, double bottom) const
+{
+	return Rect (
+		position.GetX (),
+		position.GetY () - top,
+		size.GetWidth (),
+		size.GetHeight () + top + bottom
+	);
 }
 
 bool Rect::operator== (const Rect& r) const
@@ -348,8 +358,8 @@ IntPoint::IntPoint (int x, int y) :
 }
 
 IntPoint::IntPoint (const Point& point) :
-	x ((int) std::floor (point.GetX ()) - 1),
-	y ((int) std::floor (point.GetY ()) - 1)
+	x ((int) std::floor (point.GetX ())),
+	y ((int) std::floor (point.GetY ()))
 {
 
 }
@@ -383,22 +393,32 @@ IntRect::IntRect (int x, int y, int width, int height) :
 }
 
 IntRect::IntRect (const Rect& rect) :
-	x ((int) std::floor (rect.GetLeft ()) - 1),
-	y ((int) std::floor (rect.GetTop ()) - 1),
+	x ((int) std::floor (rect.GetLeft ())),
+	y ((int) std::floor (rect.GetTop ())),
 	width ((int) std::floor (rect.GetRight ()) - x),
 	height ((int) std::floor (rect.GetBottom ()) - y)
 {
 
 }
 
-int IntRect::GetX () const
+int IntRect::GetLeft () const
 {
 	return x;
 }
 
-int IntRect::GetY () const
+int IntRect::GetRight () const
+{
+	return x + width;
+}
+
+int IntRect::GetTop () const
 {
 	return y;
+}
+
+int IntRect::GetBottom () const
+{
+	return y + height;
 }
 
 int IntRect::GetWidth () const
@@ -409,6 +429,11 @@ int IntRect::GetWidth () const
 int IntRect::GetHeight () const
 {
 	return height;
+}
+
+NUIE::IntPoint IntRect::GetCenter () const
+{
+	return IntPoint (x + width / 2, y + height / 2);
 }
 
 BoundingRect::BoundingRect () :

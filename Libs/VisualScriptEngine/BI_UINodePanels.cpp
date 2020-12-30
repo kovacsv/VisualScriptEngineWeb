@@ -232,14 +232,14 @@ NodeUISlotPanel::NodeUISlotPanel (const NUIE::UINode& node, NUIE::NodeUIDrawingE
 {
 	const NUIE::SkinParams& skinParams = env.GetSkinParams ();
 
-	node.EnumerateUIInputSlots ([&] (const NUIE::UIInputSlotConstPtr& slot) {
+	node.EnumerateUIInputSlots ([&] (NUIE::UIInputSlotConstPtr slot) {
 		NUIE::Size slotRectSize = env.GetDrawingContext ().MeasureText (skinParams.GetNodeContentTextFont (), slot->GetName ().GetLocalized ());
 		slotRectSize = slotRectSize.Grow (2.0 * skinParams.GetNodePadding (), skinParams.GetNodePadding ());
 		inputSlots.AddSlotSize (slot->GetId (), slotRectSize);
 		return true;
 	});
 
-	node.EnumerateUIOutputSlots ([&] (const NUIE::UIOutputSlotConstPtr& slot) {
+	node.EnumerateUIOutputSlots ([&] (NUIE::UIOutputSlotConstPtr slot) {
 		NUIE::Size slotRectSize = env.GetDrawingContext ().MeasureText (skinParams.GetNodeContentTextFont (), slot->GetName ().GetLocalized ());
 		slotRectSize = slotRectSize.Grow (2.0 * skinParams.GetNodePadding (), skinParams.GetNodePadding ());
 		outputSlots.AddSlotSize (slot->GetId (), slotRectSize);
@@ -273,11 +273,24 @@ void NodeUISlotPanel::Draw (NUIE::NodeUIDrawingEnvironment& env, const NUIE::Rec
 		NUIE::Rect textRect = slotRect.Expand (NUIE::Size (2.0 * -nodePadding, -nodePadding));
 		drawingImage.AddInputSlotConnPosition (slotId, slotRect.GetLeftCenter ());
 		drawingImage.AddInputSlotRect (slotId, slotRect);
+
 		if (skinParams.GetSlotMarker () == NUIE::SkinParams::SlotMarker::Circle) {
-			NUIE::Rect connCircleRect = NUIE::Rect::FromCenterAndSize (slotRect.GetLeftCenter (), skinParams.GetSlotMarkerSize ());
-			drawingImage.AddItem (NUIE::DrawingItemConstPtr (new NUIE::DrawingFillEllipse (connCircleRect, skinParams.GetSlotTextBackgroundColor ())), NUIE::DrawingContext::ItemPreviewMode::HideInPreview);
-			drawingImage.AddItem (NUIE::DrawingItemConstPtr (new NUIE::DrawingEllipse (connCircleRect, skinParams.GetConnectionLinePen ())), NUIE::DrawingContext::ItemPreviewMode::HideInPreview);
+			NUIE::Rect markerRect = NUIE::Rect::FromCenterAndSize (slotRect.GetLeftCenter (), skinParams.GetSlotMarkerSize ());
+			drawingImage.AddItem (NUIE::DrawingItemConstPtr (new NUIE::DrawingFillEllipse (markerRect, skinParams.GetSlotTextBackgroundColor ())), NUIE::DrawingContext::ItemPreviewMode::HideInPreview);
+			drawingImage.AddItem (NUIE::DrawingItemConstPtr (new NUIE::DrawingEllipse (markerRect, skinParams.GetConnectionLinePen ())), NUIE::DrawingContext::ItemPreviewMode::HideInPreview);
 		}
+
+		if (skinParams.GetHiddenSlotMarker () == NUIE::SkinParams::HiddenSlotMarker::Arrow) {
+			bool hasHiddenConnection = (uiSlot->GetConnectionDisplayMode () == NUIE::ConnectionDisplayMode::Hidden && node.IsInputSlotConnected (uiSlot->GetId ()));
+			if (hasHiddenConnection) {
+				const NUIE::Size markerSize = skinParams.GetSlotMarkerSize ();
+				NUIE::Point hiddenConnectionCenter = slotRect.GetLeftCenter () - NUIE::Point (markerSize.GetWidth () / 3.0 * 2.0, 0.0);
+				NUIE::Rect markerRect = NUIE::Rect::FromCenterAndSize (hiddenConnectionCenter, skinParams.GetSlotMarkerSize ());
+				drawingImage.AddItem (NUIE::DrawingItemConstPtr (new NUIE::DrawingLine (markerRect.GetTopCenter (), markerRect.GetLeftCenter (), skinParams.GetConnectionLinePen ())), NUIE::DrawingContext::ItemPreviewMode::HideInPreview);
+				drawingImage.AddItem (NUIE::DrawingItemConstPtr (new NUIE::DrawingLine (markerRect.GetLeftCenter (), markerRect.GetBottomCenter (), skinParams.GetConnectionLinePen ())), NUIE::DrawingContext::ItemPreviewMode::HideInPreview);
+			}
+		}
+
 		drawingImage.AddItem (NUIE::DrawingItemConstPtr (new NUIE::DrawingFillRect (slotRect, skinParams.GetSlotTextBackgroundColor ())));
 		drawingImage.AddItem (NUIE::DrawingItemConstPtr (new NUIE::DrawingText (textRect, skinParams.GetNodeContentTextFont (), uiSlot->GetName ().GetLocalized (), NUIE::HorizontalAnchor::Left, NUIE::VerticalAnchor::Center, skinParams.GetSlotTextColor ())), NUIE::DrawingContext::ItemPreviewMode::HideInPreview);
 	});
@@ -312,10 +325,11 @@ NodeUILeftRightButtonsPanel::NodeUILeftRightButtonsPanel (	const std::string& le
 	panelText (panelText)
 {
 	const NUIE::SkinParams& skinParams = env.GetSkinParams ();
+	NUIE::DrawingContext& drawingContext = env.GetDrawingContext ();
 	double nodePadding = skinParams.GetNodePadding ();
-	leftButtonSize = env.GetDrawingContext ().MeasureText (skinParams.GetNodeContentTextFont (), leftButtonText).Grow (2.0 * nodePadding, nodePadding);
-	panelTextSize = env.GetDrawingContext ().MeasureText (skinParams.GetNodeContentTextFont (), panelText).Grow (2.0 * nodePadding, nodePadding);
-	rightButtonSize = env.GetDrawingContext ().MeasureText (skinParams.GetNodeContentTextFont (), rightButtonText).Grow (2.0 * nodePadding, nodePadding);
+	leftButtonSize = drawingContext.MeasureText (skinParams.GetNodeContentTextFont (), leftButtonText).Grow (2.0 * nodePadding, nodePadding);
+	panelTextSize = drawingContext.MeasureText (skinParams.GetNodeContentTextFont (), panelText).Grow (2.0 * nodePadding, nodePadding);
+	rightButtonSize = drawingContext.MeasureText (skinParams.GetNodeContentTextFont (), rightButtonText).Grow (2.0 * nodePadding, nodePadding);
 }
 
 NUIE::Size NodeUILeftRightButtonsPanel::GetMinSize (NUIE::NodeUIDrawingEnvironment& env) const
