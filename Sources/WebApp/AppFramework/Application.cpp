@@ -1,6 +1,6 @@
 #include "Application.hpp"
 #include "NE_MemoryStream.hpp"
-#include "NUIE_FeatureSet.hpp"
+#include "NUIE_FeatureToggle.hpp"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
