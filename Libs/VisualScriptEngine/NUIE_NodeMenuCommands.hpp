@@ -59,7 +59,7 @@ void NodeGroupCommand<CommandType>::AddChildCommand (const CommandType& command)
 }
 
 template <typename CommandType>
-void NodeGroupCommand<CommandType>::EnumerateChildCommands (const std::function<void(const CommandType&)>& processor)
+void NodeGroupCommand<CommandType>::EnumerateChildCommands (const std::function<void (const CommandType&)>& processor)
 {
 	for (const CommandType& command : childCommands) {
 		processor (command);
@@ -72,8 +72,8 @@ public:
 	NodeCommandBase (const NE::LocString& name, bool isChecked);
 	virtual ~NodeCommandBase ();
 
-	virtual std::wstring	GetName () const;
-	bool					IsChecked () const;
+	std::wstring	GetName () const;
+	bool			IsChecked () const;
 
 private:
 	NE::LocString	name;

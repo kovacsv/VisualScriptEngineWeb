@@ -204,8 +204,6 @@ private:
 
 int main (int, char**)
 {
-	setlocale (LC_ALL, "");
-
 	MyAppInterface appInterface;
 	Application app (appInterface);
 	app.Init ("VisualScriptEngineWeb");
